@@ -109,9 +109,3 @@ struct DayDestination: View {
         }
     }
 }
-
-// TEMPORARY placeholder — Task 11 replaces this with the real day detail screen.
-struct DayDetailView: View {
-    let day: ProgramDay
-    var body: some View { Text(day.focus).foregroundStyle(Theme.text) }
-}
