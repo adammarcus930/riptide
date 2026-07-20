@@ -1,0 +1,10 @@
+# Swift build artifacts
+.build/
+.swiftpm/
+*.xcodeproj/
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
