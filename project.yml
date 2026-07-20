@@ -1,0 +1,39 @@
+name: Riptide
+options:
+  bundleIdPrefix: com.adammarcus
+  deploymentTarget:
+    iOS: "17.0"
+packages:
+  RiptideCore:
+    path: RiptideCore
+targets:
+  Riptide:
+    type: application
+    platform: iOS
+    sources: [Riptide]
+    dependencies:
+      - package: RiptideCore
+    settings:
+      base:
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
+        INFOPLIST_KEY_CFBundleDisplayName: Riptide
+        GENERATE_INFOPLIST_FILE: YES
+        CURRENT_PROJECT_VERSION: 1
+        MARKETING_VERSION: 0.1.0
+  RiptideTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [RiptideTests]
+    dependencies:
+      - target: Riptide
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  Riptide:
+    build:
+      targets:
+        Riptide: all
+    test:
+      targets: [RiptideTests]

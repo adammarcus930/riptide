@@ -1,10 +1,14 @@
 # Swift build artifacts
 .build/
 .swiftpm/
-*.xcodeproj/
+*.xcodeproj
 
 # macOS
 .DS_Store
 
 # IDE
 .vscode/
+xcuserdata/
+
+# Xcode derived data
+DerivedData/
