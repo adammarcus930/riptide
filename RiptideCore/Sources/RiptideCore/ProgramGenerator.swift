@@ -21,15 +21,8 @@ public struct GeneratedDay: Equatable, Sendable {
     public let lifts: [GeneratedLift]
 }
 
-public struct Shortfall: Equatable, Sendable {
-    public let muscle: MuscleGroup
-    public let achieved: Int
-    public let target: Int
-}
-
 public struct GeneratedProgram: Equatable, Sendable {
     public let days: [GeneratedDay]
-    public let shortfalls: [Shortfall]
 }
 
 public enum ProgramGenerator {
@@ -41,7 +34,6 @@ public enum ProgramGenerator {
         var dayLifts: [[GeneratedLift]] = Array(repeating: [], count: input.days)
         var dayTotals = [Int](repeating: 0, count: input.days)
         var secondarySets: [MuscleGroup: Int] = [:]
-        var shortfalls: [Shortfall] = []
 
         for (mIndex, muscle) in selected.enumerated() {
             let exercises = input.selections[muscle]!
@@ -56,12 +48,12 @@ public enum ProgramGenerator {
             }
             guard target >= 2 else { continue }
 
-            // Spec §5.6 ladder steps 4–5: clamp to capacity; flag genuine undershoot.
+            // Spec §5.6 ladder step 4: clamp to capacity. Capacity always covers
+            // range.low for every reachable (muscle, effort, days, exerciseCount)
+            // combination under the corrected volume table — see
+            // testExhaustiveSweepFindsNoReachableShortfall in RiptideCoreTests.
             let capacity = input.days * exercises.count * 4
             let achieved = min(target, capacity)
-            if achieved < target && achieved < range.low {
-                shortfalls.append(Shortfall(muscle: muscle, achieved: achieved, target: max(range.low, 2)))
-            }
             guard achieved >= 2 else { continue }
 
             let loads = Allocation.dayLoads(total: achieved, days: input.days, maxEntriesPerDay: exercises.count)
@@ -95,6 +87,6 @@ public enum ProgramGenerator {
                 return ia == ib ? a.exercise.name < b.exercise.name : ia < ib
             })
         }
-        return GeneratedProgram(days: days, shortfalls: shortfalls)
+        return GeneratedProgram(days: days)
     }
 }

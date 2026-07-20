@@ -38,14 +38,14 @@ final class ProgramGeneratorTests: XCTestCase {
                             for sec in lift.exercise.secondaries { secondarySets[sec, default: 0] += lift.sets }
                         }
                     }
-                    // Volume: direct + credits within/above low end, or shortfall recorded (spec §5.6).
-                    let flagged = Set(program.shortfalls.map(\.muscle))
+                    // Volume: direct + credits meet the low end (spec §5.6). Under the corrected
+                    // table capacity never falls short of range.low, so there is no shortfall path.
                     for m in MuscleGroup.allCases {
                         let range = VolumeTable.weeklyRange(for: m, effort: effort)
                         guard range.high >= 2 else { continue }
                         let direct = weeklySets[m, default: 0]
                         let credit = secondarySets[m, default: 0] / 2
-                        if !flagged.contains(m) {
+                        if !(input.selections[m] ?? []).isEmpty {
                             XCTAssertGreaterThanOrEqual(direct + credit, range.low, "\(effort) \(days)d \(perMuscle)ex: \(m)")
                         }
                         XCTAssertLessThanOrEqual(direct, range.high, "\(effort) \(days)d: \(m) over range")
@@ -98,7 +98,6 @@ final class ProgramGeneratorTests: XCTestCase {
         var sel: [MuscleGroup: [ExerciseDefinition]] = [:]
         sel[.sideDelts] = [ExerciseBank.find("db-lateral-raise")!]
         let program = ProgramGenerator.generate(GeneratorInput(effort: .minimal, days: 2, selections: sel))
-        XCTAssertTrue(program.shortfalls.isEmpty)
         let sideDeltSets = program.days.flatMap(\.lifts).reduce(0) { $0 + $1.sets }
         let range = VolumeTable.weeklyRange(for: .sideDelts, effort: .minimal)
         XCTAssertGreaterThanOrEqual(sideDeltSets, range.low)
@@ -110,15 +109,13 @@ final class ProgramGeneratorTests: XCTestCase {
         // corrected table: capacity = 5 × 1 × 4 = 20, exactly equal to the low
         // end. The ideal weekly target (nearest-to-midpoint multiple of 5 in
         // [20, 26]) is 25, so capacity clamps achieved sets down to 20 — but
-        // since 20 meets (not undershoots) the low end, the ladder correctly
-        // does NOT flag this as a shortfall (spec §5.6: flag only genuine
-        // undershoot, i.e. achieved < range.low, not achieved < ideal target).
-        // This exercises the clamp path that the (now unreachable) shortfall
-        // path used to guard.
+        // since 20 meets (not undershoots) the low end, this is a clean clamp,
+        // not an undersupply (spec §5.6: capacity clamp only ever lands at or
+        // above range.low under the corrected table). This exercises the
+        // clamp path that the (now-deleted) shortfall mechanism used to guard.
         var sel: [MuscleGroup: [ExerciseDefinition]] = [:]
         sel[.sideDelts] = [ExerciseBank.find("db-lateral-raise")!]
         let program = ProgramGenerator.generate(GeneratorInput(effort: .maximal, days: 5, selections: sel))
-        XCTAssertTrue(program.shortfalls.isEmpty)
         let totalSets = program.days.flatMap(\.lifts).reduce(0) { $0 + $1.sets }
         XCTAssertEqual(totalSets, 20)
         let range = VolumeTable.weeklyRange(for: .sideDelts, effort: .maximal)
@@ -142,13 +139,29 @@ final class ProgramGeneratorTests: XCTestCase {
             let available = ExerciseBank.exercises(for: muscle)
             guard !available.isEmpty else { continue }
             for effort in Effort.allCases {
+                let range = VolumeTable.weeklyRange(for: muscle, effort: effort)
+                guard range.high >= 2 else { continue }
                 for days in effort.allowedDays {
                     for exerciseCount in 1...3 {
+                        // The invariant that makes the (now-deleted) shortfall path
+                        // unreachable: capacity (days * exerciseCount entries * 4 sets/entry)
+                        // must cover the range's low end, so `achieved = min(target, capacity)`
+                        // in ProgramGenerator.generate never falls below range.low. Recomputed
+                        // directly from the table here — not a restatement of generator
+                        // behavior — so a future VolumeTable edit that pushes any cell's low
+                        // end past its capacity fails this line first.
+                        let capacity = days * exerciseCount * 4
+                        XCTAssertGreaterThanOrEqual(capacity, range.low,
+                            "\(muscle) \(effort) \(days)d \(exerciseCount)ex: capacity \(capacity) below low end \(range.low)")
+
+                        // And confirm the generator actually delivers on that invariant in
+                        // practice (rotation/day-splitting doesn't leak sets below the floor).
                         var sel: [MuscleGroup: [ExerciseDefinition]] = [:]
                         sel[muscle] = Array(available.prefix(exerciseCount))
                         let program = ProgramGenerator.generate(GeneratorInput(effort: effort, days: days, selections: sel))
-                        XCTAssertTrue(program.shortfalls.isEmpty,
-                                      "\(muscle) \(effort) \(days)d \(exerciseCount)ex: unexpected shortfall \(program.shortfalls)")
+                        let totalSets = program.days.flatMap(\.lifts).reduce(0) { $0 + $1.sets }
+                        XCTAssertGreaterThanOrEqual(totalSets, range.low,
+                            "\(muscle) \(effort) \(days)d \(exerciseCount)ex: generated \(totalSets) below low end \(range.low)")
                     }
                 }
             }

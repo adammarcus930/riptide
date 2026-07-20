@@ -41,13 +41,6 @@ struct ProgramView: View {
                     Text("\(program.effort.label) effort · \(program.daysPerWeek) days · \(program.muscles.count) muscle groups")
                         .font(.system(size: 13)).foregroundStyle(Theme.textDim)
 
-                    if !program.shortfallNote.isEmpty {
-                        Text(program.shortfallNote)
-                            .font(.system(size: 12)).foregroundStyle(Theme.accent.opacity(0.8))
-                            .padding(12)
-                            .background(Theme.accent.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
-                    }
-
                     ForEach(program.sortedDays, id: \.persistentModelID) { day in
                         NavigationLink(value: DayRef(id: day.persistentModelID)) {
                             dayRow(day, program: program)

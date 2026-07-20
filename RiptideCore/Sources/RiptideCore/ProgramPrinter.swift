@@ -9,9 +9,6 @@ public enum ProgramPrinter {
                 out.append("  \(lift.exercise.name) [\(lift.exercise.primary.rawValue)] \(lift.sets) x \(lift.exercise.repRange)")
             }
         }
-        for s in program.shortfalls {
-            out.append("SHORTFALL \(s.muscle.rawValue): \(s.achieved) of \(s.target) target sets")
-        }
         return out.joined(separator: "\n") + "\n"
     }
 }

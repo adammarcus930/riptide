@@ -76,7 +76,9 @@ Personal use on one iPhone → possibly paid Apple Developer account ($99/yr, re
 | Abs | 3–6 | 6–12 | 14–18 |
 | Forearms | 0–3 | 4–8 | 10–14 |
 
-Mapping decisions (approved): picker stays at 13 coarse groups. **Correction (2026-07-20):** shoulders was originally one picker group with a summed 22–34 optimal range, treating side-delt and rear-delt prescriptions as one budget. The three delt rows are independent per-head prescriptions, not components of a shared total, and the generator distributes volume across exercises without knowing which head a given lift actually trains — so overhead press (a front-delt-dominant lift) was drawing down the same combined budget as lateral raises and rear-delt flyes, routinely assigning it ~16 sets/week (2–4× a reasonable front-delt prescription) while rear delts received zero direct work. Splitting into front/side/rear delts restores the table's real meaning: each head is now allocated, rotated, and (if undersupplied) flagged independently. Glutes are covered by quad/hamstring compounds; neck is dropped.
+Mapping decisions (approved): picker stays at 13 coarse groups. **Correction (2026-07-20):** shoulders was originally one picker group with a summed 22–34 optimal range, treating side-delt and rear-delt prescriptions as one budget. The three delt rows are independent per-head prescriptions, not components of a shared total, and the generator distributes volume across exercises without knowing which head a given lift actually trains — so overhead press (a front-delt-dominant lift) was drawing down the same combined budget as lateral raises and rear-delt flyes, routinely assigning it ~16 sets/week (2–4× a reasonable front-delt prescription) while rear delts received zero direct work. Splitting into front/side/rear delts restores the table's real meaning: each head is now allocated and rotated independently. Glutes are covered by quad/hamstring compounds; neck is dropped.
+
+**Correction (2026-07-20):** a whole-branch review of the corrected table above proved the shortfall mechanism described in earlier drafts of this spec (flagging a muscle as undersupplied and surfacing a note in the program view) is unreachable: for every (muscle, effort, allowedDays, exerciseCount 1–3) combination, capacity — `days × exerciseCount × 4` sets — is always ≥ the range's low end, so the generator's capacity clamp never lands below `range.low`. The tightest cell in the table, side delts at maximal effort / 5 days / 1 exercise, clamps exactly to the low end (20 = 20) with zero margin but never under it. The `Shortfall` type, `GeneratedProgram.shortfalls`, the program-view banner, and `Program.shortfallNote` have been deleted as dead code; see `RiptideCoreTests.testExhaustiveSweepFindsNoReachableShortfall` for the invariant sweep that guards this.
 
 ## 5. Generation Algorithm (`RiptideCore.ProgramGenerator`)
 
@@ -91,11 +93,10 @@ Inputs: effort, day count (gated by effort), selected muscle groups, ≥1 chosen
    1. prefer 3-set entries →
    2. split into a second same-muscle exercise that day →
    3. allow 4-set entries →
-   4. aim at the low end of the weekly range →
-   5. undershoot and surface it: program view shows e.g. "Rear Delts: 8 of 10 target sets — add a day or an exercise to close the gap." Never generate entries above 4 sets.
+   4. clamp to capacity (`days × exerciseCount × 4`) at the low end of the weekly range. Never generate entries above 4 sets. **Correction (2026-07-20):** under the corrected volume table (§4) this clamp never undershoots `range.low` for any reachable input, so there is no further "undershoot and surface it" step — the shortfall-flagging path described in earlier drafts was proven unreachable and removed.
 7. **Output:** value-type week (days → lifts → exercise/sets/rep range) materialized once into SwiftData rows. "Start next cycle" resets completion only — same plan.
 
-The generator never throws: every wizard-valid input yields a program, worst case flagged volume-limited.
+The generator never throws: every wizard-valid input yields a complete program that meets every selected muscle's low-end target.
 
 ## 6. Exercise Bank
 
@@ -138,7 +139,7 @@ Units: lb only.
 
 ## 10. Testing
 
-- **Generator unit tests (primary):** invariant sweep across all effort × day-count × muscle-selection shapes — targets within range or explicitly flagged, entries within 2–4 sets, rotation covers all chosen exercises, daily totals level, secondary credits ≤ 0.5 × contributing sets.
+- **Generator unit tests (primary):** invariant sweep across all effort × day-count × muscle-selection shapes — targets within range (capacity always covers the low end, per the 2026-07-20 correction in §4/§5), entries within 2–4 sets, rotation covers all chosen exercises, daily totals level, secondary credits ≤ 0.5 × contributing sets.
 - **Snapshot tests:** print generated weeks as readable tables for the approved test-and-tune loop; tuning the feel of outputs happens here, before UI.
 - **App-side:** lightweight tests for history prefill query and cycle-completion state transitions.
 - **Manual QA:** simulator → personal iPhone via Xcode.

@@ -19,7 +19,6 @@ final class Program {
     var musclesJoined: String = ""          // comma-joined MuscleGroup raw values (CloudKit-safe)
     var createdAt: Date = Date()
     var isActive: Bool = false
-    var shortfallNote: String = ""
     @Relationship(deleteRule: .cascade, inverse: \ProgramDay.program)
     var days: [ProgramDay]? = []
     @Relationship(deleteRule: .cascade, inverse: \WorkoutSession.program)

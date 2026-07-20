@@ -14,9 +14,6 @@ enum ProgramMaterializer {
         let muscles = MuscleGroup.displayOrder.filter { !(input.selections[$0] ?? []).isEmpty }
         let program = Program(name: name, effort: input.effort, daysPerWeek: input.days, muscles: muscles)
         program.isActive = true
-        program.shortfallNote = generated.shortfalls
-            .map { "\($0.muscle.label): \($0.achieved) of \($0.target) target sets — add a day or an exercise to close the gap." }
-            .joined(separator: "\n")
         context.insert(program)
         for (i, day) in generated.days.enumerated() {
             let d = ProgramDay(index: i)
