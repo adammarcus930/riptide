@@ -35,7 +35,7 @@ struct DayDetailView: View {
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 14)
                             .overlay(RoundedRectangle(cornerRadius: 14)
-                                .stroke(Theme.strokeStrong, style: StrokeStyle(lineWidth: 1, dash: [5])))
+                                .stroke(Theme.strokeDashed, style: StrokeStyle(lineWidth: 1, dash: [5])))
                     }
                     .foregroundStyle(Theme.text.opacity(0.75))
                 } else {
