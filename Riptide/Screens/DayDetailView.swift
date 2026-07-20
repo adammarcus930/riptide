@@ -71,8 +71,11 @@ struct DayDetailView: View {
     /// Live-mode progress bar (spec §7): completed lifts over total lifts, matching the
     /// wizard's Capsule-track + accent-fill treatment.
     private var progressFraction: Double {
-        guard !day.sortedLifts.isEmpty else { return 0 }
-        return Double(loggedIDs.count) / Double(day.sortedLifts.count)
+        let lifts = day.sortedLifts
+        guard !lifts.isEmpty else { return 0 }
+        let currentIDs = Set(lifts.map(\.exerciseID))
+        let loggedCount = loggedIDs.intersection(currentIDs).count
+        return min(1, Double(loggedCount) / Double(lifts.count))
     }
 
     private var progressBar: some View {
@@ -112,7 +115,7 @@ struct DayDetailView: View {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(lift.exerciseName).font(.system(size: 15, weight: .bold))
-                    Text("\(lift.repRange) reps · \(MuscleGroup(rawValue: lift.muscleRaw)?.label ?? "")")
+                    Text("\(lift.repRange) reps · \(MuscleGroup.decode(lift.muscleRaw)?.label ?? "")")
                         .font(.system(size: 12)).foregroundStyle(Theme.textFaint)
                 }
                 Spacer()
@@ -131,10 +134,12 @@ struct DayDetailView: View {
                 }
                 .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.strokeStrong))
                 Spacer()
+                let muscle = MuscleGroup.decode(lift.muscleRaw)
                 Menu {
-                    let muscle = MuscleGroup(rawValue: lift.muscleRaw)
-                    ForEach(ExerciseBank.exercises(for: muscle ?? .chest).filter { $0.id != lift.exerciseID }) { alt in
-                        Button(alt.name) { swap(lift, to: alt) }
+                    if let muscle {
+                        ForEach(ExerciseBank.exercises(for: muscle).filter { $0.id != lift.exerciseID }) { alt in
+                            Button(alt.name) { swap(lift, to: alt) }
+                        }
                     }
                 } label: {
                     Label("Swap", systemImage: "arrow.left.arrow.right")
@@ -143,6 +148,7 @@ struct DayDetailView: View {
                         .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.strokeStrong))
                         .foregroundStyle(Theme.accent)
                 }
+                .disabled(muscle == nil)
                 Button {
                     context.delete(lift)
                 } label: {

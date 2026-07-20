@@ -27,7 +27,7 @@ struct LiftDetailView: View {
                         .font(.system(size: 11, design: .monospaced)).foregroundStyle(Theme.textFaint))
 
                 HStack(spacing: 8) {
-                    Text((MuscleGroup(rawValue: lift.muscleRaw)?.label ?? "").uppercased())
+                    Text((MuscleGroup.decode(lift.muscleRaw)?.label ?? "").uppercased())
                         .font(.system(size: 11, weight: .heavy)).kerning(0.8)
                         .padding(.horizontal, 11).padding(.vertical, 5)
                         .background(Theme.accent.opacity(0.12), in: Capsule())

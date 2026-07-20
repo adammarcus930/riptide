@@ -2,6 +2,15 @@ import Foundation
 import SwiftData
 import RiptideCore
 
+extension MuscleGroup {
+    /// Decodes a persisted raw value, mapping the pre-2026-07-20 `shoulders`
+    /// group onto side delts (its dominant component).
+    static func decode(_ raw: String) -> MuscleGroup? {
+        if let m = MuscleGroup(rawValue: raw) { return m }
+        return raw == "shoulders" ? .sideDelts : nil
+    }
+}
+
 @Model
 final class Program {
     var name: String = ""
@@ -24,7 +33,7 @@ final class Program {
     }
 
     var effort: Effort { Effort(rawValue: effortRaw) ?? .optimal }
-    var muscles: [MuscleGroup] { musclesJoined.split(separator: ",").compactMap { MuscleGroup(rawValue: String($0)) } }
+    var muscles: [MuscleGroup] { musclesJoined.split(separator: ",").compactMap { MuscleGroup.decode(String($0)) } }
     var sortedDays: [ProgramDay] { (days ?? []).sorted { $0.index < $1.index } }
     var completedDayCount: Int { (days ?? []).filter(\.completedInCycle).count }
 }
@@ -42,7 +51,7 @@ final class ProgramDay {
     var sortedLifts: [PlannedLift] { (lifts ?? []).sorted { $0.order < $1.order } }
     /// "Chest · Lats · Triceps" style focus line for cards.
     var focus: String {
-        let muscles = sortedLifts.compactMap { MuscleGroup(rawValue: $0.muscleRaw) }
+        let muscles = sortedLifts.compactMap { MuscleGroup.decode($0.muscleRaw) }
         var seen: [MuscleGroup] = []
         for m in muscles where !seen.contains(m) { seen.append(m) }
         return seen.prefix(3).map(\.label).joined(separator: " · ") + (seen.count > 3 ? " +" : "")

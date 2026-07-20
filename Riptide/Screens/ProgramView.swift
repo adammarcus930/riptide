@@ -6,6 +6,7 @@ struct ProgramView: View {
     @Query(filter: #Predicate<Program> { $0.isActive }) private var activePrograms: [Program]
     @State private var renaming = false
     @State private var previousName = ""
+    @State private var renameBuffer = ""
     @FocusState private var renameFocus: Bool
 
     var body: some View {
@@ -15,10 +16,7 @@ struct ProgramView: View {
                     Text("ACTIVE PROGRAM").eyebrow(Theme.accent)
 
                     if renaming {
-                        TextField("Name", text: Binding(
-                            get: { program.name },
-                            set: { program.name = $0 }
-                        ))
+                        TextField("Name", text: $renameBuffer)
                         .font(.system(size: 34, weight: .heavy))
                         .focused($renameFocus)
                         .onSubmit { commitRename(program) }
@@ -28,6 +26,7 @@ struct ProgramView: View {
                     } else {
                         Button {
                             previousName = program.name
+                            renameBuffer = program.name
                             renaming = true
                             renameFocus = true
                         } label: {
@@ -80,10 +79,14 @@ struct ProgramView: View {
         }
     }
 
-    /// Guards the inline rename: clearing the field must not persist a blank title. Trims and
-    /// reverts to the pre-edit name if the result is empty.
+    /// Guards the inline rename: the edited text lives in `renameBuffer` and is written through
+    /// to `program.name` only here, so an app kill mid-edit can't persist a blank (or partial)
+    /// title. Trims and reverts to the pre-edit name if the result is empty. `onSubmit` and the
+    /// focus-loss `onChange` can both fire for the same commit, so this is idempotent by way of
+    /// the `renaming` early-out rather than by accident.
     private func commitRename(_ program: Program) {
-        let trimmed = program.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard renaming else { return }
+        let trimmed = renameBuffer.trimmingCharacters(in: .whitespacesAndNewlines)
         program.name = trimmed.isEmpty ? previousName : trimmed
         renaming = false
     }

@@ -87,13 +87,14 @@ final class ProgramGeneratorTests: XCTestCase {
         // capacity = minDays(effort) × 1 exercise × 4 sets. sideDelts is the
         // tightest fit in the whole table (its maximal-effort low end, 20, is
         // exactly equal to 5 days × 1 × 4 = 20 — see
-        // testCapacityClampsExactlyToLowEndWithoutShortfall below), and an
-        // exhaustive sweep over every (muscle, effort, days, exercise-count 1–3)
-        // combination confirms zero shortfalls are reachable through the
-        // generator with this table. So a single-exercise selection can no
-        // longer under-supply any muscle — which is the whole point of the fix:
-        // the ranges are now correctly scoped per muscle instead of an inflated
-        // sum. This test documents that the old trigger case is now clean.
+        // testCapacityClampsExactlyToLowEndWithoutShortfall below), and
+        // testExhaustiveSweepFindsNoReachableShortfall below sweeps every
+        // (muscle, effort, days, exercise-count 1–3) combination and confirms
+        // zero shortfalls are reachable through the generator with this table.
+        // So a single-exercise selection can no longer under-supply any
+        // muscle — which is the whole point of the fix: the ranges are now
+        // correctly scoped per muscle instead of an inflated sum. This test
+        // documents that the old trigger case is now clean.
         var sel: [MuscleGroup: [ExerciseDefinition]] = [:]
         sel[.sideDelts] = [ExerciseBank.find("db-lateral-raise")!]
         let program = ProgramGenerator.generate(GeneratorInput(effort: .minimal, days: 2, selections: sel))
@@ -124,6 +125,34 @@ final class ProgramGeneratorTests: XCTestCase {
         XCTAssertEqual(totalSets, range.low)
         let idealTarget = Allocation.weeklyTarget(range: range, days: 5)
         XCTAssertGreaterThan(idealTarget, totalSets, "ideal target (25) exceeds what one exercise can supply, proving capacity genuinely clamped")
+    }
+
+    /// Real replacement for the "exhaustive sweep" that used to be run ad hoc from a
+    /// throwaway executable (since deleted) and cited only in a comment above. Sweeps every
+    /// (muscle, effort, days, exercise-count 1–3) cell reachable through the wizard with a
+    /// single-muscle selection and asserts none of them shortfall.
+    ///
+    /// The safety margin here is NOT comfortable everywhere: sideDelts/maximal/5-days/
+    /// 1-exercise sits at capacity == range.low exactly (5 × 1 × 4 = 20 == 20, see
+    /// testCapacityClampsExactlyToLowEndWithoutShortfall), a zero-margin boundary. This test
+    /// is what would catch a future VolumeTable edit that pushes any cell's low end even one
+    /// set past its capacity and reintroduces a reachable shortfall.
+    func testExhaustiveSweepFindsNoReachableShortfall() {
+        for muscle in MuscleGroup.allCases {
+            let available = ExerciseBank.exercises(for: muscle)
+            guard !available.isEmpty else { continue }
+            for effort in Effort.allCases {
+                for days in effort.allowedDays {
+                    for exerciseCount in 1...3 {
+                        var sel: [MuscleGroup: [ExerciseDefinition]] = [:]
+                        sel[muscle] = Array(available.prefix(exerciseCount))
+                        let program = ProgramGenerator.generate(GeneratorInput(effort: effort, days: days, selections: sel))
+                        XCTAssertTrue(program.shortfalls.isEmpty,
+                                      "\(muscle) \(effort) \(days)d \(exerciseCount)ex: unexpected shortfall \(program.shortfalls)")
+                    }
+                }
+            }
+        }
     }
 
     func testUnselectedMusclesAreAbsent() {
