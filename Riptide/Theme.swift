@@ -2,13 +2,9 @@ import SwiftUI
 
 enum Theme {
     static let bg        = Color(hex: 0x0D1013)
-    static let bg2       = Color(hex: 0x111820)
-    static let desk      = Color(hex: 0x080B0E)
     static let card      = Color(hex: 0x161B21)
-    static let cardHover = Color(hex: 0x1B2129)
     static let inputBg   = Color(hex: 0x1C232B)
     static let accent    = Color(hex: 0x43C9FF)
-    static let accentHover = Color(hex: 0x6FD7FF)
     static let onAccent  = Color(hex: 0x04141D)
     static let text      = Color(hex: 0xEEF3F7)
 

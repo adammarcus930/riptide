@@ -5,6 +5,7 @@ import RiptideCore
 struct ProgramView: View {
     @Query(filter: #Predicate<Program> { $0.isActive }) private var activePrograms: [Program]
     @State private var renaming = false
+    @State private var previousName = ""
     @FocusState private var renameFocus: Bool
 
     var body: some View {
@@ -20,13 +21,22 @@ struct ProgramView: View {
                         ))
                         .font(.system(size: 34, weight: .heavy))
                         .focused($renameFocus)
-                        .onSubmit { renaming = false }
-                    } else {
-                        HStack(spacing: 8) {
-                            Text(program.name).font(.system(size: 34, weight: .heavy))
-                            Image(systemName: "pencil").font(.system(size: 15)).foregroundStyle(Theme.textFaint)
+                        .onSubmit { commitRename(program) }
+                        .onChange(of: renameFocus) { _, focused in
+                            if !focused { commitRename(program) }
                         }
-                        .onTapGesture { renaming = true; renameFocus = true }
+                    } else {
+                        Button {
+                            previousName = program.name
+                            renaming = true
+                            renameFocus = true
+                        } label: {
+                            HStack(spacing: 8) {
+                                Text(program.name).font(.system(size: 34, weight: .heavy))
+                                Image(systemName: "pencil").font(.system(size: 15)).foregroundStyle(Theme.textFaint)
+                            }
+                        }
+                        .buttonStyle(.plain)
                     }
 
                     Text("\(program.effort.label) effort · \(program.daysPerWeek) days · \(program.muscles.count) muscle groups")
@@ -68,6 +78,14 @@ struct ProgramView: View {
         .navigationDestination(for: DayRef.self) { ref in
             DayDestination(id: ref.id)
         }
+    }
+
+    /// Guards the inline rename: clearing the field must not persist a blank title. Trims and
+    /// reverts to the pre-edit name if the result is empty.
+    private func commitRename(_ program: Program) {
+        let trimmed = program.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        program.name = trimmed.isEmpty ? previousName : trimmed
+        renaming = false
     }
 
     private func dayRow(_ day: ProgramDay, program: Program) -> some View {

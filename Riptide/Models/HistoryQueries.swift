@@ -17,6 +17,25 @@ enum HistoryQueries {
             .sorted { $0.setIndex < $1.setIndex }
     }
 
+    /// Latest session's sets for an exercise, excluding a specific session — used to find the
+    /// *previous* session's numbers when a session is already open and may already contain sets
+    /// for this exercise (see `lastSets(exerciseID:in:)` doc: without exclusion, "most recent"
+    /// would just be the still-open current session).
+    static func lastSets(exerciseID: String, excludingSession sessionID: PersistentIdentifier,
+                         in context: ModelContext) -> [LoggedSet] {
+        var descriptor = FetchDescriptor<LoggedSet>(
+            predicate: #Predicate { $0.exerciseID == exerciseID },
+            sortBy: [SortDescriptor(\.completedAt, order: .reverse)]
+        )
+        descriptor.fetchLimit = 50
+        guard let recent = try? context.fetch(descriptor),
+              let newest = recent.first(where: { $0.session?.persistentModelID != sessionID }),
+              let newestSessionID = newest.session?.persistentModelID else { return [] }
+        return recent
+            .filter { $0.session?.persistentModelID == newestSessionID }
+            .sorted { $0.setIndex < $1.setIndex }
+    }
+
     static func openSession(in context: ModelContext) -> WorkoutSession? {
         let descriptor = FetchDescriptor<WorkoutSession>(
             predicate: #Predicate { $0.finishedAt == nil },
@@ -32,6 +51,16 @@ enum HistoryQueries {
     /// single-session so setIndex values are unique in practice.
     static func bySetIndex(_ sets: [LoggedSet]) -> [Int: LoggedSet] {
         Dictionary(sets.map { ($0.setIndex, $0) }, uniquingKeysWith: { _, last in last })
+    }
+
+    /// Merges the current (open) session's sets over the previous session's, keyed by setIndex —
+    /// so a lift re-entered mid-workout shows what was *already logged this session* for indices
+    /// the user has hit, and falls back to last time's numbers for indices not yet logged.
+    /// Current-session values win per index; previous-session values fill the gaps.
+    static func mergedBySetIndex(current: [LoggedSet], previous: [LoggedSet]) -> [Int: LoggedSet] {
+        var merged = bySetIndex(previous)
+        for (index, set) in bySetIndex(current) { merged[index] = set }
+        return merged
     }
 }
 

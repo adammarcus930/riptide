@@ -102,16 +102,32 @@ struct LiftDetailView: View {
         .onDisappear { timer.stop(); Notifications.cancelRestAlert() }
     }
 
-    /// Prefill from last session on this exercise — any program (spec §4/§7).
+    /// Prefill from last session on this exercise — any program (spec §4/§7). Merges in
+    /// whatever's already logged for this exercise in the *current* open session (if any) so
+    /// re-entering a lift mid-workout shows what was actually done for logged sets, falling back
+    /// to the previous session's numbers for sets not yet logged this session.
     private func prefill() {
-        let last = HistoryQueries.lastSets(exerciseID: lift.exerciseID, in: context)
-        let bySetIndex = HistoryQueries.bySetIndex(last)
+        let openSession = HistoryQueries.openSession(in: context)
+        let current: [LoggedSet]
+        if let openSession, openSession.dayIndex == day.index {
+            current = (openSession.sets ?? []).filter { $0.exerciseID == lift.exerciseID }
+        } else {
+            current = []
+        }
+        let previous: [LoggedSet]
+        if let openSession {
+            previous = HistoryQueries.lastSets(exerciseID: lift.exerciseID,
+                                               excludingSession: openSession.persistentModelID, in: context)
+        } else {
+            previous = HistoryQueries.lastSets(exerciseID: lift.exerciseID, in: context)
+        }
+        let merged = HistoryQueries.mergedBySetIndex(current: current, previous: previous)
         weights = (0..<lift.targetSets).map { i in
-            guard let set = bySetIndex[i] else { return "" }
+            guard let set = merged[i] else { return "" }
             let w = set.weight
             return w == w.rounded() ? String(Int(w)) : String(w)
         }
-        reps = (0..<lift.targetSets).map { i in bySetIndex[i].map { String($0.reps) } ?? "" }
+        reps = (0..<lift.targetSets).map { i in merged[i].map { String($0.reps) } ?? "" }
     }
 
     private func setField(_ values: Binding<[String]>, _ i: Int, placeholder: String) -> some View {
@@ -141,6 +157,9 @@ struct LiftDetailView: View {
             timer.start()
             Notifications.requestAuthOnce()
             Notifications.scheduleRestAlert(after: restAlertSec)
+        } else {
+            timer.stop()
+            Notifications.cancelRestAlert()
         }
     }
 }

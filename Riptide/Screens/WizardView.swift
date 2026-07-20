@@ -5,7 +5,6 @@ import RiptideCore
 struct WizardView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
-    var onDone: () -> Void = {}
 
     private enum Step: Equatable {
         case effort, days, muscles, exercises(Int) // index into chosen muscles
@@ -257,7 +256,6 @@ struct WizardView: View {
         let generated = ProgramGenerator.generate(input)
         let count = (try? context.fetchCount(FetchDescriptor<Program>())) ?? 0
         ProgramMaterializer.materialize(generated, named: "Block \(count + 1)", input: input, in: context)
-        onDone()
         dismiss()
     }
 }

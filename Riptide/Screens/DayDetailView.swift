@@ -22,6 +22,10 @@ struct DayDetailView: View {
                 Text("\(day.sortedLifts.count) lifts · \(total) sets")
                     .font(.system(size: 13)).foregroundStyle(Theme.textDim)
 
+                if !editing {
+                    progressBar
+                }
+
                 ForEach(day.sortedLifts, id: \.persistentModelID) { lift in
                     if editing { planRow(lift) } else { liveRow(lift) }
                 }
@@ -62,6 +66,25 @@ struct DayDetailView: View {
                 LiftDetailView(lift: lift, day: day)
             }
         }
+    }
+
+    /// Live-mode progress bar (spec §7): completed lifts over total lifts, matching the
+    /// wizard's Capsule-track + accent-fill treatment.
+    private var progressFraction: Double {
+        guard !day.sortedLifts.isEmpty else { return 0 }
+        return Double(loggedIDs.count) / Double(day.sortedLifts.count)
+    }
+
+    private var progressBar: some View {
+        GeometryReader { geo in
+            ZStack(alignment: .leading) {
+                Capsule().fill(Theme.stroke)
+                Capsule().fill(Theme.accent)
+                    .frame(width: geo.size.width * progressFraction)
+            }
+        }
+        .frame(height: 4)
+        .animation(.easeOut(duration: 0.3), value: progressFraction)
     }
 
     private func liveRow(_ lift: PlannedLift) -> some View {

@@ -28,6 +28,7 @@ enum ProgramMaterializer {
                 context.insert(pl)
             }
         }
+        try? context.save()
         return program
     }
 }

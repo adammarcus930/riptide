@@ -84,20 +84,24 @@ struct TodayView: View {
                 ForEach(program.sortedDays, id: \.persistentModelID) { day in
                     let done = day.completedInCycle
                     let isNext = day.persistentModelID == nextDay?.persistentModelID
-                    VStack(spacing: 2) {
-                        Text("\(day.index + 1)").font(.system(size: 16, weight: .heavy))
-                        Text(done ? "DONE" : isNext ? "NEXT" : "TO GO")
-                            .font(.system(size: 9, weight: .bold)).kerning(1)
-                            .foregroundStyle(done || isNext ? Theme.accent : Theme.textFaint)
+                    Button {
+                        onStartDay(day)
+                    } label: {
+                        VStack(spacing: 2) {
+                            Text("\(day.index + 1)").font(.system(size: 16, weight: .heavy))
+                            Text(done ? "DONE" : isNext ? "NEXT" : "TO GO")
+                                .font(.system(size: 9, weight: .bold)).kerning(1)
+                                .foregroundStyle(done || isNext ? Theme.accent : Theme.textFaint)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(done ? Theme.accent.opacity(0.10) : Theme.card,
+                                    in: RoundedRectangle(cornerRadius: 14))
+                        .overlay(RoundedRectangle(cornerRadius: 14)
+                            .stroke(isNext ? Theme.accent : Theme.stroke, lineWidth: isNext ? 1.5 : 1))
+                        .foregroundStyle(done ? Theme.accent : Theme.text)
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(done ? Theme.accent.opacity(0.10) : Theme.card,
-                                in: RoundedRectangle(cornerRadius: 14))
-                    .overlay(RoundedRectangle(cornerRadius: 14)
-                        .stroke(isNext ? Theme.accent : Theme.stroke, lineWidth: isNext ? 1.5 : 1))
-                    .foregroundStyle(done ? Theme.accent : Theme.text)
-                    .onTapGesture { onStartDay(day) }
+                    .buttonStyle(.plain)
                 }
             }
         }
