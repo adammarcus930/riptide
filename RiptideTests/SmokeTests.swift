@@ -4,7 +4,7 @@ import RiptideCore
 
 final class SmokeTests: XCTestCase {
     func testCoreIsLinked() {
-        XCTAssertEqual(MuscleGroup.allCases.count, 11)
+        XCTAssertEqual(MuscleGroup.allCases.count, 13)
         XCTAssertGreaterThanOrEqual(ExerciseBank.all.count, 40)
     }
 }

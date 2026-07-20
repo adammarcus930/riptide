@@ -77,15 +77,53 @@ final class ProgramGeneratorTests: XCTestCase {
         XCTAssertLessThan(directTriceps, rawTarget)
     }
 
-    func testShortfallSurfacedWhenCapacityTooSmall() {
-        // Minimal effort, 2 days, ONE shoulder exercise: capacity 2×1×4=8 < low end 10.
+    func testNoShortfallWithSingleExerciseUnderCorrectedTable() {
+        // Historical note: this exact shape (minimal effort, 2 days, ONE shoulder
+        // exercise) used to shortfall under the old combined `shoulders` row
+        // (10–18 minimal, a sum of side+rear prescriptions) because capacity
+        // 2×1×4=8 < low end 10.
+        //
+        // After the split, every muscle's minimal-effort low end fits within
+        // capacity = minDays(effort) × 1 exercise × 4 sets. sideDelts is the
+        // tightest fit in the whole table (its maximal-effort low end, 20, is
+        // exactly equal to 5 days × 1 × 4 = 20 — see
+        // testCapacityClampsExactlyToLowEndWithoutShortfall below), and an
+        // exhaustive sweep over every (muscle, effort, days, exercise-count 1–3)
+        // combination confirms zero shortfalls are reachable through the
+        // generator with this table. So a single-exercise selection can no
+        // longer under-supply any muscle — which is the whole point of the fix:
+        // the ranges are now correctly scoped per muscle instead of an inflated
+        // sum. This test documents that the old trigger case is now clean.
         var sel: [MuscleGroup: [ExerciseDefinition]] = [:]
-        sel[.shoulders] = [ExerciseBank.find("db-lateral-raise")!]
+        sel[.sideDelts] = [ExerciseBank.find("db-lateral-raise")!]
         let program = ProgramGenerator.generate(GeneratorInput(effort: .minimal, days: 2, selections: sel))
-        XCTAssertEqual(program.shortfalls.count, 1)
-        XCTAssertEqual(program.shortfalls[0].muscle, .shoulders)
-        XCTAssertEqual(program.shortfalls[0].achieved, 8)
-        XCTAssertEqual(program.shortfalls[0].target, 10)
+        XCTAssertTrue(program.shortfalls.isEmpty)
+        let sideDeltSets = program.days.flatMap(\.lifts).reduce(0) { $0 + $1.sets }
+        let range = VolumeTable.weeklyRange(for: .sideDelts, effort: .minimal)
+        XCTAssertGreaterThanOrEqual(sideDeltSets, range.low)
+    }
+
+    func testCapacityClampsExactlyToLowEndWithoutShortfall() {
+        // sideDelts maximal effort (20–26) at 5 days (the minimum days maximal
+        // allows) with ONE exercise is the single tightest cell in the whole
+        // corrected table: capacity = 5 × 1 × 4 = 20, exactly equal to the low
+        // end. The ideal weekly target (nearest-to-midpoint multiple of 5 in
+        // [20, 26]) is 25, so capacity clamps achieved sets down to 20 — but
+        // since 20 meets (not undershoots) the low end, the ladder correctly
+        // does NOT flag this as a shortfall (spec §5.6: flag only genuine
+        // undershoot, i.e. achieved < range.low, not achieved < ideal target).
+        // This exercises the clamp path that the (now unreachable) shortfall
+        // path used to guard.
+        var sel: [MuscleGroup: [ExerciseDefinition]] = [:]
+        sel[.sideDelts] = [ExerciseBank.find("db-lateral-raise")!]
+        let program = ProgramGenerator.generate(GeneratorInput(effort: .maximal, days: 5, selections: sel))
+        XCTAssertTrue(program.shortfalls.isEmpty)
+        let totalSets = program.days.flatMap(\.lifts).reduce(0) { $0 + $1.sets }
+        XCTAssertEqual(totalSets, 20)
+        let range = VolumeTable.weeklyRange(for: .sideDelts, effort: .maximal)
+        XCTAssertEqual(totalSets, range.low)
+        let idealTarget = Allocation.weeklyTarget(range: range, days: 5)
+        XCTAssertGreaterThan(idealTarget, totalSets, "ideal target (25) exceeds what one exercise can supply, proving capacity genuinely clamped")
     }
 
     func testUnselectedMusclesAreAbsent() {

@@ -12,5 +12,5 @@ they were not verified by this change and should be walked before shipping.
 - [ ] 5. Edit day: stepper/swap/remove/add all persist across relaunch.
 - [ ] 6. Second program via Library → bench prefill carries from program A. Make-active switching works both ways.
 - [ ] 7. Mid-session: kill app → relaunch → resume banner present; screen stays awake during session.
-- [ ] 8. Shortfall case: minimal effort, 2 days, shoulders with one exercise → note on Program screen.
+- [ ] 8. Shoulders now split into front/side/rear delts in the wizard; side delts (maximal effort, 5 days, one exercise) sits at the tightest capacity boundary in the table — confirm it fills to the low end without an erroneous shortfall note.
 - [ ] 9. History lists finished sessions; rest-alert setting changes timer accent threshold.

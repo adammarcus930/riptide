@@ -45,7 +45,7 @@ Personal use on one iPhone → possibly paid Apple Developer account ($99/yr, re
 ## 4. Data Model
 
 ### RiptideCore value types
-- `MuscleGroup` (11): quads, hamstrings, chest, lats, shoulders, traps, triceps, biceps, forearms, calves, abs.
+- `MuscleGroup` (13): quads, hamstrings, chest, lats, front delts, side delts, rear delts, traps, triceps, biceps, forearms, calves, abs.
 - `Effort`: minimal / optimal / maximal. Exposes per-muscle weekly set ranges and allowed day counts (minimal 2–7, optimal 4–7, maximal 5–7).
 - `ExerciseDefinition`: id, name, primary muscle, secondary muscles, rep range, description.
 
@@ -65,7 +65,9 @@ Personal use on one iPhone → possibly paid Apple Developer account ($99/yr, re
 | Chest | 5–8 | 10–14 | 15–20 |
 | Lats | 6–9 | 12–16 | 17–22 |
 | Traps (upper back: traps/rhomboids) | 4–8 | 10–16 | 17–24 |
-| Shoulders (= side delts + rear delts rows summed) | 10–18 | 22–34 | 38–50 |
+| Front Delts | 0–4 | 4–8 | 10–12 |
+| Side Delts | 6–10 | 12–18 | 20–26 |
+| Rear Delts | 4–8 | 10–16 | 18–24 |
 | Biceps | 4–8 | 10–14 | 16–20 |
 | Triceps | 4–8 | 10–14 | 16–20 |
 | Quads | 4–8 | 9–14 | 15–20 |
@@ -74,14 +76,14 @@ Personal use on one iPhone → possibly paid Apple Developer account ($99/yr, re
 | Abs | 3–6 | 6–12 | 14–18 |
 | Forearms | 0–3 | 4–8 | 10–14 |
 
-Mapping decisions (approved): picker stays at the 11 coarse groups. Shoulders targets side+rear delt volume combined; front delts are considered covered by chest/shoulder pressing. Glutes are covered by quad/hamstring compounds; neck is dropped.
+Mapping decisions (approved): picker stays at 13 coarse groups. **Correction (2026-07-20):** shoulders was originally one picker group with a summed 22–34 optimal range, treating side-delt and rear-delt prescriptions as one budget. The three delt rows are independent per-head prescriptions, not components of a shared total, and the generator distributes volume across exercises without knowing which head a given lift actually trains — so overhead press (a front-delt-dominant lift) was drawing down the same combined budget as lateral raises and rear-delt flyes, routinely assigning it ~16 sets/week (2–4× a reasonable front-delt prescription) while rear delts received zero direct work. Splitting into front/side/rear delts restores the table's real meaning: each head is now allocated, rotated, and (if undersupplied) flagged independently. Glutes are covered by quad/hamstring compounds; neck is dropped.
 
 ## 5. Generation Algorithm (`RiptideCore.ProgramGenerator`)
 
 Inputs: effort, day count (gated by effort), selected muscle groups, ≥1 chosen exercise per selected group.
 
 1. **Weekly targets.** Per muscle: midpoint of the effort range, nudged within the range to divide as cleanly as possible across days.
-2. **Secondary credit — fixed order, one pass.** Giver muscles (chest, lats, shoulders, traps, quads, hamstrings, calves) are allocated at full target first. Their exercises' secondary contributions are tallied at **0.5 credit per set**; receiver muscles (triceps, biceps, forearms, abs) then have direct targets reduced by earned credits (floor 0). No iteration, no circular math.
+2. **Secondary credit — fixed order, one pass.** Giver muscles (chest, lats, front delts, side delts, rear delts, traps, quads, hamstrings, calves) are allocated at full target first. Their exercises' secondary contributions are tallied at **0.5 credit per set**; receiver muscles (triceps, biceps, forearms, abs) then have direct targets reduced by earned credits (floor 0). No iteration, no circular math.
 3. **Rotation.** Each muscle's weekly sets split into per-day appearances (~target ÷ days); the user's chosen exercises for that muscle rotate round-robin across appearances. Fewer exercises than appearances → cycle; more → used as evenly as possible within the week.
 4. **Set bounds per lift entry:** min 2, target 3, max 4 (reluctantly). When per-day demand exceeds one entry's cap, the muscle appears as **multiple different exercises in the same day**.
 5. **Low-volume staggering.** If per-day share would fall below 2 sets, the muscle appears on fewer days at 2–3 sets per appearance. Appearances are staggered so daily set totals stay level.
@@ -90,7 +92,7 @@ Inputs: effort, day count (gated by effort), selected muscle groups, ≥1 chosen
    2. split into a second same-muscle exercise that day →
    3. allow 4-set entries →
    4. aim at the low end of the weekly range →
-   5. undershoot and surface it: program view shows e.g. "Shoulders: 8 of 10 target sets — add a day or an exercise to close the gap." Never generate entries above 4 sets.
+   5. undershoot and surface it: program view shows e.g. "Rear Delts: 8 of 10 target sets — add a day or an exercise to close the gap." Never generate entries above 4 sets.
 7. **Output:** value-type week (days → lifts → exercise/sets/rep range) materialized once into SwiftData rows. "Start next cycle" resets completion only — same plan.
 
 The generator never throws: every wizard-valid input yields a program, worst case flagged volume-limited.

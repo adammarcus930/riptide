@@ -11,7 +11,9 @@ public enum VolumeTable {
         switch muscle {
         case .chest:      (min, opt, max) = (SetRange(5, 8),   SetRange(10, 14), SetRange(15, 20))
         case .lats:       (min, opt, max) = (SetRange(6, 9),   SetRange(12, 16), SetRange(17, 22))
-        case .shoulders:  (min, opt, max) = (SetRange(10, 18), SetRange(22, 34), SetRange(38, 50))
+        case .frontDelts: (min, opt, max) = (SetRange(0, 4),   SetRange(4, 8),   SetRange(10, 12))
+        case .sideDelts:  (min, opt, max) = (SetRange(6, 10),  SetRange(12, 18), SetRange(20, 26))
+        case .rearDelts:  (min, opt, max) = (SetRange(4, 8),   SetRange(10, 16), SetRange(18, 24))
         case .traps:      (min, opt, max) = (SetRange(4, 8),   SetRange(10, 16), SetRange(17, 24))
         case .quads:      (min, opt, max) = (SetRange(4, 8),   SetRange(9, 14),  SetRange(15, 20))
         case .hamstrings: (min, opt, max) = (SetRange(4, 6),   SetRange(8, 12),  SetRange(13, 18))
