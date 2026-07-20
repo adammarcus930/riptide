@@ -1,0 +1,145 @@
+import SwiftUI
+import SwiftData
+import RiptideCore
+
+struct LiftDetailView: View {
+    @Environment(\.modelContext) private var context
+    @Environment(\.dismiss) private var dismiss
+    let lift: PlannedLift
+    let day: ProgramDay
+
+    @AppStorage("restAlertSec") private var restAlertSec = 90
+    @State private var timer = RestTimer()
+    @State private var weights: [String] = []
+    @State private var reps: [String] = []
+    @State private var appeared = false
+
+    private var exercise: ExerciseDefinition? { ExerciseBank.find(lift.exerciseID) }
+    private var logger: SetLogger { SetLogger(day: day, context: context) }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 14) {
+                RoundedRectangle(cornerRadius: 18)
+                    .stroke(Theme.strokeDashedFaint, style: StrokeStyle(lineWidth: 1, dash: [6]))
+                    .frame(height: 130)
+                    .overlay(Text("exercise demo · coming later")
+                        .font(.system(size: 11, design: .monospaced)).foregroundStyle(Theme.textFaint))
+
+                HStack(spacing: 8) {
+                    Text((MuscleGroup(rawValue: lift.muscleRaw)?.label ?? "").uppercased())
+                        .font(.system(size: 11, weight: .heavy)).kerning(0.8)
+                        .padding(.horizontal, 11).padding(.vertical, 5)
+                        .background(Theme.accent.opacity(0.12), in: Capsule())
+                        .foregroundStyle(Theme.accent)
+                    if let secs = exercise?.secondaries, !secs.isEmpty {
+                        Text("also hits \(secs.map(\.label).joined(separator: ", "))")
+                            .font(.system(size: 12)).foregroundStyle(Theme.textDim)
+                    }
+                }
+                Text(lift.exerciseName).font(.system(size: 28, weight: .heavy))
+                if let blurb = exercise?.blurb {
+                    Text(blurb).font(.system(size: 13)).foregroundStyle(Theme.textDim).lineSpacing(3)
+                }
+
+                // SET / WEIGHT / REPS / DONE grid
+                Grid(horizontalSpacing: 8, verticalSpacing: 8) {
+                    GridRow {
+                        Text("SET").eyebrow().gridColumnAlignment(.leading)
+                        Text("WEIGHT · LB").eyebrow()
+                        Text("REPS").eyebrow()
+                        Text("DONE").eyebrow()
+                    }
+                    ForEach(0..<lift.targetSets, id: \.self) { i in
+                        GridRow {
+                            Text("\(i + 1)").font(.system(size: 15, weight: .heavy)).foregroundStyle(Theme.textDim)
+                            setField($weights, i, placeholder: "0")
+                            setField($reps, i, placeholder: lift.repRange)
+                            let done = logger.logged(lift: lift, setIndex: i) != nil
+                            Button {
+                                toggleSet(i)
+                            } label: {
+                                Image(systemName: done ? "checkmark.circle.fill" : "circle")
+                                    .font(.system(size: 26))
+                                    .foregroundStyle(done ? Theme.accent : Theme.textFaint)
+                            }
+                        }
+                    }
+                }
+                .padding(.top, 8)
+
+                // Rest timer card
+                HStack(spacing: 12) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("REST TIMER").eyebrow()
+                        Text(timer.isRunning ? timer.display : "—")
+                            .font(.system(size: 26, weight: .bold, design: .monospaced))
+                            .foregroundStyle(timer.elapsed >= Double(restAlertSec) ? Theme.accent : Theme.text)
+                    }
+                    Spacer()
+                    if timer.isRunning {
+                        Button("Stop") { timer.stop(); Notifications.cancelRestAlert() }
+                            .font(.system(size: 13, weight: .bold))
+                            .padding(.horizontal, 14).padding(.vertical, 11)
+                            .background(Theme.stroke, in: RoundedRectangle(cornerRadius: 12))
+                    }
+                }
+                .card()
+
+                Button("Complete lift") { dismiss() }
+                    .buttonStyle(AccentButtonStyle())
+            }
+            .padding(20)
+        }
+        .background(Theme.bg.ignoresSafeArea())
+        .foregroundStyle(Theme.text)
+        .scrollDismissesKeyboard(.interactively)
+        .onAppear {
+            guard !appeared else { return }
+            appeared = true
+            prefill()
+        }
+        .onDisappear { timer.stop(); Notifications.cancelRestAlert() }
+    }
+
+    /// Prefill from last session on this exercise — any program (spec §4/§7).
+    private func prefill() {
+        let last = HistoryQueries.lastSets(exerciseID: lift.exerciseID, in: context)
+        weights = (0..<lift.targetSets).map { i in
+            guard i < last.count, last[i].weight > 0 else { return i < last.count ? String(Int(last[i].weight)) : "" }
+            let w = last[i].weight
+            return w == w.rounded() ? String(Int(w)) : String(w)
+        }
+        reps = (0..<lift.targetSets).map { i in i < last.count ? String(last[i].reps) : "" }
+    }
+
+    private func setField(_ values: Binding<[String]>, _ i: Int, placeholder: String) -> some View {
+        TextField(placeholder, text: Binding(
+            get: { i < values.wrappedValue.count ? values.wrappedValue[i] : "" },
+            set: { v in
+                var arr = values.wrappedValue
+                while arr.count <= i { arr.append("") }
+                arr[i] = v
+                values.wrappedValue = arr
+            }
+        ))
+        .keyboardType(.decimalPad)
+        .multilineTextAlignment(.center)
+        .font(.system(size: 15, weight: .bold))
+        .padding(.vertical, 11)
+        .background(Theme.inputBg, in: RoundedRectangle(cornerRadius: 11))
+        .overlay(RoundedRectangle(cornerRadius: 11).stroke(Theme.stroke))
+    }
+
+    private func toggleSet(_ i: Int) {
+        let w = Double(i < weights.count ? weights[i] : "") ?? 0
+        let r = Int(i < reps.count ? reps[i] : "") ?? 0
+        logger.toggle(lift: lift, setIndex: i, weight: w, reps: r)
+        Haptics.tap()
+        if logger.logged(lift: lift, setIndex: i) != nil {
+            timer.start()
+            Notifications.requestAuthOnce()
+            Notifications.scheduleRestAlert(after: restAlertSec)
+        }
+    }
+}

@@ -147,14 +147,3 @@ struct DayDetailView: View {
         Haptics.success()
     }
 }
-
-// TEMPORARY stubs — Task 12 replaces both with the real lift detail screen and haptics helper.
-struct LiftDetailView: View {
-    let lift: PlannedLift
-    let day: ProgramDay
-    var body: some View { Text(lift.exerciseName).foregroundStyle(Theme.text) }
-}
-
-enum Haptics {
-    static func success() {}
-}
