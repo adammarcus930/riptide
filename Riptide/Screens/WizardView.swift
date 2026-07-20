@@ -27,6 +27,16 @@ struct WizardView: View {
     }
     private var totalSteps: Int { 3 + max(muscles.count, 1) }
 
+    private var progressFraction: Double {
+        switch step {
+        case .effort: return 0.25
+        case .days: return 0.5
+        case .muscles: return 0.75
+        case .exercises(let i):
+            return 0.75 + 0.25 * Double(i + 1) / Double(max(muscles.count, 1))
+        }
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             // Header: back chevron + STEP X OF Y + progress bar
@@ -36,7 +46,7 @@ struct WizardView: View {
                         Image(systemName: "chevron.left")
                             .font(.system(size: 17, weight: .semibold))
                             .frame(width: 38, height: 38)
-                            .background(RoundedRectangle(cornerRadius: 12).stroke(Color.white.opacity(0.12)))
+                            .background(RoundedRectangle(cornerRadius: 12).stroke(Theme.strokeStrong))
                     }
                     .foregroundStyle(Theme.text)
                     Spacer()
@@ -44,13 +54,13 @@ struct WizardView: View {
                 }
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
-                        Capsule().fill(Color.white.opacity(0.08))
+                        Capsule().fill(Theme.stroke)
                         Capsule().fill(Theme.accent)
-                            .frame(width: geo.size.width * Double(stepIndex + 1) / Double(totalSteps))
+                            .frame(width: geo.size.width * progressFraction)
                     }
                 }
                 .frame(height: 4)
-                .animation(.easeOut(duration: 0.3), value: stepIndex)
+                .animation(.easeOut(duration: 0.3), value: progressFraction)
             }
             .padding(.horizontal, 20)
             .padding(.top, 8)

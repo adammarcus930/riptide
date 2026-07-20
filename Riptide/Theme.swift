@@ -15,6 +15,7 @@ enum Theme {
     static let textDim   = text.opacity(0.5)
     static let textFaint = text.opacity(0.45)
     static let stroke    = Color.white.opacity(0.08)
+    static let strokeStrong = Color.white.opacity(0.12)
 }
 
 extension Color {
