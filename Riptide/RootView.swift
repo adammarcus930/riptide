@@ -52,8 +52,3 @@ struct TodayDestinationHost: View {
         }
     }
 }
-
-// TEMPORARY placeholder — Task 13 replaces this with the real More screen.
-struct MoreView: View {
-    var body: some View { Text("More").foregroundStyle(Theme.text) }
-}
