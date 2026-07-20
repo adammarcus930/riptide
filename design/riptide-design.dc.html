@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f110d;--bg2:#151711;--desk:#0a0b09;--card:#181b15;--cardHover:#1d211a;--inputBg:#22261e;--accent:#c9f24b;--accentHover:#daf876;--onAccent:#161a05;--text:#f1f3ea;--accentRGB:201,242,75;--textRGB:241,243,234}
+body{margin:0;background:var(--desk);font-family:'Archivo',sans-serif}
+a{color:var(--accent);text-decoration:none}
+a:hover{color:var(--accentHover)}
+input::placeholder{color:rgba(var(--textRGB),0.28)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+</style>
+</helmet>
+<div style="{{ themeVars }} min-height:100vh;display:flex;align-items:center;justify-content:center;padding:36px;background:radial-gradient(ellipse at 50% 0%,var(--bg2) 0%,var(--desk) 70%)">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+<div style="height:100%;display:flex;flex-direction:column;background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;position:relative;overflow:hidden">
+
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="Home" style="flex:1;overflow-y:auto;padding:76px 20px 140px;box-sizing:border-box">
+  <div style="display:flex;align-items:baseline;justify-content:space-between">
+    <div style="font-size:11px;font-weight:700;letter-spacing:0.16em;color:rgba(var(--textRGB),0.45)">{{ dateLine }}</div>
+    <div style="font-size:13px;font-weight:900;letter-spacing:0.22em;color:var(--accent)">GRIT</div>
+  </div>
+  <h1 style="margin:8px 0 22px;font-size:40px;font-weight:800;letter-spacing:-0.02em;line-height:1">Train</h1>
+  <sc-if value="{{ hasNextDay }}" hint-placeholder-val="{{ true }}">
+    <div style="background:var(--accent);border-radius:22px;padding:22px 20px 20px;color:var(--onAccent)">
+      <div style="font-size:11px;font-weight:800;letter-spacing:0.14em">{{ nextUpLabel }}</div>
+      <div style="margin-top:8px;font-size:26px;font-weight:800;letter-spacing:-0.02em;line-height:1.1;text-wrap:pretty">{{ nextDayFocus }}</div>
+      <div style="margin-top:8px;font-size:13px;font-weight:600;color:rgba(22,26,5,0.65)">{{ nextDayMeta }}</div>
+      <button onClick="{{ startNext }}" style="margin-top:18px;width:100%;padding:15px 0;border:none;border-radius:14px;background:var(--onAccent);color:var(--accent);font-family:'Archivo',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.04em;cursor:pointer" style-active="transform:scale(0.98)">{{ startBtnText }}</button>
+    </div>
+    <div style="margin-top:20px">
+      <div style="font-size:11px;font-weight:800;letter-spacing:0.14em;color:rgba(var(--textRGB),0.45)">ON DECK</div>
+      <div style="margin-top:10px;display:flex;flex-direction:column;gap:7px">
+        <sc-for list="{{ nextLifts }}" as="nl" hint-placeholder-count="4">
+          <div style="display:flex;align-items:baseline;gap:10px;padding:11px 14px;border-radius:13px;background:var(--card);border:1px solid rgba(255,255,255,0.06)">
+            <div style="flex:1;font-size:14px;font-weight:700">{{ nl.name }}</div>
+            <div style="font-size:12px;font-weight:600;color:rgba(var(--textRGB),0.45)">{{ nl.meta }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ allDone }}" hint-placeholder-val="{{ false }}">
+    <div style="background:var(--card);border:1px solid rgba(255,255,255,0.08);border-radius:22px;padding:24px 20px;text-align:center">
+      <div style="font-size:24px;font-weight:800;letter-spacing:-0.02em;color:var(--accent)">Week complete</div>
+      <div style="margin-top:6px;font-size:13px;color:rgba(var(--textRGB),0.55)">Every day in this cycle is logged. Start the next one when you're ready.</div>
+      <button onClick="{{ resetWeek }}" style="margin-top:16px;padding:13px 26px;border:none;border-radius:12px;background:var(--accent);color:var(--onAccent);font-family:'Archivo',sans-serif;font-size:14px;font-weight:800;cursor:pointer" style-active="transform:scale(0.97)">Start next cycle</button>
+    </div>
+  </sc-if>
+  <sc-if value="{{ futureVision }}" hint-placeholder-val="{{ false }}">
+    <div style="margin-top:12px;display:flex;gap:8px">
+      <div style="flex:1;padding:16px;border-radius:18px;background:var(--card);border:1px solid rgba(255,255,255,0.08)">
+        <div style="font-size:10px;font-weight:800;letter-spacing:0.12em;color:rgba(var(--textRGB),0.45)">NUTRITION</div>
+        <div style="margin-top:6px;font-size:19px;font-weight:800">1,840 <span style="font-size:12px;font-weight:600;color:rgba(var(--textRGB),0.45)">/ 2,600 kcal</span></div>
+        <div style="margin-top:8px;height:5px;border-radius:99px;background:rgba(255,255,255,0.08)"><div style="width:71%;height:100%;border-radius:99px;background:var(--accent)"></div></div>
+        <div style="margin-top:8px;font-size:11px;font-weight:600;color:rgba(var(--textRGB),0.5)">128g protein · 62g to go</div>
+      </div>
+      <div style="flex:1;padding:16px;border-radius:18px;background:var(--card);border:1px solid rgba(255,255,255,0.08)">
+        <div style="font-size:10px;font-weight:800;letter-spacing:0.12em;color:rgba(var(--textRGB),0.45)">CARDIO</div>
+        <div style="margin-top:6px;font-size:19px;font-weight:800">Zone 2 <span style="font-size:12px;font-weight:600;color:rgba(var(--textRGB),0.45)">· 30 min</span></div>
+        <div style="margin-top:8px;font-size:11px;line-height:1.4;font-weight:600;color:rgba(var(--textRGB),0.5)">Scheduled after your lift — easy pace, keep HR under 145.</div>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ hasProgram }}" hint-placeholder-val="{{ true }}">
+    <div style="margin-top:14px;display:flex;gap:8px">
+      <sc-for list="{{ homeStats }}" as="hs" hint-placeholder-count="3">
+        <div style="flex:1;padding:14px 12px;border-radius:16px;background:var(--card);border:1px solid rgba(255,255,255,0.08)">
+          <div style="font-size:20px;font-weight:800;letter-spacing:-0.01em;color:var(--text)">{{ hs.value }}</div>
+          <div style="margin-top:3px;font-size:9.5px;font-weight:800;letter-spacing:0.1em;color:rgba(var(--textRGB),0.4)">{{ hs.label }}</div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="margin-top:20px">
+      <div style="font-size:11px;font-weight:800;letter-spacing:0.14em;color:rgba(var(--textRGB),0.45)">THIS CYCLE</div>
+      <div style="margin-top:10px;display:flex;gap:8px">
+        <sc-for list="{{ weekDots }}" as="w" hint-placeholder-count="4">
+          <div onClick="{{ w.onTap }}" style="flex:1;padding:12px 0 10px;border-radius:14px;text-align:center;cursor:pointer;border:1px solid {{ w.bc }};background:{{ w.bg }}">
+            <div style="font-size:16px;font-weight:800;color:{{ w.fg }}">{{ w.num }}</div>
+            <div style="margin-top:2px;font-size:9px;font-weight:700;letter-spacing:0.1em;color:{{ w.sub }}">{{ w.state }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ noProgram }}" hint-placeholder-val="{{ false }}">
+    <div style="background:var(--card);border:1px solid rgba(255,255,255,0.08);border-radius:22px;padding:28px 22px">
+      <div style="font-size:26px;font-weight:800;letter-spacing:-0.02em;line-height:1.15;text-wrap:pretty">Build a program around your life.</div>
+      <div style="margin-top:10px;font-size:14px;line-height:1.5;color:rgba(var(--textRGB),0.55)">Tell GRIT how hard you want to push, how many days you have, and what you want to train. It builds the week — you just show up and lift.</div>
+      <button onClick="{{ startWizard }}" style="margin-top:20px;width:100%;padding:16px 0;border:none;border-radius:14px;background:var(--accent);color:var(--onAccent);font-family:'Archivo',sans-serif;font-size:15px;font-weight:800;cursor:pointer" style-active="transform:scale(0.98)">Build my program</button>
+    </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isWizard }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Program wizard" style="flex:1;display:flex;flex-direction:column;min-height:0">
+  <div style="padding:70px 20px 0">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <button onClick="{{ wizBack }}" style="width:38px;height:38px;border-radius:12px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:var(--text);font-size:20px;cursor:pointer;line-height:1;padding-bottom:3px">‹</button>
+      <div style="font-size:11px;font-weight:800;letter-spacing:0.14em;color:rgba(var(--textRGB),0.45)">{{ wizStepText }}</div>
+    </div>
+    <div style="margin-top:14px;height:4px;border-radius:99px;background:rgba(255,255,255,0.08)">
+      <div style="width:{{ wizPct }};height:100%;border-radius:99px;background:var(--accent);transition:width .3s"></div>
+    </div>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:22px 20px 20px;min-height:0">
+    <sc-if value="{{ wStepEffort }}" hint-placeholder-val="{{ true }}">
+      <h2 style="margin:0;font-size:28px;font-weight:800;letter-spacing:-0.02em;line-height:1.15">How hard do you want to push?</h2>
+      <div style="margin:8px 0 20px;font-size:13px;color:rgba(var(--textRGB),0.5)">This sets your weekly training volume per muscle.</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <sc-for list="{{ effortOpts }}" as="o" hint-placeholder-count="3">
+          <div onClick="{{ o.onPick }}" style="padding:18px;border-radius:18px;cursor:pointer;border:1.5px solid {{ o.bc }};background:{{ o.bg }}">
+            <div style="display:flex;align-items:baseline;justify-content:space-between">
+              <div style="font-size:18px;font-weight:800">{{ o.title }}</div>
+              <div style="font-size:12px;font-weight:800;color:var(--accent)">{{ o.vol }}</div>
+            </div>
+            <div style="margin-top:4px;font-size:13px;color:rgba(var(--textRGB),0.55)">{{ o.sub }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ wStepDays }}" hint-placeholder-val="{{ false }}">
+      <h2 style="margin:0;font-size:28px;font-weight:800;letter-spacing:-0.02em;line-height:1.15">How many days can you train?</h2>
+      <div style="margin:8px 0 20px;font-size:13px;color:rgba(var(--textRGB),0.5)">Days, not weekdays — miss one and the plan just waits for you.</div>
+      <div style="display:flex;gap:10px">
+        <sc-for list="{{ dayOpts }}" as="o" hint-placeholder-count="5">
+          <div onClick="{{ o.onPick }}" style="flex:1;padding:18px 0;border-radius:16px;text-align:center;cursor:pointer;border:1.5px solid {{ o.bc }};background:{{ o.bg }}">
+            <div style="font-size:24px;font-weight:800;color:{{ o.fg }}">{{ o.n }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ wStepParts }}" hint-placeholder-val="{{ false }}">
+      <h2 style="margin:0;font-size:28px;font-weight:800;letter-spacing:-0.02em;line-height:1.15">What do you want to train?</h2>
+      <div style="margin:8px 0 20px;font-size:13px;color:rgba(var(--textRGB),0.5)">Pick every muscle group this program should cover.</div>
+      <div style="display:flex;flex-wrap:wrap;gap:9px">
+        <sc-for list="{{ partOpts }}" as="p" hint-placeholder-count="11">
+          <div onClick="{{ p.onToggle }}" style="padding:12px 18px;border-radius:99px;font-size:14px;font-weight:700;cursor:pointer;border:1.5px solid {{ p.bc }};background:{{ p.bg }};color:{{ p.fg }}">{{ p.label }}</div>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ wStepEx }}" hint-placeholder-val="{{ false }}">
+      <div style="font-size:11px;font-weight:800;letter-spacing:0.14em;color:var(--accent)">{{ exPartCount }}</div>
+      <h2 style="margin:6px 0 0;font-size:28px;font-weight:800;letter-spacing:-0.02em">{{ exPartTitle }}</h2>
+      <div style="margin:8px 0 18px;font-size:13px;color:rgba(var(--textRGB),0.5)">{{ exSubline }}</div>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <sc-for list="{{ exOpts }}" as="e" hint-placeholder-count="4">
+          <div onClick="{{ e.onToggle }}" style="display:flex;align-items:center;gap:12px;padding:15px 16px;border-radius:16px;cursor:pointer;border:1.5px solid {{ e.bc }};background:{{ e.bg }}">
+            <div style="width:24px;height:24px;border-radius:8px;flex:none;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;border:1.5px solid {{ e.cbc }};background:{{ e.cbg }};color:var(--onAccent)">{{ e.check }}</div>
+            <div style="flex:1">
+              <div style="font-size:15px;font-weight:700">{{ e.name }}</div>
+              <div style="margin-top:1px;font-size:12px;color:rgba(var(--textRGB),0.45)">{{ e.reps }} reps</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+  </div>
+  <div style="padding:12px 20px 44px">
+    <button onClick="{{ wizNext }}" style="width:100%;padding:16px 0;border:none;border-radius:14px;background:var(--accent);color:var(--onAccent);font-family:'Archivo',sans-serif;font-size:15px;font-weight:800;cursor:pointer" style-active="transform:scale(0.98)">{{ wizNextLabel }}</button>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isProgram }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Program" style="flex:1;overflow-y:auto;padding:76px 20px 140px;box-sizing:border-box">
+  <div style="display:flex;align-items:center;justify-content:space-between">
+    <div style="font-size:11px;font-weight:800;letter-spacing:0.16em;color:{{ progEyebrowFg }}">{{ progEyebrow }}</div>
+    <button onClick="{{ progSwitchAction }}" style="padding:7px 14px;border-radius:99px;border:1px solid rgba(255,255,255,0.14);background:transparent;color:var(--accent);font-family:'Archivo',sans-serif;font-size:12px;font-weight:800;cursor:pointer" style-hover="border-color:rgba(var(--accentRGB),0.5)">{{ progSwitchLabel }}</button>
+  </div>
+  <sc-if value="{{ progRenaming }}" hint-placeholder-val="{{ false }}">
+    <input value="{{ renameVal }}" onChange="{{ onRenameChange }}" onBlur="{{ onRenameDone }}" onKeyDown="{{ onRenameKey }}" autoFocus="{{ true }}" style="margin:8px 0 4px;width:100%;box-sizing:border-box;padding:0;border:none;border-bottom:2px solid var(--accent);background:transparent;color:var(--text);font-family:'Archivo',sans-serif;font-size:40px;font-weight:800;letter-spacing:-0.02em;line-height:1;outline:none">
+  </sc-if>
+  <sc-if value="{{ progNotRenaming }}" hint-placeholder-val="{{ true }}">
+    <h1 onClick="{{ startRename }}" style="margin:8px 0 4px;font-size:40px;font-weight:800;letter-spacing:-0.02em;line-height:1;cursor:text">{{ blockName }} <span style="font-size:15px;font-weight:600;color:rgba(var(--textRGB),0.35);vertical-align:middle">✎</span></h1>
+  </sc-if>
+  <div style="margin-bottom:20px;font-size:13px;color:rgba(var(--textRGB),0.5)">{{ programSubline }}</div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <sc-for list="{{ progDays }}" as="d" hint-placeholder-count="4">
+      <div onClick="{{ d.onOpen }}" style="display:flex;align-items:center;gap:14px;padding:16px;border-radius:18px;cursor:pointer;border:1px solid {{ d.bc }};background:{{ d.bg }}" style-hover="background:var(--cardHover)">
+        <div style="width:46px;height:46px;flex:none;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;background:{{ d.numBg }};color:{{ d.numFg }}">{{ d.num }}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.focus }}</div>
+          <div style="margin-top:2px;font-size:12px;color:rgba(var(--textRGB),0.5)">{{ d.meta }}</div>
+        </div>
+        <div style="font-size:10px;font-weight:800;letter-spacing:0.1em;color:{{ d.tagFg }}">{{ d.tag }}</div>
+      </div>
+    </sc-for>
+  </div>
+  <button onClick="{{ goLibrary }}" style="margin-top:16px;width:100%;padding:14px 0;border:1px solid rgba(255,255,255,0.12);border-radius:14px;background:transparent;color:rgba(var(--textRGB),0.75);font-family:'Archivo',sans-serif;font-size:14px;font-weight:700;cursor:pointer" style-hover="border-color:rgba(255,255,255,0.28)">All programs</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ isLibrary }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Program library" style="flex:1;overflow-y:auto;padding:76px 20px 140px;box-sizing:border-box">
+  <button onClick="{{ backToProgram }}" style="display:flex;align-items:center;gap:6px;border:none;background:transparent;color:var(--accent);font-family:'Archivo',sans-serif;font-size:14px;font-weight:700;cursor:pointer;padding:0;margin-bottom:14px"><span style="font-size:20px;line-height:1">‹</span> {{ blockName }}</button>
+  <div style="font-size:11px;font-weight:800;letter-spacing:0.16em;color:rgba(var(--textRGB),0.45)">LIBRARY</div>
+  <h1 style="margin:8px 0 4px;font-size:40px;font-weight:800;letter-spacing:-0.02em;line-height:1">Programs</h1>
+  <div style="margin-bottom:20px;font-size:13px;color:rgba(var(--textRGB),0.5)">One program is active at a time — switching keeps every block's logged progress. Tap a block to look inside it.</div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <sc-for list="{{ programList }}" as="pg" hint-placeholder-count="2">
+      <div onClick="{{ pg.onView }}" style="padding:16px;border-radius:18px;cursor:pointer;border:1.5px solid {{ pg.bc }};background:{{ pg.bg }}" style-hover="background:var(--cardHover)" data-comment-anchor="a1e0ea6cd7-div">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="flex:1;font-size:17px;font-weight:800">{{ pg.name }}</div>
+          <div style="font-size:10px;font-weight:800;letter-spacing:0.1em;color:{{ pg.tagFg }}">{{ pg.tag }}</div>
+        </div>
+        <div style="margin-top:3px;font-size:12px;color:rgba(var(--textRGB),0.5)">{{ pg.meta }}</div>
+        <div style="margin-top:10px;height:5px;border-radius:99px;background:rgba(255,255,255,0.08)">
+          <div style="width:{{ pg.pct }};height:100%;border-radius:99px;background:var(--accent)"></div>
+        </div>
+        <div style="margin-top:6px;font-size:11px;font-weight:600;color:rgba(var(--textRGB),0.45)">{{ pg.progress }}</div>
+        <sc-if value="{{ pg.showActivate }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ pg.onActivate }}" style="margin-top:12px;width:100%;padding:12px 0;border:1px solid rgba(var(--accentRGB),0.4);border-radius:12px;background:rgba(var(--accentRGB),0.08);color:var(--accent);font-family:'Archivo',sans-serif;font-size:13px;font-weight:800;cursor:pointer" style-active="transform:scale(0.98)">Make active</button>
+        </sc-if>
+      </div>
+    </sc-for>
+  </div>
+  <button onClick="{{ startWizard }}" style="margin-top:14px;width:100%;padding:16px 0;border:none;border-radius:14px;background:var(--accent);color:var(--onAccent);font-family:'Archivo',sans-serif;font-size:15px;font-weight:800;cursor:pointer" style-active="transform:scale(0.98)">Build a new program</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ isDay }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Day detail" style="flex:1;display:flex;flex-direction:column;min-height:0">
+  <div style="padding:70px 20px 12px">
+    <button onClick="{{ dayBackAction }}" style="display:flex;align-items:center;gap:6px;border:none;background:transparent;color:var(--accent);font-family:'Archivo',sans-serif;font-size:14px;font-weight:700;cursor:pointer;padding:0"><span style="font-size:20px;line-height:1">‹</span> {{ dayBackLabel }}</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:6px 20px 20px;min-height:0">
+    <div style="font-size:11px;font-weight:800;letter-spacing:0.16em;color:var(--accent)">{{ dayEyebrow }}</div>
+    <h1 style="margin:6px 0 4px;font-size:30px;font-weight:800;letter-spacing:-0.02em;line-height:1.1;text-wrap:pretty">{{ dayFocus }}</h1>
+    <div style="font-size:13px;color:rgba(var(--textRGB),0.5)">{{ dayMeta }}</div>
+    <div style="margin:14px 0 18px;height:5px;border-radius:99px;background:rgba(255,255,255,0.08)">
+      <div style="width:{{ dayPct }};height:100%;border-radius:99px;background:var(--accent);transition:width .3s"></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <sc-for list="{{ dayLifts }}" as="l" hint-placeholder-count="5">
+        <sc-if value="{{ l.live }}" hint-placeholder-val="{{ true }}">
+        <div onClick="{{ l.onOpen }}" style="display:flex;align-items:center;gap:13px;padding:14px 15px;border-radius:16px;cursor:pointer;border:1px solid {{ l.bc }};background:{{ l.bg }}" style-hover="background:var(--cardHover)">
+          <div style="width:26px;height:26px;border-radius:99px;flex:none;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;border:1.5px solid {{ l.cbc }};background:{{ l.cbg }};color:var(--onAccent)">{{ l.check }}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:15px;font-weight:700;color:{{ l.fg }}">{{ l.name }}</div>
+            <div style="margin-top:2px;font-size:12px;color:rgba(var(--textRGB),0.45)">{{ l.meta }}</div>
+          </div>
+          <div style="font-size:20px;color:rgba(var(--textRGB),0.3)">›</div>
+        </div>
+        </sc-if>
+        <sc-if value="{{ l.plan }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:13px 15px;border-radius:16px;border:1px solid rgba(255,255,255,0.08);background:var(--card)">
+          <div onClick="{{ l.onOpen }}" style="display:flex;align-items:center;gap:10px;cursor:pointer">
+            <div style="flex:1;min-width:0">
+              <div style="font-size:15px;font-weight:700">{{ l.name }}</div>
+              <div style="margin-top:2px;font-size:12px;color:rgba(var(--textRGB),0.45)">{{ l.planMeta }}</div>
+            </div>
+            <div style="font-size:18px;color:rgba(var(--textRGB),0.3)">›</div>
+          </div>
+          <div style="margin-top:11px;display:flex;align-items:center;gap:8px">
+            <div style="display:flex;align-items:center;gap:0;border:1px solid rgba(255,255,255,0.12);border-radius:10px;overflow:hidden">
+              <button onClick="{{ l.onLess }}" style="width:32px;height:32px;border:none;background:transparent;color:var(--text);font-size:16px;font-weight:800;cursor:pointer">−</button>
+              <div style="min-width:52px;text-align:center;font-size:12px;font-weight:800;color:rgba(var(--textRGB),0.75)">{{ l.setsText }}</div>
+              <button onClick="{{ l.onMore }}" style="width:32px;height:32px;border:none;background:transparent;color:var(--text);font-size:16px;font-weight:800;cursor:pointer">+</button>
+            </div>
+            <div style="flex:1"></div>
+            <button onClick="{{ l.onSwap }}" style="height:32px;padding:0 13px;border:1px solid rgba(255,255,255,0.12);border-radius:10px;background:transparent;color:var(--accent);font-family:'Archivo',sans-serif;font-size:12px;font-weight:800;cursor:pointer">⇄ Swap</button>
+            <button onClick="{{ l.onRemove }}" style="width:32px;height:32px;border:1px solid rgba(255,255,255,0.12);border-radius:10px;background:transparent;color:rgba(var(--textRGB),0.5);font-size:15px;font-weight:700;cursor:pointer;line-height:1">×</button>
+          </div>
+        </div>
+        </sc-if>
+      </sc-for>
+    </div>
+    <sc-if value="{{ dayCanEdit }}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{ openAddLift }}" style="margin-top:12px;width:100%;padding:14px 0;border:1px dashed rgba(255,255,255,0.22);border-radius:14px;background:transparent;color:rgba(var(--textRGB),0.75);font-family:'Archivo',sans-serif;font-size:14px;font-weight:700;cursor:pointer" style-hover="border-color:rgba(var(--accentRGB),0.5);color:var(--accent)">+ Add a lift</button>
+    </sc-if>
+  </div>
+  <sc-if value="{{ dayBtnShow }}" hint-placeholder-val="{{ true }}">
+  <div style="padding:12px 20px 44px;border-top:1px solid rgba(255,255,255,0.06)">
+    <button onClick="{{ completeDay }}" style="width:100%;padding:16px 0;border:none;border-radius:14px;background:{{ dayBtnBg }};color:{{ dayBtnFg }};font-family:'Archivo',sans-serif;font-size:15px;font-weight:800;cursor:pointer" style-active="transform:scale(0.98)">{{ dayBtnLabel }}</button>
+  </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isLift }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Lift detail" style="flex:1;display:flex;flex-direction:column;min-height:0">
+  <div style="padding:70px 20px 12px">
+    <button onClick="{{ backToDay }}" style="display:flex;align-items:center;gap:6px;border:none;background:transparent;color:var(--accent);font-family:'Archivo',sans-serif;font-size:14px;font-weight:700;cursor:pointer;padding:0"><span style="font-size:20px;line-height:1">‹</span> {{ liftBackLabel }}</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:6px 20px 20px;min-height:0">
+    <div style="height:150px;border-radius:18px;border:1px dashed rgba(255,255,255,0.18);background:repeating-linear-gradient(45deg,rgba(255,255,255,0.03) 0 10px,transparent 10px 20px);display:flex;align-items:center;justify-content:center">
+      <div style="font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:0.08em;color:rgba(var(--textRGB),0.4)">exercise demo · gif / video</div>
+    </div>
+    <div style="margin-top:16px;display:flex;gap:8px;align-items:center">
+      <div style="padding:5px 11px;border-radius:99px;background:rgba(var(--accentRGB),0.12);color:var(--accent);font-size:11px;font-weight:800;letter-spacing:0.08em">{{ liftPart }}</div>
+      <div style="font-size:12px;font-weight:600;color:rgba(var(--textRGB),0.5)">{{ liftTarget }}</div>
+    </div>
+    <h1 style="margin:8px 0 0;font-size:28px;font-weight:800;letter-spacing:-0.02em;line-height:1.1;text-wrap:pretty">{{ liftName }}</h1>
+    <p style="margin:8px 0 0;font-size:13px;line-height:1.55;color:rgba(var(--textRGB),0.55);text-wrap:pretty">{{ liftDesc }}</p>
+
+    <sc-if value="{{ liftLive }}" hint-placeholder-val="{{ true }}">
+    <div style="margin-top:20px;display:grid;grid-template-columns:44px 1fr 1fr 44px;gap:8px;align-items:center;padding:0 4px">
+      <div style="font-size:10px;font-weight:800;letter-spacing:0.1em;color:rgba(var(--textRGB),0.4)">SET</div>
+      <div style="font-size:10px;font-weight:800;letter-spacing:0.1em;color:rgba(var(--textRGB),0.4);text-align:center">WEIGHT · LB</div>
+      <div style="font-size:10px;font-weight:800;letter-spacing:0.1em;color:rgba(var(--textRGB),0.4);text-align:center">REPS</div>
+      <div style="font-size:10px;font-weight:800;letter-spacing:0.1em;color:rgba(var(--textRGB),0.4);text-align:center">DONE</div>
+    </div>
+    <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px">
+      <sc-for list="{{ liftSets }}" as="s" hint-placeholder-count="3">
+        <div style="display:grid;grid-template-columns:44px 1fr 1fr 44px;gap:8px;align-items:center;padding:9px 4px;border-radius:14px;background:{{ s.rowBg }}">
+          <div style="font-size:15px;font-weight:800;color:rgba(var(--textRGB),0.6);padding-left:6px">{{ s.n }}</div>
+          <input value="{{ s.weight }}" onChange="{{ s.onW }}" placeholder="0" inputMode="decimal" style="width:100%;box-sizing:border-box;padding:11px 0;text-align:center;background:var(--inputBg);border:1px solid rgba(255,255,255,0.08);border-radius:11px;color:var(--text);font-family:'Archivo',sans-serif;font-size:15px;font-weight:700;outline:none" style-focus="border-color:var(--accent)">
+          <input value="{{ s.reps }}" onChange="{{ s.onR }}" placeholder="{{ s.ph }}" inputMode="numeric" style="width:100%;box-sizing:border-box;padding:11px 0;text-align:center;background:var(--inputBg);border:1px solid rgba(255,255,255,0.08);border-radius:11px;color:var(--text);font-family:'Archivo',sans-serif;font-size:15px;font-weight:700;outline:none" style-focus="border-color:var(--accent)">
+          <button onClick="{{ s.onToggle }}" style="width:34px;height:34px;margin:0 auto;border-radius:99px;cursor:pointer;font-size:15px;font-weight:900;display:flex;align-items:center;justify-content:center;border:1.5px solid {{ s.cbc }};background:{{ s.cbg }};color:var(--onAccent)">{{ s.check }}</button>
+        </div>
+      </sc-for>
+    </div>
+    </sc-if>
+  </div>
+  <sc-if value="{{ liftLive }}" hint-placeholder-val="{{ true }}">
+  <div style="padding:12px 20px 44px;border-top:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:16px;background:var(--card);border:1px solid rgba(255,255,255,0.08)">
+      <div style="flex:1">
+        <div style="font-size:10px;font-weight:800;letter-spacing:0.12em;color:rgba(var(--textRGB),0.4)">REST TIMER</div>
+        <div style="margin-top:2px;font-family:ui-monospace,Menlo,monospace;font-size:26px;font-weight:700;color:{{ timerColor }}">{{ timerText }}</div>
+      </div>
+      <button onClick="{{ timerReset }}" style="padding:11px 18px;border-radius:12px;border:1px solid rgba(255,255,255,0.14);background:transparent;color:var(--text);font-family:'Archivo',sans-serif;font-size:13px;font-weight:700;cursor:pointer">{{ timerBtnLabel }}</button>
+      <sc-if value="{{ timerRunning }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ timerStop }}" style="padding:11px 14px;border-radius:12px;border:none;background:rgba(255,255,255,0.08);color:rgba(var(--textRGB),0.7);font-family:'Archivo',sans-serif;font-size:13px;font-weight:700;cursor:pointer">Stop</button>
+      </sc-if>
+    </div>
+    <button onClick="{{ completeLift }}" style="width:100%;padding:16px 0;border:none;border-radius:14px;background:{{ liftBtnBg }};color:{{ liftBtnFg }};font-family:'Archivo',sans-serif;font-size:15px;font-weight:800;cursor:pointer" style-active="transform:scale(0.98)">{{ liftBtnLabel }}</button>
+  </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isAddLift }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Add a lift" style="flex:1;display:flex;flex-direction:column;min-height:0">
+  <div style="padding:70px 20px 12px">
+    <button onClick="{{ backToDay }}" style="display:flex;align-items:center;gap:6px;border:none;background:transparent;color:var(--accent);font-family:'Archivo',sans-serif;font-size:14px;font-weight:700;cursor:pointer;padding:0"><span style="font-size:20px;line-height:1">‹</span> {{ liftBackLabel }}</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:6px 20px 40px;min-height:0">
+    <h1 style="margin:0 0 4px;font-size:30px;font-weight:800;letter-spacing:-0.02em">Add a lift</h1>
+    <div style="margin-bottom:18px;font-size:13px;color:rgba(var(--textRGB),0.5)">From the exercise library — grouped by the muscles in this program.</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <sc-for list="{{ addOpts }}" as="a" hint-placeholder-count="8">
+        <sc-if value="{{ a.isHeader }}" hint-placeholder-val="{{ false }}">
+          <div style="margin:10px 0 2px;font-size:11px;font-weight:800;letter-spacing:0.14em;color:var(--accent)">{{ a.label }}</div>
+        </sc-if>
+        <sc-if value="{{ a.isRow }}" hint-placeholder-val="{{ true }}">
+          <div onClick="{{ a.onAdd }}" style="display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:14px;cursor:pointer;border:1px solid rgba(255,255,255,0.08);background:var(--card)" style-hover="border-color:rgba(var(--accentRGB),0.45)">
+            <div style="flex:1;min-width:0">
+              <div style="font-size:14px;font-weight:700">{{ a.name }}</div>
+              <div style="margin-top:1px;font-size:12px;color:rgba(var(--textRGB),0.45)">{{ a.reps }} reps</div>
+            </div>
+            <div style="font-size:13px;font-weight:800;color:var(--accent)">+ Add</div>
+          </div>
+        </sc-if>
+      </sc-for>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ resumeOn }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ resumeSession }}" style="position:absolute;left:14px;right:14px;bottom:104px;z-index:70;display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:16px;background:var(--accent);color:var(--onAccent);cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,0.5)" style-active="transform:scale(0.99)">
+  <div style="width:8px;height:8px;border-radius:99px;background:var(--onAccent);flex:none;animation:pulse 1.6s infinite"></div>
+  <div style="flex:1;min-width:0">
+    <div style="font-size:9.5px;font-weight:800;letter-spacing:0.12em">WORKOUT IN PROGRESS</div>
+    <div style="font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ resumeTitle }}</div>
+  </div>
+  <div style="font-family:ui-monospace,Menlo,monospace;font-size:14px;font-weight:700">{{ resumeElapsed }}</div>
+  <div style="font-size:13px;font-weight:800">Resume ›</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isMore }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="More — modules hub" style="flex:1;overflow-y:auto;padding:76px 20px 140px;box-sizing:border-box">
+  <div style="font-size:11px;font-weight:800;letter-spacing:0.16em;color:rgba(var(--textRGB),0.45)">MODULES</div>
+  <h1 style="margin:8px 0 4px;font-size:40px;font-weight:800;letter-spacing:-0.02em;line-height:1">More</h1>
+  <div style="margin-bottom:20px;font-size:13px;color:rgba(var(--textRGB),0.5)">Everything GRIT tracks lives here. New modules land in this list.</div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <sc-for list="{{ moduleItems }}" as="m" hint-placeholder-count="5">
+      <div onClick="{{ m.onTap }}" style="display:flex;align-items:center;gap:14px;padding:16px;border-radius:18px;cursor:pointer;border:1px solid {{ m.bc }};background:var(--card);opacity:{{ m.op }}" style-hover="background:var(--cardHover)">
+        <div style="width:42px;height:42px;flex:none;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;background:{{ m.iconBg }};color:{{ m.iconFg }}">{{ m.initial }}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:15px;font-weight:700">{{ m.label }}</div>
+          <div style="margin-top:2px;font-size:12px;color:rgba(var(--textRGB),0.5)">{{ m.sub }}</div>
+        </div>
+        <div style="font-size:10px;font-weight:800;letter-spacing:0.1em;color:{{ m.tagFg }}">{{ m.tag }}</div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ showNav }}" hint-placeholder-val="{{ true }}">
+<div style="position:absolute;left:0;right:0;bottom:0;padding:12px 14px 38px;background:rgba(15,17,13,0.82);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,0.06);display:flex">
+  <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="4">
+    <div onClick="{{ n.onTap }}" style="flex:1;text-align:center;cursor:pointer;opacity:{{ n.op }}">
+      <div style="width:5px;height:5px;border-radius:99px;margin:0 auto 6px;background:{{ n.dot }}"></div>
+      <div style="font-size:12px;font-weight:700;color:{{ n.fg }}">{{ n.label }}</div>
+    </div>
+  </sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{ toastOn }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:50%;transform:translateX(-50%);bottom:118px;z-index:80;padding:11px 20px;border-radius:99px;background:var(--text);color:var(--onAccent);font-size:13px;font-weight:700;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,0.45)">{{ toast }}</div>
+</sc-if>
+
+</div>
+</x-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:520,&quot;height&quot;:960},
+&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;ember&quot;,&quot;ice&quot;,&quot;violet&quot;,&quot;lime&quot;],&quot;default&quot;:&quot;ember&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Appearance&quot;,&quot;description&quot;:&quot;Color direction for the whole app&quot;},
+&quot;prefilled&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Demo&quot;,&quot;description&quot;:&quot;Start with a sample 4-day program (Day 1 already logged) instead of the empty first-run state&quot;},
+&quot;futureVision&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Demo&quot;,&quot;description&quot;:&quot;Preview the future state: nutrition + cardio module cards mixed into Today&quot;},
+&quot;showFutureTabs&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Navigation&quot;,&quot;description&quot;:&quot;Show locked future modules (Nutrition, Cardio, Sharing, Progress) in the More hub&quot;},
+&quot;restAlertSec&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:90,&quot;min&quot;:30,&quot;max&quot;:300,&quot;unit&quot;:&quot;s&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Training&quot;,&quot;description&quot;:&quot;Rest timer turns green once this many seconds have passed&quot;}}">
+class Component extends DCLogic {
+  static PARTS = ['quads','hamstrings','chest','lats','shoulders','traps','triceps','biceps','forearms','calves','abs'];
+  static LABEL = {quads:'Quads',hamstrings:'Hamstrings',chest:'Chest',lats:'Lats',shoulders:'Shoulders',traps:'Traps',triceps:'Triceps',biceps:'Biceps',forearms:'Forearms',calves:'Calves',abs:'Abs'};
+  static BASEW = {quads:185,hamstrings:155,chest:135,lats:120,shoulders:65,traps:135,triceps:50,biceps:60,forearms:40,calves:90,abs:25};
+  static LIB = {
+    chest:[
+      {n:'Barbell Bench Press',r:'5–8',d:'Lie on a flat bench, lower the bar to mid-chest under control, and press to lockout. Feet planted, shoulder blades pinned back and down.'},
+      {n:'Incline Dumbbell Press',r:'8–12',d:'Press dumbbells from shoulder height on a 30° incline bench, biasing the upper chest. Lower slowly to a deep stretch.'},
+      {n:'Cable Fly',r:'12–15',d:'With cables at chest height, sweep your hands together in a wide arc and squeeze the chest hard at the midpoint.'},
+      {n:'Weighted Dip',r:'8–12',d:'Lean slightly forward and lower until your shoulders dip below your elbows, then press back up without locking out hard.'}],
+    lats:[
+      {n:'Pull-Up',r:'6–10',d:'Hang from the bar with an overhand grip and pull your chin over it, driving your elbows down toward your hips.'},
+      {n:'Lat Pulldown',r:'8–12',d:'Pull the bar to your upper chest with a tall torso, elbows tracking straight down. Control the return to a full stretch.'},
+      {n:'Barbell Row',r:'6–10',d:'Hinge to roughly 45° and row the bar into your lower ribs, squeezing the lats at the top without heaving.'},
+      {n:'Seated Cable Row',r:'10–12',d:'Pull the handle to your waist with a neutral spine, letting the shoulder blades glide forward and back each rep.'}],
+    shoulders:[
+      {n:'Overhead Press',r:'5–8',d:'Press the bar from shoulder height to lockout overhead. Squeeze your glutes and avoid excessive lean-back.'},
+      {n:'Dumbbell Lateral Raise',r:'12–15',d:'Raise the dumbbells out to shoulder height with a soft elbow bend, then lower on a slow three-count.'},
+      {n:'Rear Delt Fly',r:'12–15',d:'Hinge forward and sweep the dumbbells wide, leading with the elbows to load the rear delts.'},
+      {n:'Arnold Press',r:'8–12',d:'Rotate from palms-in to palms-forward as you press overhead, covering the delts through a long arc.'}],
+    traps:[
+      {n:'Barbell Shrug',r:'10–15',d:'Hold the bar at arm’s length and shrug straight up toward your ears. Pause a full second at the top.'},
+      {n:'Face Pull',r:'12–15',d:'Pull the rope to eye level with elbows high, finishing with external rotation to hit traps and rear delts.'},
+      {n:'Dumbbell Shrug',r:'12–15',d:'Shrug heavy dumbbells with a controlled squeeze at the top; no rolling.'}],
+    triceps:[
+      {n:'Cable Pushdown',r:'10–15',d:'Extend the rope down and apart with elbows pinned to your sides. Full lockout, controlled return.'},
+      {n:'Skull Crusher',r:'8–12',d:'Lower the bar to just above your forehead with elbows pointing up, then extend back to lockout.'},
+      {n:'Overhead Cable Extension',r:'10–15',d:'Facing away from the stack, extend the rope overhead from a deep stretch for the long head.'},
+      {n:'Close-Grip Bench Press',r:'6–10',d:'Bench with hands shoulder-width apart, elbows tucked, shifting the load onto the triceps.'}],
+    biceps:[
+      {n:'Barbell Curl',r:'8–12',d:'Curl the bar with elbows pinned to your sides and zero swing. Lower on a slow negative.'},
+      {n:'Incline Dumbbell Curl',r:'10–12',d:'Curl from a fully stretched position on an incline bench for a long range of motion.'},
+      {n:'Hammer Curl',r:'10–12',d:'Curl with a neutral grip to load the brachialis and forearms alongside the biceps.'},
+      {n:'Preacher Curl',r:'10–15',d:'Curl over the preacher pad to strip away momentum entirely; squeeze at the top.'}],
+    forearms:[
+      {n:'Reverse Curl',r:'10–15',d:'Curl the bar with an overhand grip, keeping wrists straight to load the forearm extensors.'},
+      {n:'Wrist Curl',r:'15–20',d:'Forearms on a bench, curl the bar with just your wrists through a full range.'},
+      {n:'Farmer’s Carry',r:'30–60s',d:'Pick up heavy dumbbells and walk tall. Grip until it burns, rest, repeat.'}],
+    quads:[
+      {n:'Back Squat',r:'5–8',d:'Bar on your upper back, sit down between your hips until thighs pass parallel, then drive up through mid-foot.'},
+      {n:'Leg Press',r:'8–12',d:'Lower the sled until your knees near your chest without your hips tucking, then press through your whole foot.'},
+      {n:'Bulgarian Split Squat',r:'8–12',d:'Rear foot elevated, drop the back knee straight down and drive up through the front heel.'},
+      {n:'Leg Extension',r:'12–15',d:'Extend to full lockout and squeeze the quads for a beat before lowering slowly.'}],
+    hamstrings:[
+      {n:'Romanian Deadlift',r:'6–10',d:'Hinge at the hips with soft knees, sliding the bar down your thighs until your hamstrings scream, then stand tall.'},
+      {n:'Lying Leg Curl',r:'10–15',d:'Curl the pad to your glutes with your hips pressed down; resist the lowering phase.'},
+      {n:'Seated Leg Curl',r:'10–15',d:'Curl through a full range from a stretched seated position — brutal and effective.'},
+      {n:'Good Morning',r:'8–12',d:'Bar on your back, hinge forward with a flat spine until your torso nears parallel, then stand.'}],
+    calves:[
+      {n:'Standing Calf Raise',r:'10–15',d:'Rise all the way onto your toes, pause, then lower to a deep stretch for two seconds.'},
+      {n:'Seated Calf Raise',r:'15–20',d:'With knees bent the soleus takes over — high reps, full stretch at the bottom.'}],
+    abs:[
+      {n:'Cable Crunch',r:'10–15',d:'Kneel below the stack and crunch your ribs toward your hips, flexing the spine — not pulling with arms.'},
+      {n:'Hanging Leg Raise',r:'8–12',d:'Hang from a bar and raise your legs by tilting the pelvis, not swinging.'},
+      {n:'Ab Wheel Rollout',r:'8–12',d:'Roll out as far as you can hold a rigid brace, then pull back with your abs.'},
+      {n:'Weighted Plank',r:'30–60s',d:'Plate on your back, brace hard, breathe shallow, hold the line.'}]
+  };
+  state = { screen:'home', wizStep:0, wEffort:'optimal', wDays:4, wParts:[], wEx:{}, wPartIdx:0,
+    programs:[], activeIdx:0, viewIdx:null, session:null, renaming:false, renameVal:'', dayIdx:0, liftIdx:0, restStart:null, toast:null };
+  componentDidMount(){
+    this._tick = setInterval(()=>{ if((this.state.restStart && this.state.screen==='lift')||this.state.session) this.forceUpdate(); }, 1000);
+    if(this.props.prefilled ?? true) this.seedDemo();
+  }
+  componentWillUnmount(){ clearInterval(this._tick); clearTimeout(this._toastT); }
+  showToast(msg){ clearTimeout(this._toastT); this.setState({toast:msg}); this._toastT=setTimeout(()=>this.setState({toast:null}),2200); }
+  commit(){ this.setState({programs:this.state.programs}); }
+  midReps(r){ const m=r.match(/\d+/g); return m? Math.round((+m[0] + +(m[1]||m[0]))/2) : 10; }
+  gen(effort, nDays, parts, exMap){
+    const C=Component, weekly={minimal:6,optimal:12,maximal:18}[effort];
+    const days=Array.from({length:nDays},()=>({exercises:[],completed:false}));
+    const load=days.map(()=>0);
+    const ordered=C.PARTS.filter(p=>parts.includes(p));
+    ordered.forEach(p=>{
+      const exs=(exMap[p]||[]).map(n=>C.LIB[p].find(e=>e.n===n)).filter(Boolean);
+      if(!exs.length) return;
+      const sess = effort==='minimal'?1 : effort==='maximal'?Math.min(3,nDays):Math.min(2,nDays);
+      const chosen=[];
+      for(let s=0;s<sess;s++){ let best=-1;
+        for(let d=0;d<nDays;d++){ if(chosen.includes(d)) continue; if(best<0||load[d]<load[best]) best=d; }
+        chosen.push(best); load[best]+=exs.length;
+      }
+      chosen.sort((a,b)=>a-b);
+      const perSess=chosen.map(()=>[]);
+      exs.forEach((e,i)=>perSess[i%chosen.length].push(e));
+      perSess.forEach((arr,i)=>{ if(!arr.length) arr.push(exs[i%exs.length]); });
+      chosen.forEach((d,i)=>{
+        const list=perSess[i];
+        const setsEach=Math.min(5,Math.max(2,Math.round(weekly/sess/list.length)));
+        list.forEach(e=>days[d].exercises.push({name:e.n,part:p,targetReps:e.r,desc:e.d,done:false,
+          sets:Array.from({length:setsEach},()=>({weight:'',reps:'',done:false}))}));
+      });
+    });
+    const kept=days.filter(d=>d.exercises.length);
+    kept.forEach(d=>d.exercises.sort((a,b)=>C.PARTS.indexOf(a.part)-C.PARTS.indexOf(b.part)));
+    kept.forEach((d,i)=>d.label='Day '+(i+1));
+    const base=effort[0].toUpperCase()+effort.slice(1)+' '+nDays+'-Day';
+    let name=base,k=2; while(this.state.programs.some(p=>p.name===name)) name=base+' '+(k++);
+    return {name,effort,daysPerWeek:nDays,parts:parts.slice(),days:kept};
+  }
+  seedDemo(){
+    const parts=['chest','lats','shoulders','biceps','triceps','quads','hamstrings','abs'];
+    const exMap={}; parts.forEach(p=>exMap[p]=Component.LIB[p].slice(0,2).map(e=>e.n));
+    const a=this.gen('optimal',4,parts,exMap);
+    const d0=a.days[0];
+    d0.completed=true;
+    d0.exercises.forEach(ex=>{ ex.done=true; const w=Component.BASEW[ex.part], r=this.midReps(ex.targetReps);
+      ex.sets.forEach((s,i)=>{ s.done=true; s.weight=String(w); s.reps=String(Math.max(1,r-i)); }); });
+    this.state.programs.push(a);
+    const parts2=['chest','lats','shoulders','quads','hamstrings'];
+    const exMap2={}; parts2.forEach(p=>exMap2[p]=[Component.LIB[p][0].n]);
+    const b=this.gen('minimal',3,parts2,exMap2);
+    this.setState({programs:[a,b],activeIdx:0});
+  }
+  focusOf(day){ const seen=[]; day.exercises.forEach(e=>{ if(!seen.includes(e.part)) seen.push(e.part); });
+    return seen.slice(0,3).map(p=>Component.LABEL[p]).join(' · '); }
+  dayMetaOf(day){ const sets=day.exercises.reduce((a,e)=>a+e.sets.length,0);
+    return day.exercises.length+(day.exercises.length===1?' lift · ':' lifts · ')+sets+' sets · ~'+Math.round(sets*2.5+day.exercises.length*2)+' min'; }
+  fmt(ms){ const t=Math.floor(ms/1000), m=String(Math.floor(t/60)).padStart(2,'0'), s=String(t%60).padStart(2,'0'); return m+':'+s; }
+  renderVals(){
+    const C=Component, st=this.state, P=st.programs[st.activeIdx]||null;
+    const acc='var(--accent)', card='var(--card)', bord='rgba(255,255,255,0.08)';
+    const THEMES={
+      lime:{bg:'#0f110d',bg2:'#151711',desk:'#0a0b09',card:'#181b15',cardHover:'#1d211a',inputBg:'#22261e',accent:'#c9f24b',accentHover:'#daf876',onAccent:'#161a05',text:'#f1f3ea',accentRGB:'201,242,75',textRGB:'241,243,234'},
+      ember:{bg:'#141110',bg2:'#1d1512',desk:'#0c0908',card:'#1e1815',cardHover:'#261d18',inputBg:'#271e19',accent:'#f2622e',accentHover:'#ff7a48',onAccent:'#1a0d07',text:'#f4efe8',accentRGB:'242,98,46',textRGB:'244,239,232'},
+      ice:{bg:'#0d1013',bg2:'#111820',desk:'#080b0e',card:'#161b21',cardHover:'#1b2129',inputBg:'#1c232b',accent:'#43c9ff',accentHover:'#6fd7ff',onAccent:'#04141d',text:'#eef3f7',accentRGB:'67,201,255',textRGB:'238,243,247'},
+      violet:{bg:'#110f16',bg2:'#181320',desk:'#0a0810',card:'#1a1622',cardHover:'#201a2b',inputBg:'#211b2c',accent:'#b483ff',accentHover:'#c9a3ff',onAccent:'#140a22',text:'#f1eef7',accentRGB:'180,131,255',textRGB:'241,238,247'},
+    };
+    const tk=THEMES[this.props.theme]?this.props.theme:'ember', T=THEMES[tk];
+    const go=(screen,extra)=>()=>this.setState({screen,...extra});
+    const v={
+      isHome:st.screen==='home', isWizard:st.screen==='wizard', isProgram:st.screen==='program',
+      isDay:st.screen==='day', isLift:st.screen==='lift', isMore:st.screen==='more', isLibrary:st.screen==='library', isAddLift:st.screen==='addlift',
+      showNav:st.screen==='home'||st.screen==='program'||st.screen==='more'||st.screen==='library',
+      hasProgram:!!P, noProgram:!P,
+      dateLine:new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}).toUpperCase().replace(/,/g,' ·'),
+      toast:st.toast, toastOn:!!st.toast,
+      themeVars:Object.keys(T).map(k=>'--'+k+':'+T[k]+';').join(''),
+      futureVision:(this.props.futureVision ?? false)&&st.screen==='home'&&!!P,
+      goProgram:()=>this.setState({screen:'program',viewIdx:null}), backToProgram:go('program'), goLibrary:go('library'), startWizard:()=>this.setState({screen:'wizard',wizStep:0,wPartIdx:0}),
+    };
+    // ---- Home ----
+    if(P){
+      const nextIdx=P.days.findIndex(d=>!d.completed);
+      const next=nextIdx>=0?P.days[nextIdx]:null;
+      v.hasNextDay=!!next; v.allDone=!next;
+      if(next){
+        v.nextUpLabel='UP NEXT · DAY '+(nextIdx+1)+' OF '+P.days.length;
+        v.nextDayFocus=this.focusOf(next);
+        v.nextDayMeta=this.dayMetaOf(next);
+        v.startNext=st.session?()=>this.setState({screen:'day',dayIdx:st.session.dayIdx,viewIdx:null}):()=>this.setState({session:{dayIdx:nextIdx,startedAt:Date.now()},screen:'day',dayIdx:nextIdx,viewIdx:null});
+        v.startBtnText=st.session?'Resume workout':'Start workout';
+        v.nextLifts=next.exercises.map(e=>({name:e.name,meta:e.sets.length+' × '+e.targetReps}));
+      }
+      let setsLogged=0, volume=0;
+      P.days.forEach(d=>d.exercises.forEach(e=>e.sets.forEach(s=>{ if(s.done){ setsLogged++; volume+=(parseFloat(s.weight)||0)*(parseFloat(s.reps)||0); } })));
+      v.homeStats=[
+        {value:P.days.filter(d=>d.completed).length+' / '+P.days.length, label:'DAYS LOGGED'},
+        {value:String(setsLogged), label:'SETS THIS CYCLE'},
+        {value:volume>=1000?(volume/1000).toFixed(1)+'k':String(Math.round(volume)), label:'VOLUME · LB'},
+      ];
+      v.resetWeek=()=>{ P.days.forEach(d=>{ d.completed=false; d.exercises.forEach(e=>{ e.done=false; e.sets.forEach(s=>{s.done=false;s.weight='';s.reps='';}); }); }); this.commit(); this.showToast('New cycle started'); };
+      v.weekDots=P.days.map((d,i)=>{ const isNext=i===nextIdx;
+        return { num:String(i+1).padStart(2,'0'), state:d.completed?'DONE':(isNext?'NEXT':'—'),
+          bg:d.completed?'rgba(var(--accentRGB),0.1)':(isNext?card:'transparent'),
+          bc:d.completed?'rgba(var(--accentRGB),0.4)':(isNext?'rgba(255,255,255,0.2)':bord),
+          fg:d.completed?acc:'var(--text)', sub:d.completed?acc:'rgba(var(--textRGB),0.4)',
+          onTap:go('day',{dayIdx:i,viewIdx:null}) }; });
+      const totalSets=P.days.reduce((a,d)=>a+d.exercises.reduce((b,e)=>b+e.sets.length,0),0);
+      v.programTitle=P.name;
+      v.programMeta=P.parts.length+' muscle groups · '+totalSets+' sets per cycle';
+      v.progDays=P.days.map((d,i)=>{ const isNext=i===nextIdx;
+        return { num:String(i+1).padStart(2,'0'), focus:this.focusOf(d), meta:this.dayMetaOf(d),
+          bg:card, bc:isNext?'rgba(var(--accentRGB),0.45)':bord,
+          numBg:d.completed?acc:(isNext?'rgba(var(--accentRGB),0.14)':'rgba(255,255,255,0.06)'),
+          numFg:d.completed?'var(--onAccent)':(isNext?acc:'rgba(var(--textRGB),0.7)'),
+          tag:d.completed?'DONE ✓':(isNext?'UP NEXT':''), tagFg:d.completed?acc:(isNext?acc:'transparent'),
+          onOpen:go('day',{dayIdx:i}) }; });
+    } else { v.hasNextDay=false; v.allDone=false; v.weekDots=[]; v.progDays=[]; }
+    const VP=st.viewIdx!=null?st.programs[st.viewIdx]:P;
+    const viewingOther=st.viewIdx!=null&&st.viewIdx!==st.activeIdx;
+    if(VP){
+      const vSets=VP.days.reduce((a,d)=>a+d.exercises.reduce((b,e)=>b+e.sets.length,0),0);
+      const vNext=VP.days.findIndex(d=>!d.completed);
+      v.blockName=VP.name;
+      v.programSubline=VP.effort[0].toUpperCase()+VP.effort.slice(1)+' · '+VP.days.length+' days / cycle · '+vSets+' total sets';
+      v.progEyebrow=viewingOther?'PREVIEW — NOT ACTIVE':'ACTIVE PROGRAM';
+      v.progEyebrowFg=viewingOther?'var(--accent)':'rgba(var(--textRGB),0.45)';
+      v.progSwitchLabel=viewingOther?'Make active':'Switch ›';
+      v.progSwitchAction=viewingOther?()=>{ this.setState({activeIdx:st.viewIdx,viewIdx:null}); this.showToast(VP.name+' is now active'); }:go('library');
+      v.progRenaming=!!st.renaming; v.progNotRenaming=!st.renaming; v.renameVal=st.renameVal;
+      v.startRename=()=>this.setState({renaming:true,renameVal:VP.name});
+      v.onRenameChange=(e2)=>this.setState({renameVal:e2.target.value});
+      v.onRenameDone=()=>{ const nm=(st.renameVal||'').trim(); if(nm) VP.name=nm; this.setState({renaming:false}); this.commit(); };
+      v.onRenameKey=(e2)=>{ if(e2.key==='Enter') e2.target.blur(); };
+      v.progDays=VP.days.map((d,i)=>{ const isNext=i===vNext;
+        return { num:String(i+1).padStart(2,'0'), focus:this.focusOf(d), meta:this.dayMetaOf(d),
+          bg:card, bc:isNext?'rgba(var(--accentRGB),0.45)':bord,
+          numBg:d.completed?acc:(isNext?'rgba(var(--accentRGB),0.14)':'rgba(255,255,255,0.06)'),
+          numFg:d.completed?'var(--onAccent)':(isNext?acc:'rgba(var(--textRGB),0.7)'),
+          tag:d.completed?'DONE ✓':(isNext?'UP NEXT':''), tagFg:d.completed?acc:(isNext?acc:'transparent'),
+          onOpen:go('day',{dayIdx:i}) }; });
+    } else { v.programSubline=''; v.blockName=''; v.progEyebrow='ACTIVE PROGRAM'; v.progEyebrowFg='rgba(var(--textRGB),0.45)'; v.progSwitchLabel='Switch ›'; v.progSwitchAction=go('library'); v.progRenaming=false; v.progNotRenaming=true; }
+    v.programList=st.programs.map((pg,i)=>{ const done=pg.days.filter(d=>d.completed).length, active=i===st.activeIdx;
+      const sets=pg.days.reduce((a,d)=>a+d.exercises.reduce((b,e)=>b+e.sets.length,0),0);
+      return { name:pg.name, tag:active?'ACTIVE':'', tagFg:active?acc:'transparent',
+        meta:pg.effort[0].toUpperCase()+pg.effort.slice(1)+' · '+pg.days.length+' days / cycle · '+pg.parts.length+' muscle groups · '+sets+' sets',
+        pct:Math.round(done/pg.days.length*100)+'%', progress:done+' of '+pg.days.length+' days logged',
+        bc:active?'rgba(var(--accentRGB),0.45)':bord, bg:card, showActivate:!active,
+        onView:go('program',{viewIdx:i}),
+        onActivate:(e2)=>{ e2.stopPropagation(); this.setState({activeIdx:i,dayIdx:0}); this.showToast(pg.name+' is now active'); } }; });
+    // ---- Wizard ----
+    const stepPct = st.wizStep<3 ? (st.wizStep+1)/4 : (3+(st.wPartIdx+1)/Math.max(1,st.wParts.length))/4;
+    v.wizPct=Math.round(stepPct*100)+'%';
+    v.wizStepText='STEP '+(st.wizStep+1)+' OF 4';
+    v.wStepEffort=st.wizStep===0; v.wStepDays=st.wizStep===1; v.wStepParts=st.wizStep===2; v.wStepEx=st.wizStep===3;
+    const selB={bc:acc,bg:'rgba(var(--accentRGB),0.08)'}, unsB={bc:bord,bg:card};
+    v.effortOpts=[
+      {key:'minimal',title:'Minimal',vol:'~6 SETS / WK',sub:'Maintain muscle with the least time in the gym.'},
+      {key:'optimal',title:'Optimal',vol:'~12 SETS / WK',sub:'The sweet spot for steady, consistent growth.'},
+      {key:'maximal',title:'Maximal',vol:'~18 SETS / WK',sub:'Max volume for experienced lifters who recover well.'},
+    ].map(o=>({...o,...(st.wEffort===o.key?selB:unsB),onPick:()=>this.setState({wEffort:o.key})}));
+    v.dayOpts=[2,3,4,5,6].map(n=>({n, ...(st.wDays===n?selB:unsB), fg:st.wDays===n?acc:'var(--text)', onPick:()=>this.setState({wDays:n})}));
+    v.partOpts=C.PARTS.map(p=>{ const on=st.wParts.includes(p);
+      return { label:C.LABEL[p], bc:on?acc:bord, bg:on?acc:card, fg:on?'var(--onAccent)':'var(--text)',
+        onToggle:()=>this.setState({wParts:on?st.wParts.filter(x=>x!==p):[...st.wParts,p]}) }; });
+    const curPart=st.wParts.length?C.PARTS.filter(p=>st.wParts.includes(p))[st.wPartIdx]:null;
+    if(curPart){
+      const chosen=st.wEx[curPart]||[];
+      v.exPartCount='MUSCLE '+(st.wPartIdx+1)+' OF '+st.wParts.length;
+      v.exPartTitle=C.LABEL[curPart];
+      v.exSubline='Pick the lifts you want in your plan · '+chosen.length+' selected';
+      v.exOpts=C.LIB[curPart].map(e=>{ const on=chosen.includes(e.n);
+        return { name:e.n, reps:e.r, bc:on?acc:bord, bg:on?'rgba(var(--accentRGB),0.08)':card,
+          cbc:on?acc:'rgba(255,255,255,0.25)', cbg:on?acc:'transparent', check:on?'✓':'',
+          onToggle:()=>{ const wEx={...st.wEx,[curPart]:on?chosen.filter(x=>x!==e.n):[...chosen,e.n]}; this.setState({wEx}); } }; });
+    } else { v.exOpts=[]; v.exPartCount=''; v.exPartTitle=''; v.exSubline=''; }
+    const orderedParts=C.PARTS.filter(p=>st.wParts.includes(p));
+    v.wizNextLabel = st.wizStep<3 ? 'Continue' : (st.wPartIdx<orderedParts.length-1?'Next muscle':'Build program');
+    v.wizNext=()=>{
+      if(st.wizStep===2){
+        if(!st.wParts.length) return this.showToast('Pick at least one muscle group');
+        const wEx={...st.wEx};
+        orderedParts.forEach(p=>{ if(!wEx[p]||!wEx[p].length) wEx[p]=C.LIB[p].slice(0,2).map(e=>e.n); });
+        return this.setState({wEx,wizStep:3,wPartIdx:0});
+      }
+      if(st.wizStep===3){
+        if(!(st.wEx[curPart]||[]).length) return this.showToast('Pick at least one lift');
+        if(st.wPartIdx<orderedParts.length-1) return this.setState({wPartIdx:st.wPartIdx+1});
+        const np=this.gen(st.wEffort,st.wDays,orderedParts,st.wEx);
+        this.setState({programs:[...st.programs,np],activeIdx:st.programs.length,screen:'program',dayIdx:0}); this.showToast(np.name+' built and set active'); return;
+      }
+      this.setState({wizStep:st.wizStep+1});
+    };
+    v.wizBack=()=>{
+      if(st.wizStep===3 && st.wPartIdx>0) return this.setState({wPartIdx:st.wPartIdx-1});
+      if(st.wizStep>0) return this.setState({wizStep:st.wizStep-1});
+      this.setState({screen:P?'program':'home'});
+    };
+    // ---- Day ----
+    const day=VP?VP.days[st.dayIdx]:null;
+    const live=!!st.session && !viewingOther && st.session.dayIdx===st.dayIdx && st.screen!=='home';
+    if(day){
+      const doneCt=day.exercises.filter(e=>e.done).length;
+      v.dayEyebrow=live?day.label.toUpperCase()+' · IN SESSION':day.label.toUpperCase()+(day.completed?' · LOGGED':' · PLAN');
+      v.dayBackLabel=live?'Train':'Program';
+      v.dayBackAction=live?()=>this.setState({screen:'home'}):go('program');
+      v.dayFocus=this.focusOf(day); v.dayMeta=this.dayMetaOf(day);
+      v.dayPct=Math.round(doneCt/day.exercises.length*100)+'%';
+      v.dayLifts=day.exercises.map((e,i)=>({ live:live, plan:!live, name:e.name, fg:e.done?'rgba(var(--textRGB),0.5)':'var(--text)',
+        meta:C.LABEL[e.part]+' · '+e.sets.length+' × '+e.targetReps,
+        planMeta:C.LABEL[e.part]+' · target '+e.targetReps+' reps',
+        setsText:e.sets.length+' sets',
+        onLess:()=>{ if(e.sets.length<=1) return this.showToast('A lift needs at least one set'); e.sets.pop(); this.commit(); },
+        onMore:()=>{ if(e.sets.length>=6) return this.showToast('Six sets is the cap per lift'); e.sets.push({weight:'',reps:'',done:false}); this.commit(); },
+        onSwap:()=>{ const inDay=day.exercises.map(x=>x.name); const alt=C.LIB[e.part].find(x=>!inDay.includes(x.n));
+          if(!alt) return this.showToast('No unused alternatives for '+C.LABEL[e.part]);
+          day.exercises[i]={name:alt.n,part:e.part,targetReps:alt.r,desc:alt.d,done:false,sets:e.sets.map(()=>({weight:'',reps:'',done:false}))};
+          this.commit(); this.showToast('Swapped to '+alt.n); },
+        onRemove:()=>{ if(day.exercises.length<=1) return this.showToast('A day needs at least one lift'); day.exercises.splice(i,1); this.commit(); },
+        bg:card, bc:bord, check:e.done?'✓':'', cbc:e.done?acc:'rgba(255,255,255,0.25)', cbg:e.done?acc:'transparent',
+        onOpen:go('lift',{liftIdx:i,restStart:null}) }));
+      v.dayCanEdit=!live&&!viewingOther&&!day.completed;
+      v.openAddLift=go('addlift');
+      v.liftBackLabel=day.label; v.backToDay=go('day');
+      const allLifts=doneCt===day.exercises.length;
+      v.dayBtnShow=live||(!viewingOther&&day.completed);
+      if(live){
+        v.dayBtnLabel=allLifts?'Finish workout':'Finish workout ('+doneCt+'/'+day.exercises.length+' lifts)';
+        v.dayBtnBg=acc; v.dayBtnFg='var(--onAccent)';
+        v.completeDay=()=>{ day.completed=true; this.commit(); this.setState({session:null,restStart:null,screen:'home'}); this.showToast(day.label+' logged — nice work'); };
+      } else if(day.completed){
+        v.dayBtnLabel='Day logged ✓ — tap to reopen';
+        v.dayBtnBg='rgba(var(--accentRGB),0.15)'; v.dayBtnFg=acc;
+        v.completeDay=()=>{ day.completed=false; this.commit(); this.showToast(day.label+' reopened'); };
+      }
+    }
+    // ---- Lift ----
+    const ex=day?day.exercises[st.liftIdx]:null;
+    v.liftLive=live; v.liftPlan=!live;
+    if(ex){
+      v.liftBackLabel=day.label; v.backToDay=go('day');
+      v.liftName=ex.name; v.liftDesc=ex.desc; v.liftPart=C.LABEL[ex.part].toUpperCase();
+      v.liftTarget=ex.sets.length+' sets × '+ex.targetReps+' reps';
+      v.liftSets=ex.sets.map((s,i)=>({ n:'S'+(i+1), weight:s.weight, reps:s.reps, ph:ex.targetReps,
+        rowBg:s.done?'rgba(var(--accentRGB),0.05)':'transparent',
+        check:s.done?'✓':'', cbc:s.done?acc:'rgba(255,255,255,0.25)', cbg:s.done?acc:'transparent',
+        onW:(e2)=>{ s.weight=e2.target.value; this.commit(); },
+        onR:(e2)=>{ s.reps=e2.target.value; this.commit(); },
+        onToggle:()=>{ s.done=!s.done; if(s.done){ if(!s.reps) s.reps=String(this.midReps(ex.targetReps)); this.setState({restStart:Date.now()}); } this.commit(); } }));
+      const nextUndone=day.exercises.findIndex((e2,i)=>i!==st.liftIdx&&!e2.done);
+      v.liftBtnLabel=ex.done?'Lift done ✓ — tap to undo':(nextUndone>=0?'Done — next lift':'Done — back to day');
+      v.liftBtnBg=ex.done?'rgba(var(--accentRGB),0.15)':acc; v.liftBtnFg=ex.done?acc:'var(--onAccent)';
+      v.completeLift=()=>{ if(ex.done){ ex.done=false; this.commit(); return; }
+        ex.done=true; ex.sets.forEach(s=>{ if(!s.done){ s.done=true; if(!s.reps) s.reps=String(this.midReps(ex.targetReps)); } });
+        this.commit();
+        if(nextUndone>=0){ this.setState({liftIdx:nextUndone,restStart:null}); this.showToast('Next: '+day.exercises[nextUndone].name); }
+        else { this.setState({screen:'day',restStart:null}); this.showToast('All lifts done — finish the workout'); } };
+    }
+    // ---- Add lift ----
+    if(day){
+      const inDay=day.exercises.map(x=>x.name);
+      const opts=[];
+      (VP?VP.parts:[]).forEach(p=>{
+        const avail=C.LIB[p].filter(e2=>!inDay.includes(e2.n));
+        if(!avail.length) return;
+        opts.push({isHeader:true,isRow:false,label:C.LABEL[p].toUpperCase()});
+        avail.forEach(e2=>opts.push({isHeader:false,isRow:true,name:e2.n,reps:e2.r,
+          onAdd:()=>{ day.exercises.push({name:e2.n,part:p,targetReps:e2.r,desc:e2.d,done:false,sets:[{weight:'',reps:'',done:false},{weight:'',reps:'',done:false},{weight:'',reps:'',done:false}]});
+            day.exercises.sort((a2,b2)=>C.PARTS.indexOf(a2.part)-C.PARTS.indexOf(b2.part));
+            this.commit(); this.setState({screen:'day'}); this.showToast(e2.n+' added'); }}));
+      });
+      v.addOpts=opts;
+    } else v.addOpts=[];
+    // ---- Session resume bar ----
+    v.resumeOn=!!st.session&&!!P&&(st.screen==='home'||st.screen==='program'||st.screen==='more'||st.screen==='library');
+    if(v.resumeOn){ const sd=P.days[st.session.dayIdx];
+      v.resumeTitle=sd.label+' — '+this.focusOf(sd);
+      v.resumeElapsed=this.fmt(Date.now()-st.session.startedAt);
+      v.resumeSession=()=>this.setState({screen:'day',dayIdx:st.session.dayIdx,viewIdx:null});
+    }
+    // ---- Timer ----
+    const alertSec=this.props.restAlertSec ?? 90;
+    const elapsed=st.restStart?Date.now()-st.restStart:0;
+    v.timerRunning=!!st.restStart;
+    v.timerText=st.restStart?this.fmt(elapsed):'00:00';
+    v.timerColor=st.restStart&&elapsed>=alertSec*1000?acc:'var(--text)';
+    v.timerBtnLabel=st.restStart?'Reset':'Start';
+    v.timerReset=()=>this.setState({restStart:Date.now()});
+    v.timerStop=()=>this.setState({restStart:null});
+    // ---- Nav ----
+    const tabs=[{label:'Train',screen:'home'},{label:'Program',screen:'program'},{label:'More',screen:'more'}];
+    const activeTab=st.screen==='home'?'home':(st.screen==='more'?'more':'program');
+    v.navItems=tabs.map(t=>({ label:t.label,
+      op:1, dot:t.screen===activeTab?acc:'transparent',
+      fg:t.screen===activeTab?'var(--text)':'rgba(var(--textRGB),0.55)',
+      onTap:t.screen==='program'?()=>this.setState({screen:'program',viewIdx:null}):go(t.screen) }));
+    const futureMods=(this.props.showFutureTabs ?? true)?[
+      {label:'Nutrition',sub:'Macros, meals and calorie targets',locked:true},
+      {label:'Cardio',sub:'Runs, rides and conditioning sessions',locked:true},
+      {label:'Sharing',sub:'Share programs and PRs with friends',locked:true},
+      {label:'Progress',sub:'Strength trends and body measurements',locked:true},
+    ]:[];
+    v.moduleItems=[
+      {label:'Lifting',sub:'Programs, workout days and set logging',tag:'ACTIVE',onTap:go('program')},
+      ...futureMods,
+    ].map(m=>({ label:m.label, sub:m.sub, initial:m.label[0],
+      bc:m.locked?'rgba(255,255,255,0.06)':'rgba(var(--accentRGB),0.35)',
+      op:m.locked?0.55:1,
+      iconBg:m.locked?'rgba(255,255,255,0.06)':acc, iconFg:m.locked?'rgba(var(--textRGB),0.6)':'var(--onAccent)',
+      tag:m.locked?'SOON':m.tag, tagFg:m.locked?'rgba(var(--textRGB),0.4)':acc,
+      onTap:m.onTap||(()=>this.showToast(m.label+' ships in a later phase')) }));
+    return v;
+  }
+}
+</script>
+</body>
+</html>
