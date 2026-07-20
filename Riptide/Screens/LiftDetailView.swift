@@ -21,7 +21,7 @@ struct LiftDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
                 RoundedRectangle(cornerRadius: 18)
-                    .stroke(Theme.strokeDashedFaint, style: StrokeStyle(lineWidth: 1, dash: [6]))
+                    .stroke(Theme.strokeDashed, style: StrokeStyle(lineWidth: 1, dash: [6]))
                     .frame(height: 130)
                     .overlay(Text("exercise demo · coming later")
                         .font(.system(size: 11, design: .monospaced)).foregroundStyle(Theme.textFaint))
@@ -105,12 +105,13 @@ struct LiftDetailView: View {
     /// Prefill from last session on this exercise — any program (spec §4/§7).
     private func prefill() {
         let last = HistoryQueries.lastSets(exerciseID: lift.exerciseID, in: context)
+        let bySetIndex = HistoryQueries.bySetIndex(last)
         weights = (0..<lift.targetSets).map { i in
-            guard i < last.count, last[i].weight > 0 else { return i < last.count ? String(Int(last[i].weight)) : "" }
-            let w = last[i].weight
+            guard let set = bySetIndex[i] else { return "" }
+            let w = set.weight
             return w == w.rounded() ? String(Int(w)) : String(w)
         }
-        reps = (0..<lift.targetSets).map { i in i < last.count ? String(last[i].reps) : "" }
+        reps = (0..<lift.targetSets).map { i in bySetIndex[i].map { String($0.reps) } ?? "" }
     }
 
     private func setField(_ values: Binding<[String]>, _ i: Int, placeholder: String) -> some View {

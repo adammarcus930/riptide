@@ -58,4 +58,30 @@ final class SessionTests: XCTestCase {
         XCTAssertEqual(openSessions.first?.dayIndex, day1.index)
         XCTAssertNotNil(stale.finishedAt)
     }
+
+    /// Finding 2: a prior session with sparse setIndices (0 and 2 logged, 1 skipped) must have
+    /// its setIndex-2 data land on lookup key 2 — not on array position 1, which is what a
+    /// positional `last[i]` mapping would do.
+    func testLastSetsSparseSetIndexMapsByKeyNotPosition() throws {
+        let container = try ModelContainer.riptide(inMemory: true)
+        let context = container.mainContext
+        var sel: [MuscleGroup: [ExerciseDefinition]] = [:]
+        sel[.chest] = [ExerciseBank.find("bench-press")!]
+        let input = GeneratorInput(effort: .minimal, days: 2, selections: sel)
+        let program = ProgramMaterializer.materialize(ProgramGenerator.generate(input), named: "T", input: input, in: context)
+        let day = program.sortedDays[0]
+        let lift = day.sortedLifts[0]
+
+        let logger = SetLogger(day: day, context: context)
+        logger.toggle(lift: lift, setIndex: 0, weight: 100, reps: 10)
+        logger.toggle(lift: lift, setIndex: 2, weight: 140, reps: 6)
+
+        let last = HistoryQueries.lastSets(exerciseID: lift.exerciseID, in: context)
+        XCTAssertEqual(last.map(\.setIndex).sorted(), [0, 2])
+
+        let bySetIndex = HistoryQueries.bySetIndex(last)
+        XCTAssertEqual(bySetIndex[0]?.weight, 100)
+        XCTAssertEqual(bySetIndex[2]?.weight, 140)
+        XCTAssertNil(bySetIndex[1])
+    }
 }

@@ -24,6 +24,15 @@ enum HistoryQueries {
         )
         return (try? context.fetch(descriptor))?.first
     }
+
+    /// Maps a set list (as returned by `lastSets`) to a setIndex → set lookup, so callers can
+    /// prefill by logical set position rather than array position — a prior session with sparse
+    /// setIndices (e.g. only 0 and 2 logged) must not have `last[1]` silently land on row 1.
+    /// Uses the last value on a duplicate key defensively, though `lastSets` is already
+    /// single-session so setIndex values are unique in practice.
+    static func bySetIndex(_ sets: [LoggedSet]) -> [Int: LoggedSet] {
+        Dictionary(sets.map { ($0.setIndex, $0) }, uniquingKeysWith: { _, last in last })
+    }
 }
 
 /// Set toggling shared by LiftDetailView and tests: creates the session lazily,
@@ -59,6 +68,7 @@ struct SetLogger {
             let s = LoggedSet(exerciseID: lift.exerciseID, weight: weight, reps: reps, setIndex: setIndex)
             s.session = session()
             context.insert(s)
+            try? context.save()
         }
     }
 }
