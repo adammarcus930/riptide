@@ -93,7 +93,7 @@ struct ProgramView: View {
                             in: RoundedRectangle(cornerRadius: 14))
                 .foregroundStyle(day.completedInCycle ? Theme.accent : Theme.text)
             VStack(alignment: .leading, spacing: 2) {
-                Text(day.focus).font(.system(size: 15, weight: .bold)).lineLimit(1)
+                Text(day.focus).font(.system(size: 15, weight: .bold)).lineLimit(2)
                 let sets = day.sortedLifts.reduce(0) { $0 + $1.targetSets }
                 Text("\(day.sortedLifts.count) lifts · \(sets) sets")
                     .font(.system(size: 12)).foregroundStyle(Theme.textDim)

@@ -44,4 +44,16 @@ enum Allocation {
         let rem = total % k
         return (0..<k).map { $0 < rem ? base + 1 : base }
     }
+
+    /// Choose `k` day indices spread as evenly as possible across `days` days,
+    /// starting from `phase`, so a muscle's sessions land throughout the week
+    /// instead of clumping on consecutive days then leaving the rest empty
+    /// (spec §5.5). `phase` rotates per muscle so different muscles occupy
+    /// different days, keeping daily totals level. Returns distinct indices.
+    static func spreadDays(k: Int, over days: Int, phase: Int) -> [Int] {
+        guard k > 0, days > 0 else { return [] }
+        if k >= days { return Array(0..<days) }
+        // Even spacing via the midpoint of each of k equal buckets across the week.
+        return (0..<k).map { i in (phase + ((2 * i + 1) * days) / (2 * k)) % days }
+    }
 }

@@ -48,12 +48,13 @@ final class ProgramDay {
     init(index: Int = 0) { self.index = index }
 
     var sortedLifts: [PlannedLift] { (lifts ?? []).sorted { $0.order < $1.order } }
-    /// "Chest · Lats · Triceps" style focus line for cards.
+    /// "Chest · Lats · Triceps" style focus line for cards — lists every muscle
+    /// group trained that day (full-body days hit many, so no truncation).
     var focus: String {
         let muscles = sortedLifts.compactMap { MuscleGroup.decode($0.muscleRaw) }
         var seen: [MuscleGroup] = []
         for m in muscles where !seen.contains(m) { seen.append(m) }
-        return seen.prefix(3).map(\.label).joined(separator: " · ") + (seen.count > 3 ? " +" : "")
+        return seen.map(\.label).joined(separator: " · ")
     }
 }
 

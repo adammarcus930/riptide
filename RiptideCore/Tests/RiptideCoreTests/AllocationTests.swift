@@ -42,6 +42,32 @@ final class AllocationTests: XCTestCase {
         XCTAssertEqual(Allocation.dayLoads(total: 0, days: 4, maxEntriesPerDay: 2), [])
     }
 
+    // Spec §5.5: a muscle's appearances spread across the week, not a contiguous block.
+    func testSpreadDaysIsEvenNotContiguous() {
+        XCTAssertEqual(Allocation.spreadDays(k: 4, over: 6, phase: 0).sorted(), [0, 2, 3, 5])
+        XCTAssertEqual(Allocation.spreadDays(k: 4, over: 7, phase: 0).sorted(), [0, 2, 4, 6])
+        XCTAssertEqual(Allocation.spreadDays(k: 2, over: 6, phase: 0).sorted(), [1, 4])
+        XCTAssertEqual(Allocation.spreadDays(k: 6, over: 6, phase: 3), [0, 1, 2, 3, 4, 5]) // k>=days → all
+        // Distinct, in range, and evenly spaced around the (cyclic) week: gaps
+        // between consecutive training days differ by at most 1.
+        for days in 2...7 {
+            for k in 1..<days {
+                for phase in 0..<days {
+                    let s = Allocation.spreadDays(k: k, over: days, phase: phase)
+                    XCTAssertEqual(Set(s).count, k, "k=\(k) days=\(days) phase=\(phase): \(s)")
+                    XCTAssertTrue(s.allSatisfy { (0..<days).contains($0) })
+                    if k >= 2 {
+                        let sorted = s.sorted()
+                        var gaps = zip(sorted, sorted.dropFirst()).map { $1 - $0 }
+                        gaps.append(sorted.first! + days - sorted.last!) // wrap-around gap
+                        XCTAssertLessThanOrEqual(gaps.max()! - gaps.min()!, 1,
+                            "k=\(k) days=\(days) phase=\(phase) uneven: \(s) gaps \(gaps)")
+                    }
+                }
+            }
+        }
+    }
+
     // Concentration: with plenty of days available, a muscle lands on ~total/3
     // days at 3 sets each rather than being spread thin at 2 sets everywhere.
     func testDayLoadsConcentratesRatherThanSpreading() {

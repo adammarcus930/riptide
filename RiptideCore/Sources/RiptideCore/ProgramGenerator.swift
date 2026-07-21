@@ -58,12 +58,22 @@ public enum ProgramGenerator {
 
             let loads = Allocation.dayLoads(total: achieved, days: input.days, maxEntriesPerDay: exercises.count)
 
-            // Stagger (spec §5.5): emptiest days first, rotating tie-break so
-            // light muscles don't all pile onto day 1.
-            let offset = mIndex % input.days
-            let dayOrder = (0..<input.days).sorted { a, b in
-                (dayTotals[a], (a + input.days - offset) % input.days)
-                    < (dayTotals[b], (b + input.days - offset) % input.days)
+            // Spread this muscle's sessions evenly across the week so it isn't
+            // trained several days in a row then left out (spec §5.5). Every
+            // rotation of the even-spacing pattern is equally "spread", so pick
+            // the rotation that best levels the running daily totals — this keeps
+            // both goals: each muscle spaced out AND no day overloaded.
+            let k = loads.count
+            var dayOrder = Allocation.spreadDays(k: k, over: input.days, phase: 0)
+                .sorted { dayTotals[$0] < dayTotals[$1] }
+            var bestScore = Int.max
+            for phase in 0..<input.days {
+                let slots = Allocation.spreadDays(k: k, over: input.days, phase: phase)
+                    .sorted { dayTotals[$0] < dayTotals[$1] }
+                var trial = dayTotals
+                for (i, load) in loads.enumerated() { trial[slots[i]] += load }
+                let score = trial.reduce(0) { $0 + $1 * $1 }   // lower = more level
+                if score < bestScore { bestScore = score; dayOrder = slots }
             }
 
             var rotation = 0

@@ -1,18 +1,17 @@
-Day 1 — 14 lifts, 34 sets
-  Leg Press [quads] 3 x 8–12
-  Lying Leg Curl [hamstrings] 3 x 10–15
+Day 1 — 13 lifts, 34 sets
+  Back Squat [quads] 3 x 5–8
+  Romanian Deadlift [hamstrings] 3 x 6–10
   Barbell Bench Press [chest] 3 x 5–8
   Lat Pulldown [lats] 2 x 8–12
   Pull-Up [lats] 2 x 6–10
-  Overhead Press [frontDelts] 2 x 5–8
+  Overhead Press [frontDelts] 3 x 5–8
   Cable Lateral Raise [sideDelts] 2 x 12–15
   Dumbbell Lateral Raise [sideDelts] 2 x 12–15
-  Reverse Pec Deck [rearDelts] 3 x 12–15
-  Dumbbell Shrug [traps] 3 x 12–15
-  Barbell Curl [biceps] 2 x 8–12
-  Dumbbell Curl [biceps] 2 x 10–12
-  Seated Calf Raise [calves] 3 x 15–20
-  Cable Crunch [abs] 2 x 10–15
+  Rear Delt Fly [rearDelts] 3 x 12–15
+  Barbell Shrug [traps] 3 x 10–15
+  Reverse Curl [forearms] 2 x 10–15
+  Standing Calf Raise [calves] 3 x 10–15
+  Hanging Leg Raise [abs] 3 x 8–12
 Day 2 — 13 lifts, 34 sets
   Back Squat [quads] 3 x 5–8
   Romanian Deadlift [hamstrings] 3 x 6–10
@@ -27,24 +26,10 @@ Day 2 — 13 lifts, 34 sets
   Reverse Curl [forearms] 3 x 10–15
   Standing Calf Raise [calves] 3 x 10–15
   Cable Crunch [abs] 3 x 10–15
-Day 3 — 13 lifts, 34 sets
-  Back Squat [quads] 3 x 5–8
+Day 3 — 12 lifts, 32 sets
+  Leg Press [quads] 3 x 8–12
   Lying Leg Curl [hamstrings] 3 x 10–15
   Barbell Bench Press [chest] 3 x 5–8
-  Lat Pulldown [lats] 2 x 8–12
-  Pull-Up [lats] 2 x 6–10
-  Overhead Press [frontDelts] 3 x 5–8
-  Cable Lateral Raise [sideDelts] 2 x 12–15
-  Dumbbell Lateral Raise [sideDelts] 2 x 12–15
-  Rear Delt Fly [rearDelts] 3 x 12–15
-  Barbell Shrug [traps] 3 x 10–15
-  Reverse Curl [forearms] 2 x 10–15
-  Standing Calf Raise [calves] 3 x 10–15
-  Hanging Leg Raise [abs] 3 x 8–12
-Day 4 — 12 lifts, 32 sets
-  Leg Press [quads] 3 x 8–12
-  Romanian Deadlift [hamstrings] 3 x 6–10
-  Incline Dumbbell Press [chest] 3 x 8–12
   Lat Pulldown [lats] 2 x 8–12
   Pull-Up [lats] 2 x 6–10
   Arnold Press [frontDelts] 3 x 8–12
@@ -54,3 +39,18 @@ Day 4 — 12 lifts, 32 sets
   Dumbbell Shrug [traps] 3 x 12–15
   Wrist Curl [forearms] 3 x 15–20
   Seated Calf Raise [calves] 3 x 15–20
+Day 4 — 14 lifts, 34 sets
+  Leg Press [quads] 3 x 8–12
+  Lying Leg Curl [hamstrings] 3 x 10–15
+  Incline Dumbbell Press [chest] 3 x 8–12
+  Lat Pulldown [lats] 2 x 8–12
+  Pull-Up [lats] 2 x 6–10
+  Overhead Press [frontDelts] 2 x 5–8
+  Cable Lateral Raise [sideDelts] 2 x 12–15
+  Dumbbell Lateral Raise [sideDelts] 2 x 12–15
+  Reverse Pec Deck [rearDelts] 3 x 12–15
+  Dumbbell Shrug [traps] 3 x 12–15
+  Barbell Curl [biceps] 2 x 8–12
+  Dumbbell Curl [biceps] 2 x 10–12
+  Seated Calf Raise [calves] 3 x 15–20
+  Cable Crunch [abs] 2 x 10–15
