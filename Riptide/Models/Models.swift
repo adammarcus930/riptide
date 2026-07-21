@@ -21,7 +21,11 @@ final class Program {
     var isActive: Bool = false
     @Relationship(deleteRule: .cascade, inverse: \ProgramDay.program)
     var days: [ProgramDay]? = []
-    @Relationship(deleteRule: .cascade, inverse: \WorkoutSession.program)
+    // Nullify (not cascade): deleting a program removes its plan but KEEPS the
+    // workouts logged under it, so per-exercise progression survives across
+    // programs (history is exercise-scoped). Orphaned sessions keep their
+    // `programName` for display.
+    @Relationship(deleteRule: .nullify, inverse: \WorkoutSession.program)
     var sessions: [WorkoutSession]? = []
 
     init(name: String = "", effort: Effort = .optimal, daysPerWeek: Int = 4, muscles: [MuscleGroup] = []) {
@@ -85,11 +89,15 @@ final class WorkoutSession {
     var startedAt: Date = Date()
     var finishedAt: Date? = nil
     var dayIndex: Int = 0
+    var programName: String = ""   // denormalized so history stays labeled after the program is deleted
     var program: Program?
     @Relationship(deleteRule: .cascade, inverse: \LoggedSet.session)
     var sets: [LoggedSet]? = []
 
-    init(dayIndex: Int = 0) { self.dayIndex = dayIndex }
+    init(dayIndex: Int = 0, programName: String = "") {
+        self.dayIndex = dayIndex
+        self.programName = programName
+    }
 }
 
 @Model

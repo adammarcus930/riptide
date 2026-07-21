@@ -83,10 +83,10 @@ struct ProgramDetailView: View {
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
         .confirmationDialog("Delete “\(program.name)”?", isPresented: $confirmingDelete, titleVisibility: .visible) {
-            Button("Delete program and its history", role: .destructive) { deleteProgram() }
+            Button("Delete program", role: .destructive) { deleteProgram() }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("This permanently removes the program, its days, and every workout logged under it.")
+            Text("Removes this program and its plan. Your logged workouts and per-exercise progression are kept.")
         }
     }
 

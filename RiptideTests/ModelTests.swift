@@ -52,6 +52,31 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(last.map(\.setIndex), [0, 1])
     }
 
+    func testDeletingProgramKeepsLoggedHistory() throws {
+        let input = makeInput()
+        let a = ProgramMaterializer.materialize(ProgramGenerator.generate(input), named: "Block A", input: input, in: context)
+        let session = WorkoutSession(dayIndex: 0, programName: a.name)
+        session.program = a
+        context.insert(session)
+        let logged = LoggedSet(exerciseID: "bench-press", weight: 225, reps: 5, setIndex: 0)
+        logged.session = session
+        context.insert(logged)
+        session.finishedAt = Date()
+
+        // Delete the program the sets were logged under.
+        context.delete(a)
+        try context.save()
+
+        // The program's plan is gone, but the workout and its per-exercise history survive.
+        XCTAssertTrue((try context.fetch(FetchDescriptor<Program>())).isEmpty)
+        let last = HistoryQueries.lastSets(exerciseID: "bench-press", in: context)
+        XCTAssertEqual(last.map(\.weight), [225])
+        let survivors = try context.fetch(FetchDescriptor<WorkoutSession>())
+        XCTAssertEqual(survivors.count, 1)
+        XCTAssertNil(survivors[0].program)          // nullified, not cascaded
+        XCTAssertEqual(survivors[0].programName, "Block A") // still labeled for History
+    }
+
     func testOpenSessionFindsOnlyUnfinished() throws {
         XCTAssertNil(HistoryQueries.openSession(in: context))
         let s = WorkoutSession(dayIndex: 1)

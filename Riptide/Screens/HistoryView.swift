@@ -24,7 +24,7 @@ struct HistoryView: View {
                             Text("\((session.sets ?? []).count) sets")
                                 .font(.system(size: 12, weight: .semibold)).foregroundStyle(Theme.textFaint)
                         }
-                        Text("\(session.program?.name ?? "Program") · Day \(session.dayIndex + 1)")
+                        Text("\(sessionLabel(session)) · Day \(session.dayIndex + 1)")
                             .font(.system(size: 12)).foregroundStyle(Theme.textDim)
                     }
                     .card()
@@ -34,5 +34,12 @@ struct HistoryView: View {
         }
         .background(Theme.bg.ignoresSafeArea())
         .foregroundStyle(Theme.text)
+    }
+
+    /// Prefer the live program's name; fall back to the denormalized name so a
+    /// session whose program was deleted still reads meaningfully.
+    private func sessionLabel(_ session: WorkoutSession) -> String {
+        if let name = session.program?.name, !name.isEmpty { return name }
+        return session.programName.isEmpty ? "Deleted program" : session.programName
     }
 }

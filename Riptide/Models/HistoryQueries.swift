@@ -78,7 +78,7 @@ struct SetLogger {
         // starting a session for a new day must not just assume the invariant holds.
         let stale = FetchDescriptor<WorkoutSession>(predicate: #Predicate { $0.finishedAt == nil })
         for s in (try? context.fetch(stale)) ?? [] { s.finishedAt = Date() }
-        let s = WorkoutSession(dayIndex: day.index)
+        let s = WorkoutSession(dayIndex: day.index, programName: day.program?.name ?? "")
         s.program = day.program
         context.insert(s)
         return s
