@@ -4,12 +4,15 @@ import RiptideCore
 
 struct DayDetailView: View {
     @Environment(\.modelContext) private var context
+    // Observed so the live checkmarks/progress refresh as sets are logged. A plain
+    // fetch inside `body` is invisible to SwiftUI and won't re-render on changes.
+    @Query(filter: #Predicate<WorkoutSession> { $0.finishedAt == nil }) private var openSessions: [WorkoutSession]
     @Bindable var day: ProgramDay
     @State private var editing = false
     @State private var showAdd = false
 
     private var loggedIDs: Set<String> {
-        guard let session = HistoryQueries.openSession(in: context), session.dayIndex == day.index else { return [] }
+        guard let session = openSessions.first(where: { $0.dayIndex == day.index }) else { return [] }
         return Set((session.sets ?? []).map(\.exerciseID))
     }
 
@@ -111,14 +114,28 @@ struct DayDetailView: View {
     }
 
     private func planRow(_ lift: PlannedLift) -> some View {
-        VStack(alignment: .leading, spacing: 11) {
-            HStack {
+        let lifts = day.sortedLifts
+        let idx = lifts.firstIndex { $0.persistentModelID == lift.persistentModelID } ?? 0
+        return VStack(alignment: .leading, spacing: 11) {
+            HStack(spacing: 10) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(lift.exerciseName).font(.system(size: 15, weight: .bold))
                     Text("\(lift.repRange) reps · \(MuscleGroup.decode(lift.muscleRaw)?.label ?? "")")
                         .font(.system(size: 12)).foregroundStyle(Theme.textFaint)
                 }
                 Spacer()
+                Button { move(lift, up: true) } label: {
+                    Image(systemName: "chevron.up").frame(width: 30, height: 30)
+                        .overlay(RoundedRectangle(cornerRadius: 9).stroke(Theme.strokeStrong))
+                }
+                .foregroundStyle(idx == 0 ? Theme.textFaint : Theme.text)
+                .disabled(idx == 0)
+                Button { move(lift, up: false) } label: {
+                    Image(systemName: "chevron.down").frame(width: 30, height: 30)
+                        .overlay(RoundedRectangle(cornerRadius: 9).stroke(Theme.strokeStrong))
+                }
+                .foregroundStyle(idx == lifts.count - 1 ? Theme.textFaint : Theme.text)
+                .disabled(idx == lifts.count - 1)
             }
             HStack(spacing: 8) {
                 HStack(spacing: 0) {
@@ -166,6 +183,17 @@ struct DayDetailView: View {
         lift.exerciseName = ex.name
         lift.muscleRaw = ex.primary.rawValue
         lift.repRange = ex.repRange
+    }
+
+    /// Reorder within the day by reindexing every lift's `order` from its new
+    /// array position — avoids order-value collisions.
+    private func move(_ lift: PlannedLift, up: Bool) {
+        var lifts = day.sortedLifts
+        guard let idx = lifts.firstIndex(where: { $0.persistentModelID == lift.persistentModelID }) else { return }
+        let target = up ? idx - 1 : idx + 1
+        guard lifts.indices.contains(target) else { return }
+        lifts.swapAt(idx, target)
+        for (i, l) in lifts.enumerated() { l.order = i }
     }
 
     private func completeDay() {

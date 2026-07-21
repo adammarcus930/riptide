@@ -8,6 +8,8 @@ struct LiftDetailView: View {
     let lift: PlannedLift
     let day: ProgramDay
 
+    // Observed so the DONE checkmarks refresh the instant a set is logged/cleared.
+    @Query(filter: #Predicate<WorkoutSession> { $0.finishedAt == nil }) private var openSessions: [WorkoutSession]
     @AppStorage("restAlertSec") private var restAlertSec = 90
     @State private var timer = RestTimer()
     @State private var weights: [String] = []
@@ -16,6 +18,12 @@ struct LiftDetailView: View {
 
     private var exercise: ExerciseDefinition? { ExerciseBank.find(lift.exerciseID) }
     private var logger: SetLogger { SetLogger(day: day, context: context) }
+
+    /// Set indices already logged for this lift in the open session (observed via @Query).
+    private var loggedSetIndices: Set<Int> {
+        guard let session = openSessions.first(where: { $0.dayIndex == day.index }) else { return [] }
+        return Set((session.sets ?? []).filter { $0.exerciseID == lift.exerciseID }.map(\.setIndex))
+    }
 
     var body: some View {
         ScrollView {
@@ -55,7 +63,7 @@ struct LiftDetailView: View {
                             Text("\(i + 1)").font(.system(size: 15, weight: .heavy)).foregroundStyle(Theme.textDim)
                             setField($weights, i, placeholder: "0")
                             setField($reps, i, placeholder: lift.repRange)
-                            let done = logger.logged(lift: lift, setIndex: i) != nil
+                            let done = loggedSetIndices.contains(i)
                             Button {
                                 toggleSet(i)
                             } label: {

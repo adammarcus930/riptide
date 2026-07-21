@@ -39,8 +39,7 @@ struct RootView: View {
                                 .font(.system(size: 14, weight: .heavy)).lineLimit(1)
                         }
                         Spacer()
-                        Text(session.startedAt, style: .timer)
-                            .font(.system(size: 14, weight: .bold, design: .monospaced))
+                        Text("Resume ›").font(.system(size: 14, weight: .heavy))
                     }
                     .padding(.horizontal, 16).padding(.vertical, 13)
                     .background(Theme.accent, in: RoundedRectangle(cornerRadius: 16))
