@@ -14,9 +14,13 @@ struct RootView: View {
                 TodayDestinationHost(path: $todayPath)
                     .tabItem { Label("Today", systemImage: "bolt.fill") }
                     .tag(RootTab.today)
-                NavigationStack { ProgramView() }
-                    .tabItem { Label("Program", systemImage: "list.bullet.rectangle") }
-                    .tag(RootTab.program)
+                NavigationStack {
+                    ProgramLibraryView()
+                        .navigationDestination(for: ProgramRef.self) { ProgramDestination(id: $0.id) }
+                        .navigationDestination(for: DayRef.self) { DayDestination(id: $0.id) }
+                }
+                .tabItem { Label("Program", systemImage: "list.bullet.rectangle") }
+                .tag(RootTab.program)
                 NavigationStack { MoreView() }
                     .tabItem { Label("More", systemImage: "ellipsis.circle") }
                     .tag(RootTab.more)
