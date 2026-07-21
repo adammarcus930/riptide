@@ -93,12 +93,14 @@ struct WizardView: View {
         VStack(alignment: .leading, spacing: 20) {
             title("How hard do you want to push?", sub: "This sets your weekly training volume per muscle.")
             ForEach(Effort.allCases, id: \.self) { e in
-                let chest = VolumeTable.weeklyRange(for: .chest, effort: e)
+                // Chest is a representative mid-range muscle, used only to give the
+                // effort level a concrete sets-per-week figure on this card.
+                let sample = VolumeTable.weeklyRange(for: .chest, effort: e)
                 optionCard(selected: effort == e) {
                     HStack(alignment: .firstTextBaseline) {
                         Text(e.label).font(.system(size: 18, weight: .heavy))
                         Spacer()
-                        Text("~\(chest.low)–\(chest.high) sets · chest")
+                        Text("~\(sample.low)–\(sample.high) sets / muscle / week")
                             .font(.system(size: 12, weight: .heavy)).foregroundStyle(Theme.accent)
                     }
                 } sub: {
