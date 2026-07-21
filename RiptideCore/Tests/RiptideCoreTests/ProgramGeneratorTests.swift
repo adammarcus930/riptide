@@ -73,8 +73,25 @@ final class ProgramGeneratorTests: XCTestCase {
         let program = ProgramGenerator.generate(input)
         let directTriceps = program.days.flatMap(\.lifts)
             .filter { $0.exercise.primary == .triceps }.reduce(0) { $0 + $1.sets }
-        let rawTarget = Allocation.weeklyTarget(range: VolumeTable.weeklyRange(for: .triceps, effort: .optimal), days: 4)
+        let rawTarget = Allocation.weeklyTarget(range: VolumeTable.weeklyRange(for: .triceps, effort: .optimal))
         XCTAssertLessThan(directTriceps, rawTarget)
+    }
+
+    func testSelectedReceiverGetsSomeDirectWorkDespiteHeavyCredit() {
+        // Full selection at optimal drowns triceps/biceps in pressing/pulling
+        // credit. They must still get at least one real direct appearance
+        // (≥2 sets), because there's room under the top of their range.
+        let program = ProgramGenerator.generate(fullInput(effort: .optimal, days: 4, perMuscle: 2))
+        for muscle in [MuscleGroup.triceps, .biceps] {
+            let direct = program.days.flatMap(\.lifts)
+                .filter { $0.exercise.primary == muscle }.reduce(0) { $0 + $1.sets }
+            XCTAssertGreaterThanOrEqual(direct, 2, "\(muscle) got no direct work")
+            // …but total stimulus (direct + credit) never exceeds the range's top.
+            let secondary = program.days.flatMap(\.lifts)
+                .filter { $0.exercise.secondaries.contains(muscle) }.reduce(0) { $0 + $1.sets }
+            let range = VolumeTable.weeklyRange(for: muscle, effort: .optimal)
+            XCTAssertLessThanOrEqual(direct + secondary / 2, range.high + 1, "\(muscle) overshot its range")
+        }
     }
 
     func testNoShortfallWithSingleExerciseUnderCorrectedTable() {
@@ -107,8 +124,8 @@ final class ProgramGeneratorTests: XCTestCase {
         // sideDelts maximal effort (20–26) at 5 days (the minimum days maximal
         // allows) with ONE exercise is the single tightest cell in the whole
         // corrected table: capacity = 5 × 1 × 4 = 20, exactly equal to the low
-        // end. The ideal weekly target (nearest-to-midpoint multiple of 5 in
-        // [20, 26]) is 25, so capacity clamps achieved sets down to 20 — but
+        // end. The ideal weekly target (midpoint of [20, 26]) is 23, so
+        // capacity clamps achieved sets down to 20 — but
         // since 20 meets (not undershoots) the low end, this is a clean clamp,
         // not an undersupply (spec §5.6: capacity clamp only ever lands at or
         // above range.low under the corrected table). This exercises the
@@ -120,8 +137,8 @@ final class ProgramGeneratorTests: XCTestCase {
         XCTAssertEqual(totalSets, 20)
         let range = VolumeTable.weeklyRange(for: .sideDelts, effort: .maximal)
         XCTAssertEqual(totalSets, range.low)
-        let idealTarget = Allocation.weeklyTarget(range: range, days: 5)
-        XCTAssertGreaterThan(idealTarget, totalSets, "ideal target (25) exceeds what one exercise can supply, proving capacity genuinely clamped")
+        let idealTarget = Allocation.weeklyTarget(range: range)
+        XCTAssertGreaterThan(idealTarget, totalSets, "ideal target (23) exceeds what one exercise can supply, proving capacity genuinely clamped")
     }
 
     /// Real replacement for the "exhaustive sweep" that used to be run ad hoc from a

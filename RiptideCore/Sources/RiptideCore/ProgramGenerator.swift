@@ -38,13 +38,19 @@ public enum ProgramGenerator {
         for (mIndex, muscle) in selected.enumerated() {
             let exercises = input.selections[muscle]!
             let range = VolumeTable.weeklyRange(for: muscle, effort: input.effort)
-            var target = Allocation.weeklyTarget(range: range, days: input.days)
+            var target = Allocation.weeklyTarget(range: range)
 
-            // Spec §5.2: receivers get 0.5 credit per secondary set, floor, never below 0.
+            // Spec §5.2: receivers get 0.5 credit per secondary set. Aim direct
+            // work at midpoint − credit, but guarantee at least one real
+            // appearance (2 direct sets) whenever there's still room under the
+            // top of the range (high − credit ≥ 2) — so a muscle you explicitly
+            // selected gets some direct work unless pressing/pulling has already
+            // filled it to the top of its range.
             if MuscleGroup.receivers.contains(muscle) {
                 let credit = (secondarySets[muscle] ?? 0) / 2
-                target = max(0, target - credit)
-                if target == 1 { target = 2 } // min-appearance rule
+                let aim = max(0, target - credit)
+                let headroom = max(0, range.high - credit)
+                target = max(aim, headroom >= 2 ? 2 : 0)
             }
             guard target >= 2 else { continue }
 

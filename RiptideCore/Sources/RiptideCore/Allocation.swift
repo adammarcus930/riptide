@@ -1,18 +1,14 @@
 import Foundation
 
 enum Allocation {
-    /// Spec §5.1: midpoint of the effort range, nudged within the range to the
-    /// value nearest the midpoint that divides evenly across `days` (ties → higher).
-    /// Returns 0 when the range can't support the 2-set minimum.
-    static func weeklyTarget(range: SetRange, days: Int) -> Int {
+    /// Spec §5.1: the weekly set target is the midpoint of the effort range,
+    /// floored at 2 so a selected muscle always earns a real appearance.
+    /// Distribution across days is handled separately (dayLoads), so the target
+    /// no longer depends on the day count. Returns 0 when the range can't
+    /// support the 2-set minimum.
+    static func weeklyTarget(range: SetRange) -> Int {
         guard range.high >= 2 else { return 0 }
-        let mid = (range.low + range.high) / 2
-        let low = max(range.low, 2)
-        let divisibles = (low...range.high).filter { $0 % days == 0 }
-        if let best = divisibles.min(by: { (abs($0 - mid), -$0) < (abs($1 - mid), -$1) }) {
-            return best
-        }
-        return max(mid, 2)
+        return max(2, (range.low + range.high) / 2)
     }
 
     /// Split one day's sets for one muscle into lift entries of 2–4 sets.

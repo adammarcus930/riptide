@@ -2,13 +2,13 @@ import XCTest
 @testable import RiptideCore
 
 final class AllocationTests: XCTestCase {
-    // Spec §5.1: midpoint nudged within range toward clean division.
-    func testWeeklyTargetPrefersDivisibleNearMidpoint() {
-        XCTAssertEqual(Allocation.weeklyTarget(range: SetRange(10, 14), days: 4), 12) // mid divides
-        XCTAssertEqual(Allocation.weeklyTarget(range: SetRange(10, 14), days: 5), 10) // nearest divisible
-        XCTAssertEqual(Allocation.weeklyTarget(range: SetRange(8, 12), days: 7), 10)  // none divisible → mid
-        XCTAssertEqual(Allocation.weeklyTarget(range: SetRange(0, 3), days: 7), 2)    // never below 2
-        XCTAssertEqual(Allocation.weeklyTarget(range: SetRange(0, 1), days: 4), 0)    // range too small to program
+    // Spec §5.1: target is the range midpoint, floored at 2, independent of days.
+    func testWeeklyTargetIsMidpoint() {
+        XCTAssertEqual(Allocation.weeklyTarget(range: SetRange(10, 14)), 12) // (10+14)/2
+        XCTAssertEqual(Allocation.weeklyTarget(range: SetRange(12, 18)), 15) // (12+18)/2
+        XCTAssertEqual(Allocation.weeklyTarget(range: SetRange(8, 12)), 10)
+        XCTAssertEqual(Allocation.weeklyTarget(range: SetRange(0, 3)), 2)    // mid 1 → floored to 2
+        XCTAssertEqual(Allocation.weeklyTarget(range: SetRange(0, 1)), 0)    // range too small to program
     }
 
     // Spec §5 ladder: prefer 3s → split → 4s; entries always 2–4 sets.
