@@ -1,4 +1,4 @@
-Day 1 — 13 lifts, 32 sets
+Day 1 — 14 lifts, 34 sets
   Leg Press [quads] 3 x 8–12
   Lying Leg Curl [hamstrings] 3 x 10–15
   Barbell Bench Press [chest] 3 x 5–8
@@ -12,7 +12,8 @@ Day 1 — 13 lifts, 32 sets
   Barbell Curl [biceps] 2 x 8–12
   Seated Calf Raise [calves] 3 x 15–20
   Cable Crunch [abs] 2 x 10–15
-Day 2 — 13 lifts, 32 sets
+  Hanging Leg Raise [abs] 2 x 8–12
+Day 2 — 12 lifts, 30 sets
   Back Squat [quads] 3 x 5–8
   Romanian Deadlift [hamstrings] 3 x 6–10
   Incline Dumbbell Press [chest] 3 x 8–12
@@ -25,4 +26,3 @@ Day 2 — 13 lifts, 32 sets
   Cable Pushdown [triceps] 2 x 10–15
   Reverse Curl [forearms] 2 x 10–15
   Standing Calf Raise [calves] 3 x 10–15
-  Hanging Leg Raise [abs] 2 x 8–12

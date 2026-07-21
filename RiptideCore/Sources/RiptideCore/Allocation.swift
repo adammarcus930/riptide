@@ -28,13 +28,17 @@ enum Allocation {
     }
 
     /// How many days a muscle appears on and how many sets each such day carries.
-    /// Every appearance ≥ 2 sets (spec §5.5); enough days to stay under per-day caps.
+    /// Concentrates volume at ~3 sets per appearance so a muscle lands on fewer
+    /// days rather than being spread thin at 2 sets across every day — this
+    /// minimizes lifts per day (spec §5.5). Every appearance is ≥ 2 sets, and
+    /// `k` is raised if needed so no day exceeds the per-day capacity cap.
     /// Returns loads largest-first; caller assigns them to the emptiest days.
     static func dayLoads(total: Int, days: Int, maxEntriesPerDay: Int) -> [Int] {
         guard total >= 2 else { return [] }
         let dailyCap = maxEntriesPerDay * 4
-        var k = min(days, total / 2)
-        k = max(k, Int((Double(total) / Double(dailyCap)).rounded(.up)))
+        var k = max(1, Int((Double(total) / 3.0).rounded()))            // ~3 sets/appearance
+        k = min(k, days)                                                // can't exceed available days
+        k = max(k, Int((Double(total) / Double(dailyCap)).rounded(.up))) // but respect per-day cap
         precondition(k <= days, "caller must clamp total to days * dailyCap")
         let base = total / k
         let rem = total % k

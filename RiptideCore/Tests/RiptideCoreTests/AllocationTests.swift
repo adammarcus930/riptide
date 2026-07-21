@@ -32,13 +32,27 @@ final class AllocationTests: XCTestCase {
         }
     }
 
-    // Spec §5.3/5.5: even split; low volume appears on fewer days, ≥2 sets each.
+    // Spec §5.5: concentrate at ~3 sets/appearance so a muscle lands on fewer
+    // days (minimizing lifts/day), while respecting the per-day capacity cap.
     func testDayLoads() {
         XCTAssertEqual(Allocation.dayLoads(total: 12, days: 4, maxEntriesPerDay: 2), [3, 3, 3, 3])
-        XCTAssertEqual(Allocation.dayLoads(total: 14, days: 4, maxEntriesPerDay: 1), [4, 4, 3, 3])
-        XCTAssertEqual(Allocation.dayLoads(total: 6, days: 6, maxEntriesPerDay: 2), [2, 2, 2])   // stagger
-        XCTAssertEqual(Allocation.dayLoads(total: 28, days: 5, maxEntriesPerDay: 2), [6, 6, 6, 5, 5])
+        XCTAssertEqual(Allocation.dayLoads(total: 14, days: 4, maxEntriesPerDay: 1), [4, 4, 3, 3]) // capped at 4 days
+        XCTAssertEqual(Allocation.dayLoads(total: 28, days: 5, maxEntriesPerDay: 2), [6, 6, 6, 5, 5]) // capped at 5 days
         XCTAssertEqual(Allocation.dayLoads(total: 2, days: 7, maxEntriesPerDay: 3), [2])
         XCTAssertEqual(Allocation.dayLoads(total: 0, days: 4, maxEntriesPerDay: 2), [])
+    }
+
+    // Concentration: with plenty of days available, a muscle lands on ~total/3
+    // days at 3 sets each rather than being spread thin at 2 sets everywhere.
+    func testDayLoadsConcentratesRatherThanSpreading() {
+        XCTAssertEqual(Allocation.dayLoads(total: 12, days: 6, maxEntriesPerDay: 2), [3, 3, 3, 3]) // 4 days, not 6×2
+        XCTAssertEqual(Allocation.dayLoads(total: 6, days: 6, maxEntriesPerDay: 2), [3, 3])        // 2 days, not 3×2
+        XCTAssertEqual(Allocation.dayLoads(total: 9, days: 7, maxEntriesPerDay: 2), [3, 3, 3])
+        // Every appearance stays within 2–4 after entry-splitting bounds still hold.
+        for total in 2...24 {
+            let loads = Allocation.dayLoads(total: total, days: 7, maxEntriesPerDay: 3)
+            XCTAssertEqual(loads.reduce(0, +), total, "total \(total)")
+            XCTAssertTrue(loads.allSatisfy { $0 >= 2 }, "total \(total): \(loads)")
+        }
     }
 }
