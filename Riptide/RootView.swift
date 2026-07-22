@@ -33,7 +33,7 @@ struct TodayDestinationHost: View {
     @State private var path = NavigationPath()
     var body: some View {
         NavigationStack(path: $path) {
-            TodayView { day in path.append(DayRef(id: day.persistentModelID)) }
+            TodayView()
                 .navigationDestination(for: DayRef.self) { DayDestination(id: $0.id) }
         }
     }

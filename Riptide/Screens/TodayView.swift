@@ -5,7 +5,6 @@ import RiptideCore
 struct TodayView: View {
     @Query(filter: #Predicate<Program> { $0.isActive }) private var activePrograms: [Program]
     @State private var showWizard = false
-    var onStartDay: (ProgramDay) -> Void = { _ in }
 
     private var program: Program? { activePrograms.first }
     private var nextDay: ProgramDay? { program?.sortedDays.first { !$0.completedInCycle } }
@@ -46,13 +45,17 @@ struct TodayView: View {
             let sets = day.sortedLifts.reduce(0) { $0 + $1.targetSets }
             Text("\(day.sortedLifts.count) lifts · \(sets) sets")
                 .font(.system(size: 13, weight: .semibold)).opacity(0.65)
-            Button("Start day \(day.index + 1)") { onStartDay(day) }
-                .font(.system(size: 15, weight: .heavy))
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 15)
-                .background(Theme.onAccent, in: RoundedRectangle(cornerRadius: 14))
-                .foregroundStyle(Theme.accent)
-                .padding(.top, 10)
+            NavigationLink(value: DayRef(id: day.persistentModelID)) {
+                Text("Start day \(day.index + 1)")
+                    .font(.system(size: 15, weight: .heavy))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 15)
+                    .background(Theme.onAccent, in: RoundedRectangle(cornerRadius: 14))
+                    .foregroundStyle(Theme.accent)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .padding(.top, 10)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(20)
@@ -84,9 +87,7 @@ struct TodayView: View {
                 ForEach(program.sortedDays, id: \.persistentModelID) { day in
                     let done = day.completedInCycle
                     let isNext = day.persistentModelID == nextDay?.persistentModelID
-                    Button {
-                        onStartDay(day)
-                    } label: {
+                    NavigationLink(value: DayRef(id: day.persistentModelID)) {
                         VStack(spacing: 2) {
                             Text("\(day.index + 1)").font(.system(size: 16, weight: .heavy))
                             Text(done ? "DONE" : isNext ? "NEXT" : "TO GO")
@@ -100,6 +101,7 @@ struct TodayView: View {
                         .overlay(RoundedRectangle(cornerRadius: 14)
                             .stroke(isNext ? Theme.accent : Theme.stroke, lineWidth: isNext ? 1.5 : 1))
                         .foregroundStyle(done ? Theme.accent : Theme.text)
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                 }

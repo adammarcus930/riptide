@@ -15,6 +15,7 @@ struct LiftDetailView: View {
     @State private var weights: [String] = []
     @State private var reps: [String] = []
     @State private var appeared = false
+    @FocusState private var fieldFocused: Bool
 
     private var exercise: ExerciseDefinition? { ExerciseBank.find(lift.exerciseID) }
     private var logger: SetLogger { SetLogger(day: day, context: context) }
@@ -102,6 +103,12 @@ struct LiftDetailView: View {
         .background(Theme.bg.ignoresSafeArea())
         .foregroundStyle(Theme.text)
         .scrollDismissesKeyboard(.interactively)
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") { fieldFocused = false }
+            }
+        }
         .onAppear {
             guard !appeared else { return }
             appeared = true
@@ -149,6 +156,7 @@ struct LiftDetailView: View {
             }
         ))
         .keyboardType(.decimalPad)
+        .focused($fieldFocused)
         .multilineTextAlignment(.center)
         .font(.system(size: 15, weight: .bold))
         .padding(.vertical, 11)
