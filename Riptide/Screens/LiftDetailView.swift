@@ -10,7 +10,7 @@ struct LiftDetailView: View {
 
     // Observed so the DONE checkmarks refresh the instant a set is logged/cleared.
     @Query(filter: #Predicate<WorkoutSession> { $0.finishedAt == nil }) private var openSessions: [WorkoutSession]
-    @AppStorage("restAlertSec") private var restAlertSec = 90
+    @AppStorage("restAlertSec") private var restAlertSec = 180
     @State private var timer = RestTimer()
     @State private var weights: [String] = []
     @State private var reps: [String] = []

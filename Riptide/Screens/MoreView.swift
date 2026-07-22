@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct MoreView: View {
-    @AppStorage("restAlertSec") private var restAlertSec = 90
+    @AppStorage("restAlertSec") private var restAlertSec = 180
 
     var body: some View {
         ScrollView {
