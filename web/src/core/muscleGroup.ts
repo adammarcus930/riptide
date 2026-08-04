@@ -3,21 +3,21 @@ export type MuscleGroup =
   | 'quads' | 'hamstrings' | 'calves' | 'triceps' | 'biceps' | 'forearms' | 'abs';
 
 // Swift CaseIterable declaration order.
-export const ALL_MUSCLES: MuscleGroup[] = [
+export const ALL_MUSCLES: readonly MuscleGroup[] = [
   'chest', 'lats', 'frontDelts', 'sideDelts', 'rearDelts', 'traps',
   'quads', 'hamstrings', 'calves', 'triceps', 'biceps', 'forearms', 'abs',
 ];
 
 // Allocated first; their exercises grant secondary credit.
-export const GIVERS: MuscleGroup[] = [
+export const GIVERS: readonly MuscleGroup[] = [
   'chest', 'lats', 'frontDelts', 'sideDelts', 'rearDelts', 'traps', 'quads', 'hamstrings', 'calves',
 ];
 // Allocated second; direct targets reduced by earned credits.
-export const RECEIVERS: MuscleGroup[] = ['triceps', 'biceps', 'forearms', 'abs'];
+export const RECEIVERS: readonly MuscleGroup[] = ['triceps', 'biceps', 'forearms', 'abs'];
 // Generator processing order (spec §5 step 2).
-export const PROCESSING_ORDER: MuscleGroup[] = [...GIVERS, ...RECEIVERS];
+export const PROCESSING_ORDER: readonly MuscleGroup[] = [...GIVERS, ...RECEIVERS];
 // Wizard chips and within-day lift ordering (design PARTS order).
-export const DISPLAY_ORDER: MuscleGroup[] = [
+export const DISPLAY_ORDER: readonly MuscleGroup[] = [
   'quads', 'hamstrings', 'chest', 'lats', 'frontDelts', 'sideDelts', 'rearDelts',
   'traps', 'triceps', 'biceps', 'forearms', 'calves', 'abs',
 ];
