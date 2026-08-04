@@ -164,6 +164,7 @@ All screens from the current SwiftUI app are reproduced with the ice-palette des
 ### 8.1 Deliberate reduction from the Swift app
 
 - **Rest timer is foreground-only.** The on-screen countdown remains while the app is open; the background local-notification (which fired even when the app was closed on iOS native) is removed, because iOS PWAs do not reliably support scheduled local notifications. Agreed acceptable — the timer is not a core feature.
+- **`restAlertSec` is retained.** The setting now drives the on-screen **color-flip** (the visual "rest is up" cue) rather than a notification. Because target rest varies by lift and person (e.g., ~90s for accessories vs. ~3 min for heavy compounds), it stays user-configurable; a hardcoded threshold would fire at the wrong time for most lifts.
 
 ## 9. Testing strategy
 
