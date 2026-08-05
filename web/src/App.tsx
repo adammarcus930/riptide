@@ -1,12 +1,26 @@
-import { AccentButton } from './ui/AccentButton';
-import { Eyebrow } from './ui/Eyebrow';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './auth/AuthProvider';
+import { RequireAuth } from './auth/RequireAuth';
+import { LoginScreen } from './auth/LoginScreen';
+import { AppShell } from './screens/AppShell';
+import { TodayScreen } from './screens/TodayScreen';
+import { ProgramScreen } from './screens/ProgramScreen';
 
 export default function App() {
   return (
-    <main className="mx-auto flex min-h-full max-w-md flex-col gap-4 p-6">
-      <Eyebrow>Riptide</Eyebrow>
-      <h1 className="text-4xl font-extrabold text-ink">Foundation</h1>
-      <AccentButton>Ready</AccentButton>
-    </main>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<LoginScreen />} />
+          <Route element={<RequireAuth />}>
+            <Route element={<AppShell />}>
+              <Route index element={<TodayScreen />} />
+              <Route path="program" element={<ProgramScreen />} />
+              <Route path="more" element={<div className="p-6 text-ink">More (Task 5)</div>} />
+            </Route>
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
