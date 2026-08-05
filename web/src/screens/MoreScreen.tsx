@@ -15,7 +15,9 @@ export function MoreScreen() {
 
   const set = (next: number) => {
     if (!user) return;
-    void setRestAlertSec(user.uid, Math.max(MIN, Math.min(MAX, next)));
+    setRestAlertSec(user.uid, Math.max(MIN, Math.min(MAX, next))).catch((err) =>
+      console.error('failed to save rest alert', err),
+    );
   };
 
   return (

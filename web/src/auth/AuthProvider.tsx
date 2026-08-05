@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   GoogleAuthProvider,
+  getRedirectResult,
   onAuthStateChanged,
   signInWithRedirect,
   signOut as fbSignOut,
@@ -20,11 +21,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  useEffect(() => {
+    getRedirectResult(auth).catch((err) => console.error('google sign-in redirect failed', err));
+  }, []);
+
   const value = useMemo<AuthState>(
     () => ({
       user,
       loading,
-      signIn: () => void signInWithRedirect(auth, new GoogleAuthProvider()),
+      signIn: () => {
+        signInWithRedirect(auth, new GoogleAuthProvider()).catch((err) =>
+          console.error('google sign-in failed', err),
+        );
+      },
       signOut: () => void fbSignOut(auth),
     }),
     [user, loading],

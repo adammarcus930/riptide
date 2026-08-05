@@ -18,10 +18,17 @@ export function useProfile(uid: string | undefined): { profile: Profile | null; 
       return;
     }
     setLoading(true);
-    return onSnapshot(profileDoc(uid), (snap) => {
-      setProfile(snap.exists() ? (snap.data() as Profile) : null);
-      setLoading(false);
-    });
+    return onSnapshot(
+      profileDoc(uid),
+      (snap) => {
+        setProfile(snap.exists() ? (snap.data() as Profile) : null);
+        setLoading(false);
+      },
+      (err) => {
+        console.error('profile snapshot listener failed', err);
+        setLoading(false);
+      },
+    );
   }, [uid]);
 
   return { profile, loading };

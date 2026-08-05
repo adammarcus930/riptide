@@ -5,7 +5,10 @@ import { test, expect, vi, beforeEach } from 'vitest';
 const setRestAlertSec = vi.fn();
 vi.mock('../auth/useAuth', () => ({ useAuth: () => ({ user: { uid: 'alice' }, signOut: vi.fn() }) }));
 vi.mock('../data/profile', () => ({
-  setRestAlertSec: (...args: unknown[]) => setRestAlertSec(...args),
+  setRestAlertSec: (...args: unknown[]) => {
+    setRestAlertSec(...args);
+    return Promise.resolve();
+  },
   useProfile: () => ({ profile: { restAlertSec: 180 }, loading: false }),
 }));
 
