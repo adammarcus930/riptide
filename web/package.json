@@ -12,7 +12,8 @@
     "test:emulator": "PATH=\"$(brew --prefix openjdk)/bin:$PATH\" firebase emulators:exec --only auth,firestore --project demo-riptide \"vitest run --config vitest.emulator.config.ts\"",
     "typecheck": "tsc --noEmit",
     "sync:shared": "node scripts/sync-shared.mjs",
-    "emulators": "PATH=\"$(brew --prefix openjdk)/bin:$PATH\" firebase emulators:start --only auth,firestore --project demo-riptide"
+    "emulators": "PATH=\"$(brew --prefix openjdk)/bin:$PATH\" firebase emulators:start --only auth,firestore --project demo-riptide",
+    "deploy": "npm run build && firebase deploy --only firestore:rules,firestore:indexes,hosting"
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^3.0.4",
