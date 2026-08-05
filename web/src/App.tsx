@@ -5,6 +5,7 @@ import { LoginScreen } from './auth/LoginScreen';
 import { AppShell } from './screens/AppShell';
 import { TodayScreen } from './screens/TodayScreen';
 import { ProgramScreen } from './screens/ProgramScreen';
+import { MoreScreen } from './screens/MoreScreen';
 
 export default function App() {
   return (
@@ -16,7 +17,7 @@ export default function App() {
             <Route element={<AppShell />}>
               <Route index element={<TodayScreen />} />
               <Route path="program" element={<ProgramScreen />} />
-              <Route path="more" element={<div className="p-6 text-ink">More (Task 5)</div>} />
+              <Route path="more" element={<MoreScreen />} />
             </Route>
           </Route>
         </Routes>
