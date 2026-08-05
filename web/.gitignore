@@ -1,3 +1,9 @@
 node_modules/
 coverage/
 dist/
+*.local
+.env
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
