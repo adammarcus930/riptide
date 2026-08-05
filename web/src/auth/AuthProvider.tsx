@@ -3,6 +3,7 @@ import {
   GoogleAuthProvider,
   getRedirectResult,
   onAuthStateChanged,
+  signInWithPopup,
   signInWithRedirect,
   signOut as fbSignOut,
   type User,
@@ -29,10 +30,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => ({
       user,
       loading,
-      signIn: () => {
-        signInWithRedirect(auth, new GoogleAuthProvider()).catch((err) =>
-          console.error('google sign-in failed', err),
-        );
+      signIn: async () => {
+        // Popup is reliable on desktop/dev; fall back to redirect (better for
+        // installed iOS PWAs, where popups are awkward).
+        try {
+          await signInWithPopup(auth, new GoogleAuthProvider());
+        } catch (err) {
+          console.error('google sign-in (popup) failed; falling back to redirect', err);
+          try {
+            await signInWithRedirect(auth, new GoogleAuthProvider());
+          } catch (e) {
+            console.error('google sign-in (redirect) failed', e);
+          }
+        }
       },
       signOut: () => void fbSignOut(auth),
     }),

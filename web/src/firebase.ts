@@ -11,7 +11,15 @@ const useEmulator = import.meta.env.VITE_USE_EMULATOR === '1';
 
 // In emulator mode the demo project id keeps everything offline; no real keys needed.
 const config = useEmulator
-  ? { apiKey: 'demo', projectId: 'demo-riptide', appId: 'demo' }
+  ? {
+      apiKey: 'demo',
+      // Required so OAuth (popup/redirect) can build its handler URL. With the
+      // Auth emulator connected, the SDK routes the actual flow to the emulator;
+      // this value only needs to be present, not real.
+      authDomain: 'demo-riptide.firebaseapp.com',
+      projectId: 'demo-riptide',
+      appId: 'demo',
+    }
   : {
       apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
       authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
