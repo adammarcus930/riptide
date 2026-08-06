@@ -10,7 +10,7 @@ export function AppShell() {
   return (
     <div className="mx-auto flex min-h-full max-w-md flex-col">
       <div className="flex-1"><Outlet /></div>
-      <nav className="sticky bottom-0 flex border-t border-stroke bg-base">
+      <nav className="sticky bottom-0 flex border-t border-stroke bg-base pb-[env(safe-area-inset-bottom)]">
         {tabs.map((t) => (
           <NavLink
             key={t.to}
