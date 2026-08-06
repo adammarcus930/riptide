@@ -7,6 +7,7 @@ import { TodayScreen } from './screens/TodayScreen';
 import { ProgramLibraryScreen } from './screens/ProgramLibraryScreen';
 import { ProgramDetailScreen } from './screens/ProgramDetailScreen';
 import { DayDetailScreen } from './screens/DayDetailScreen';
+import { LiftDetailScreen } from './screens/LiftDetailScreen';
 import { WizardScreen } from './screens/WizardScreen';
 import { MoreScreen } from './screens/MoreScreen';
 
@@ -23,6 +24,7 @@ export default function App() {
               <Route path="program" element={<ProgramLibraryScreen />} />
               <Route path="program/:id" element={<ProgramDetailScreen />} />
               <Route path="program/:id/day/:dayIndex" element={<DayDetailScreen />} />
+              <Route path="program/:id/day/:dayIndex/lift/:order" element={<LiftDetailScreen />} />
               <Route path="more" element={<MoreScreen />} />
             </Route>
           </Route>
