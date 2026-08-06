@@ -5,7 +5,7 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom';
 
 const toggleSet = vi.fn().mockResolvedValue(undefined);
 const lastSets = vi.fn().mockResolvedValue([{ setIndex: 0, weight: 100, reps: 5 }]);
-const useOpenSession = vi.fn(() => ({ session: { id: 's1', dayIndex: 0 } }));
+const useOpenSession = vi.fn(() => ({ session: { id: 's1', dayIndex: 0 }, loading: false }));
 const useSessionSets = vi.fn(() => ({ sets: [], loading: false }));
 vi.mock('../auth/useAuth', () => ({ useAuth: () => ({ user: { uid: 'u1' } }) }));
 vi.mock('../data/profile', () => ({ useProfile: () => ({ profile: { restAlertSec: 180 } }) }));

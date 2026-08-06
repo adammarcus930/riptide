@@ -15,7 +15,7 @@ export function LiftDetailScreen() {
   const { user } = useAuth();
   const { program, loading } = useProgram(user?.uid, id);
   const { profile } = useProfile(user?.uid);
-  const { session } = useOpenSession(user?.uid);
+  const { session, loading: sessionLoading } = useOpenSession(user?.uid);
   const timer = useRestTimer(profile?.restAlertSec ?? DEFAULT_REST);
 
   const idx = Number(dayIndex);
@@ -32,7 +32,7 @@ export function LiftDetailScreen() {
   const [prefilled, setPrefilled] = useState(false);
 
   useEffect(() => {
-    if (prefilled || !user || !lift || setsLoading) return;
+    if (prefilled || !user || !lift || setsLoading || sessionLoading) return;
     (async () => {
       const previous = await lastSets(user.uid, lift.exerciseId, liveSessionId);
       const merged = mergedBySetIndex(mySets, previous);
@@ -40,7 +40,7 @@ export function LiftDetailScreen() {
       setReps(Array.from({ length: lift.targetSets }, (_, i) => (merged.has(i) ? String(merged.get(i)!.reps) : '')));
       setPrefilled(true);
     })();
-  }, [prefilled, user, lift, setsLoading, liveSessionId, mySets]);
+  }, [prefilled, user, lift, setsLoading, sessionLoading, liveSessionId]);
 
   if (loading) return <main className="p-6 text-ink-faint">Loading…</main>;
   if (!program || !user || !id || !lift) return <main className="p-6 text-ink-dim">Lift not found.</main>;

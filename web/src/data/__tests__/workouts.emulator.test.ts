@@ -61,7 +61,7 @@ test('logging for a new day closes the prior open session (at-most-one-open)', a
 });
 
 test('lastSets returns the newest OTHER session for an exercise, sorted by setIndex', async () => {
-  const { toggleSet, lastSets, useOpenSession } = await import('../workouts');
+  const { toggleSet, lastSets } = await import('../workouts');
   // session A (day 0): two bench sets
   await toggleSet(uid, params({ setIndex: 0, weight: 100 }));
   await toggleSet(uid, params({ setIndex: 1, weight: 105 }));

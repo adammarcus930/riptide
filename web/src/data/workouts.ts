@@ -174,7 +174,7 @@ export function useHistory(uid: string | undefined): { sessions: SessionWithId[]
     if (!uid) { setSessions([]); setLoading(false); return; }
     setLoading(true);
     return onSnapshot(
-      query(sessionsCol(uid), orderBy('startedAt', 'desc')),
+      query(sessionsCol(uid), orderBy('startedAt', 'desc'), limit(200)),
       (snap) => {
         setSessions(
           snap.docs

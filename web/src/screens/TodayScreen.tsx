@@ -69,7 +69,7 @@ export function TodayScreen() {
           <p className="text-[24px] font-extrabold text-accent">Week complete</p>
           <p className="mt-1 text-[13px] text-ink-dim">Every day in this cycle is logged. Start the next one when you’re ready.</p>
           <button
-            onClick={() => startNextCycle(user!.uid, program.id).catch((e) => console.error(e))}
+            onClick={() => { if (!user) return; startNextCycle(user.uid, program.id).catch((e) => console.error(e)); }}
             className="mt-4 w-full rounded-btn bg-accent py-4 text-[15px] font-extrabold text-on-accent"
           >
             Start next cycle
