@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/useAuth';
 import { useProfile, setRestAlertSec } from '../data/profile';
 import { Card } from '../ui/Card';
@@ -24,6 +25,9 @@ export function MoreScreen() {
     <main className="flex flex-col gap-4 p-6">
       <Eyebrow>More</Eyebrow>
       <h1 className="text-3xl font-extrabold text-ink">Riptide</h1>
+      <Link to="/history" className="rounded-card border border-stroke bg-card p-4 text-[15px] font-bold text-ink">
+        History →
+      </Link>
       <Card>
         <Eyebrow>Rest timer alert</Eyebrow>
         <div className="mt-2 flex items-center justify-between">

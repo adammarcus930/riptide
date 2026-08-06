@@ -11,6 +11,15 @@ vi.mock('../data/programs', () => ({
   updateProgramDays: (...a: unknown[]) => updateProgramDays(...a),
 }));
 
+const completeDay = vi.fn().mockResolvedValue(undefined);
+const useOpenSession = vi.fn();
+const useSessionSets = vi.fn();
+vi.mock('../data/workouts', () => ({
+  useOpenSession: (...a: unknown[]) => useOpenSession(...a),
+  useSessionSets: (...a: unknown[]) => useSessionSets(...a),
+  completeDay: (...a: unknown[]) => completeDay(...a),
+}));
+
 import { DayDetailScreen } from './DayDetailScreen';
 
 const program = {
@@ -31,7 +40,12 @@ function renderAt() {
     </MemoryRouter>,
   );
 }
-beforeEach(() => updateProgramDays.mockClear());
+beforeEach(() => {
+  updateProgramDays.mockClear();
+  completeDay.mockClear();
+  useOpenSession.mockReturnValue({ session: null });
+  useSessionSets.mockReturnValue({ sets: [] });
+});
 
 test('view mode shows the day focus and lifts', () => {
   renderAt();
@@ -84,4 +98,38 @@ test('adding a lift appends it with the next order', async () => {
   expect(days[0].lifts).toHaveLength(3);
   expect(days[0].lifts[2].exerciseName).toBe('Cable Fly');
   expect(days[0].lifts[2].order).toBe(2);
+});
+
+test('live mode shows a checkmark for a logged lift and links to lift detail', () => {
+  useOpenSession.mockReturnValue({ session: { id: 's1', dayIndex: 0 } });
+  useSessionSets.mockReturnValue({ sets: [{ exerciseId: 'bench-press', setIndex: 0 }] });
+  renderAt();
+  expect(screen.getByRole('link', { name: /Barbell Bench Press/ })).toHaveAttribute('href', '/program/p1/day/0/lift/0');
+  expect(screen.getByText('☑')).toBeInTheDocument();
+});
+
+test('survives the loading -> loaded transition (no hook-order crash)', () => {
+  useProgram.mockReturnValueOnce({ program: null, loading: true });
+  useProgram.mockReturnValue({ program, loading: false });
+  useOpenSession.mockReturnValue({ session: null });
+  useSessionSets.mockReturnValue({ sets: [] });
+  const { rerender } = render(
+    <MemoryRouter initialEntries={['/program/p1/day/0']}>
+      <Routes><Route path="/program/:id/day/:dayIndex" element={<DayDetailScreen />} /></Routes>
+    </MemoryRouter>,
+  );
+  rerender(
+    <MemoryRouter initialEntries={['/program/p1/day/0']}>
+      <Routes><Route path="/program/:id/day/:dayIndex" element={<DayDetailScreen />} /></Routes>
+    </MemoryRouter>,
+  );
+  expect(screen.getByText('Barbell Bench Press')).toBeInTheDocument();
+});
+
+test('Complete day calls completeDay', async () => {
+  useOpenSession.mockReturnValue({ session: null });
+  useSessionSets.mockReturnValue({ sets: [] });
+  renderAt();
+  await userEvent.click(screen.getByRole('button', { name: 'Complete day' }));
+  expect(completeDay).toHaveBeenCalledWith('u1', 'p1', 0);
 });

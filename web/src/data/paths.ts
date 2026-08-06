@@ -6,3 +6,5 @@ export const programsCol = (uid: string) => collection(db, 'users', uid, 'progra
 export const sessionsCol = (uid: string) => collection(db, 'users', uid, 'sessions');
 export const loggedSetsCol = (uid: string) => collection(db, 'users', uid, 'loggedSets');
 export const programDoc = (uid: string, id: string) => doc(db, 'users', uid, 'programs', id);
+export const sessionDoc = (uid: string, id: string) => doc(db, 'users', uid, 'sessions', id);
+export const loggedSetDoc = (uid: string, id: string) => doc(db, 'users', uid, 'loggedSets', id);
