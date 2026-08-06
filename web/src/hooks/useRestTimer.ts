@@ -7,6 +7,7 @@ export function useRestTimer(alertSec: number): {
   display: string;
   start: () => void;
   stop: () => void;
+  reset: () => void;
 } {
   const [elapsed, setElapsed] = useState(0);
   const [running, setRunning] = useState(false);
@@ -14,6 +15,7 @@ export function useRestTimer(alertSec: number): {
 
   const start = () => { startedAt.current = Date.now(); setElapsed(0); setRunning(true); };
   const stop = () => { setRunning(false); startedAt.current = null; };
+  const reset = () => { setRunning(false); startedAt.current = null; setElapsed(0); };
 
   useEffect(() => {
     if (!running) return;
@@ -26,5 +28,5 @@ export function useRestTimer(alertSec: number): {
   const past = running && elapsed >= alertSec;
   const mm = String(Math.floor(elapsed / 60)).padStart(2, '0');
   const ss = String(elapsed % 60).padStart(2, '0');
-  return { elapsed, running, past, display: `${mm}:${ss}`, start, stop };
+  return { elapsed, running, past, display: `${mm}:${ss}`, start, stop, reset };
 }

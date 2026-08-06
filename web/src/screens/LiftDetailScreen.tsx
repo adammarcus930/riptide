@@ -54,7 +54,9 @@ export function LiftDetailScreen() {
       exerciseId: lift.exerciseId, exerciseName: lift.exerciseName,
       setIndex: i, weight: Number(weights[i]) || 0, reps: Number(reps[i]) || 0,
     }).catch((e) => console.error('toggle set failed', e));
-    if (!done) timer.start(); else timer.stop();
+    // Completing a set (re)starts the rest countdown. Un-checking is a
+    // correction — it must not touch the timer (that caused the buggy state).
+    if (!done) timer.start();
   };
 
   const field = (arr: string[], set: (v: string[]) => void, i: number, placeholder: string) => (
@@ -99,18 +101,32 @@ export function LiftDetailScreen() {
         })}
       </div>
 
-      <div className="flex items-center justify-between rounded-card border border-stroke bg-card p-4">
-        <div>
-          <Eyebrow>Rest timer</Eyebrow>
-          <p className={`font-mono text-[26px] font-bold ${timer.past ? 'text-accent' : 'text-ink'}`}>
-            {timer.running ? timer.display : '—'}
-          </p>
+      <div className="rounded-card border border-stroke bg-card p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <Eyebrow>Rest timer</Eyebrow>
+            <p
+              className={`font-mono text-[28px] font-bold ${
+                timer.past ? 'text-accent' : timer.running ? 'text-ink' : 'text-ink-faint'
+              }`}
+            >
+              {timer.display}
+            </p>
+          </div>
+          {(timer.running || timer.elapsed > 0) && (
+            <button
+              onClick={() => timer.reset()}
+              className="rounded-xl border border-stroke px-4 py-2 text-[13px] font-bold text-ink"
+            >
+              Reset
+            </button>
+          )}
         </div>
-        {timer.running && (
-          <button onClick={() => timer.stop()} className="rounded-xl border border-stroke px-4 py-2 text-[13px] font-bold text-ink">
-            Stop
-          </button>
-        )}
+        {timer.past ? (
+          <p className="mt-1 text-[12px] font-bold text-accent">Rest complete — go.</p>
+        ) : !timer.running ? (
+          <p className="mt-1 text-[12px] text-ink-faint">Starts when you complete a set.</p>
+        ) : null}
       </div>
     </main>
   );
