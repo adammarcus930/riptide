@@ -66,6 +66,13 @@ export function DayDetailScreen() {
 
   return (
     <main className="flex flex-col gap-4 p-6">
+      <Link
+        to={`/program/${id}`}
+        aria-label="Back to program"
+        className="inline-flex h-9 w-9 items-center justify-center self-start rounded-xl border border-stroke-strong text-[18px] text-ink"
+      >
+        ‹
+      </Link>
       <div className="flex items-start justify-between">
         <div>
           <Eyebrow className="text-accent">DAY {idx + 1}</Eyebrow>
