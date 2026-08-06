@@ -55,8 +55,8 @@ export function TodayScreen() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <Eyebrow>On deck</Eyebrow>
-            {[...nextDay.lifts].sort((a, b) => a.order - b.order).slice(0, 5).map((l) => (
+            <Eyebrow>The lifts</Eyebrow>
+            {[...nextDay.lifts].sort((a, b) => a.order - b.order).map((l) => (
               <div key={l.order} className="flex items-center justify-between rounded-[13px] border border-stroke bg-card px-4 py-3">
                 <span className="text-[14px] font-bold text-ink">{l.exerciseName}</span>
                 <span className="text-[12px] font-semibold text-ink-faint">{l.targetSets} × {l.repRange}</span>
@@ -84,9 +84,8 @@ export function TodayScreen() {
             const done = d.completedInCycle;
             const isNext = d.index === nextDay?.index;
             return (
-              <Link
+              <div
                 key={d.index}
-                to={`/program/${program.id}/day/${d.index}`}
                 className={`flex-1 rounded-[14px] border py-3 text-center ${
                   done ? 'border-accent bg-accent/10' : isNext ? 'border-accent bg-card' : 'border-stroke bg-card'
                 }`}
@@ -95,7 +94,7 @@ export function TodayScreen() {
                 <div className={`text-[9px] font-bold tracking-[1px] ${done || isNext ? 'text-accent' : 'text-ink-faint'}`}>
                   {done ? 'DONE' : isNext ? 'NEXT' : 'TO GO'}
                 </div>
-              </Link>
+              </div>
             );
           })}
         </div>
