@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import {
-  onSnapshot, query, where, orderBy, limit, getDocs, doc, writeBatch, increment,
+  onSnapshot, query, where, orderBy, limit, getDocs, doc, writeBatch, increment, getDoc, updateDoc,
 } from 'firebase/firestore';
 import { db } from '../firebase';
-import { sessionsCol, loggedSetsCol, sessionDoc } from './paths';
+import { sessionsCol, loggedSetsCol, sessionDoc, programDoc } from './paths';
 import type { SessionDoc, LoggedSetDoc } from './types';
+import type { ProgramDoc } from './types';
 
 export type SessionWithId = SessionDoc & { id: string };
 export type LoggedSetWithId = LoggedSetDoc & { id: string };
@@ -109,4 +110,81 @@ export async function toggleSet(uid: string, p: ToggleSetParams): Promise<void> 
     batch.update(sessionDoc(uid, sessionId), { setCount: increment(1) });
   }
   await batch.commit();
+}
+
+// --- prefill (port of HistoryQueries.lastSets + merge) ---
+
+export async function lastSets(
+  uid: string,
+  exerciseId: string,
+  excludingSessionId?: string,
+): Promise<LoggedSetWithId[]> {
+  const snap = await getDocs(
+    query(loggedSetsCol(uid), where('exerciseId', '==', exerciseId), orderBy('loggedAt', 'desc'), limit(50)),
+  );
+  const docs = snap.docs.map((d) => ({ id: d.id, ...(d.data() as LoggedSetDoc) }));
+  const newest = docs.find((d) => d.sessionId !== excludingSessionId);
+  if (!newest) return [];
+  return docs.filter((d) => d.sessionId === newest.sessionId).sort((a, b) => a.setIndex - b.setIndex);
+}
+
+export interface SetValue { weight: number; reps: number }
+
+export function mergedBySetIndex(
+  current: { setIndex: number; weight: number; reps: number }[],
+  previous: { setIndex: number; weight: number; reps: number }[],
+): Map<number, SetValue> {
+  const merged = new Map<number, SetValue>();
+  for (const s of previous) merged.set(s.setIndex, { weight: s.weight, reps: s.reps });
+  for (const s of current) merged.set(s.setIndex, { weight: s.weight, reps: s.reps });
+  return merged;
+}
+
+// --- cycle / completion ---
+
+export async function completeDay(uid: string, programId: string, dayIndex: number): Promise<void> {
+  const pSnap = await getDoc(programDoc(uid, programId));
+  if (pSnap.exists()) {
+    const prog = pSnap.data() as ProgramDoc;
+    const days = prog.days.map((d) => (d.index === dayIndex ? { ...d, completedInCycle: true } : d));
+    await updateDoc(programDoc(uid, programId), { days });
+  }
+  const openSnap = await getDocs(query(sessionsCol(uid), where('finishedAt', '==', null)));
+  const batch = writeBatch(db);
+  openSnap.docs.forEach((d) => {
+    if ((d.data() as SessionDoc).dayIndex === dayIndex) batch.update(d.ref, { finishedAt: Date.now() });
+  });
+  await batch.commit();
+}
+
+export async function startNextCycle(uid: string, programId: string): Promise<void> {
+  const pSnap = await getDoc(programDoc(uid, programId));
+  if (!pSnap.exists()) return;
+  const prog = pSnap.data() as ProgramDoc;
+  const days = prog.days.map((d) => ({ ...d, completedInCycle: false }));
+  await updateDoc(programDoc(uid, programId), { days });
+}
+
+// --- history ---
+
+export function useHistory(uid: string | undefined): { sessions: SessionWithId[]; loading: boolean } {
+  const [sessions, setSessions] = useState<SessionWithId[]>([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    if (!uid) { setSessions([]); setLoading(false); return; }
+    setLoading(true);
+    return onSnapshot(
+      query(sessionsCol(uid), orderBy('startedAt', 'desc')),
+      (snap) => {
+        setSessions(
+          snap.docs
+            .map((d) => ({ id: d.id, ...(d.data() as SessionDoc) }))
+            .filter((s) => s.finishedAt !== null),
+        );
+        setLoading(false);
+      },
+      (err) => { console.error('history listener failed', err); setLoading(false); },
+    );
+  }, [uid]);
+  return { sessions, loading };
 }
