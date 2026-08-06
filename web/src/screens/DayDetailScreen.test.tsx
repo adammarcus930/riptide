@@ -108,6 +108,24 @@ test('live mode shows a checkmark for a logged lift and links to lift detail', (
   expect(screen.getByText('☑')).toBeInTheDocument();
 });
 
+test('survives the loading -> loaded transition (no hook-order crash)', () => {
+  useProgram.mockReturnValueOnce({ program: null, loading: true });
+  useProgram.mockReturnValue({ program, loading: false });
+  useOpenSession.mockReturnValue({ session: null });
+  useSessionSets.mockReturnValue({ sets: [] });
+  const { rerender } = render(
+    <MemoryRouter initialEntries={['/program/p1/day/0']}>
+      <Routes><Route path="/program/:id/day/:dayIndex" element={<DayDetailScreen />} /></Routes>
+    </MemoryRouter>,
+  );
+  rerender(
+    <MemoryRouter initialEntries={['/program/p1/day/0']}>
+      <Routes><Route path="/program/:id/day/:dayIndex" element={<DayDetailScreen />} /></Routes>
+    </MemoryRouter>,
+  );
+  expect(screen.getByText('Barbell Bench Press')).toBeInTheDocument();
+});
+
 test('Complete day calls completeDay', async () => {
   useOpenSession.mockReturnValue({ session: null });
   useSessionSets.mockReturnValue({ sets: [] });

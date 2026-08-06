@@ -15,23 +15,21 @@ export function DayDetailScreen() {
   const [editing, setEditing] = useState(false);
   const [adding, setAdding] = useState(false);
   const [saving, setSaving] = useState(false);
+  const idx = Number(dayIndex);
+  const { session } = useOpenSession(user?.uid);
+  const liveSessionId = session && session.dayIndex === idx ? session.id : undefined;
+  const { sets: sessionSets } = useSessionSets(user?.uid, liveSessionId);
 
   if (loading) return <main className="p-6 text-ink-faint">Loading…</main>;
   if (!program || !user || !id) return <main className="p-6 text-ink-dim">Not found.</main>;
-  const idx = Number(dayIndex);
   const day = program.days.find((d) => d.index === idx);
   if (!day) return <main className="p-6 text-ink-dim">Day not found.</main>;
 
   const lifts = [...day.lifts].sort((a, b) => a.order - b.order);
   const sets = lifts.reduce((s, l) => s + l.targetSets, 0);
-
-  const { session } = useOpenSession(user.uid);
-  const liveSessionId = session && session.dayIndex === idx ? session.id : undefined;
-  const { sets: sessionSets } = useSessionSets(user.uid, liveSessionId);
   const doneIds = new Set(sessionSets.map((s) => s.exerciseId));
   const doneCount = lifts.filter((l) => doneIds.has(l.exerciseId)).length;
-  const day0 = program.days.find((d) => d.index === idx);
-  const completed = day0?.completedInCycle ?? false;
+  const completed = day.completedInCycle ?? false;
 
   // Persist a mutated lift list for this day: re-index order, splice into days, save.
   const saveLifts = (nextLifts: PlannedLiftDoc[]) => {
