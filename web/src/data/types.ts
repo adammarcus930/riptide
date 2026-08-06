@@ -31,6 +31,7 @@ export interface SessionDoc {
   dayIndex: number;
   startedAt: number;
   finishedAt: number | null;
+  setCount: number;
 }
 export interface LoggedSetDoc {
   sessionId: string;
