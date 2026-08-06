@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
 import { test, expect, vi, beforeEach } from 'vitest';
 
 const setRestAlertSec = vi.fn();
@@ -17,14 +18,14 @@ import { MoreScreen } from './MoreScreen';
 beforeEach(() => setRestAlertSec.mockClear());
 
 test('shows the current rest value and increments it', async () => {
-  render(<MoreScreen />);
+  render(<MemoryRouter><MoreScreen /></MemoryRouter>);
   expect(screen.getByText('180 seconds')).toBeInTheDocument();
   await userEvent.click(screen.getByRole('button', { name: 'increase' }));
   expect(setRestAlertSec).toHaveBeenCalledWith('alice', 195);
 });
 
 test('decrements the rest value', async () => {
-  render(<MoreScreen />);
+  render(<MemoryRouter><MoreScreen /></MemoryRouter>);
   await userEvent.click(screen.getByRole('button', { name: 'decrease' }));
   expect(setRestAlertSec).toHaveBeenCalledWith('alice', 165);
 });
