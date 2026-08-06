@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/useAuth';
 import { useProgram } from '../data/programs';
 import { useProfile } from '../data/profile';
@@ -70,6 +70,13 @@ export function LiftDetailScreen() {
 
   return (
     <main className="flex flex-col gap-4 p-6">
+      <Link
+        to={`/program/${id}/day/${idx}`}
+        aria-label="Back to workout"
+        className="inline-flex h-9 w-9 items-center justify-center self-start rounded-xl border border-stroke-strong text-[18px] text-ink"
+      >
+        ‹
+      </Link>
       <div>
         <Eyebrow className="text-accent">{muscleLabel(lift.muscle)}</Eyebrow>
         <h1 className="text-[28px] font-extrabold text-ink">{lift.exerciseName}</h1>
