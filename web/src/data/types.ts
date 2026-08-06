@@ -1,4 +1,4 @@
-import type { MuscleGroup } from '../core';
+import type { Effort, MuscleGroup } from '../core';
 
 export interface Profile {
   restAlertSec: number;
@@ -13,12 +13,13 @@ export interface PlannedLiftDoc {
 }
 export interface ProgramDayDoc {
   index: number;
-  focus: string;
   completedInCycle: boolean;
   lifts: PlannedLiftDoc[];
 }
 export interface ProgramDoc {
   name: string;
+  effort: Effort;
+  muscles: MuscleGroup[];
   isActive: boolean;
   daysPerWeek: number;
   createdAt: number;
