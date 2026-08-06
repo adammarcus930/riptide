@@ -1,6 +1,6 @@
 import { beforeAll, afterEach, test, expect, vi } from 'vitest';
 import { signInAnonymously } from 'firebase/auth';
-import { getDocs, collection, deleteDoc, doc } from 'firebase/firestore';
+import { getDocs, collection, deleteDoc } from 'firebase/firestore';
 import { ExerciseBank, ALL_MUSCLES, type MuscleGroup, type ExerciseDefinition } from '../../core';
 
 // The repository reads db from ../firebase, which points at the emulator when
@@ -30,13 +30,6 @@ function input(name: string, days = 4) {
   for (const m of ALL_MUSCLES) selections.set(m, ExerciseBank.exercisesFor(m).slice(0, 2));
   return { name, effort: 'optimal' as const, days, selections };
 }
-async function list() {
-  const { createProgram, setActiveProgram, renameProgram, deleteProgram } = await import('../programs');
-  const { db } = await import('../../firebase');
-  const snap = await getDocs(collection(db, 'users', uid, 'programs'));
-  return { createProgram, setActiveProgram, renameProgram, deleteProgram, docs: snap.docs };
-}
-
 test('createProgram writes a program and it is the only active one', async () => {
   const { createProgram } = await import('../programs');
   const { db } = await import('../../firebase');

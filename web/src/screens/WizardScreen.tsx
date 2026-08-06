@@ -28,7 +28,7 @@ export function WizardScreen() {
   const [name, setName] = useState('');
   const [busy, setBusy] = useState(false);
 
-  const totalSteps = 4 + Math.max(muscles.length, 1);
+  const totalSteps = 4 + muscles.length;
   const stepIndex =
     step.kind === 'effort' ? 0
     : step.kind === 'days' ? 1

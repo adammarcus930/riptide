@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/useAuth';
 import { usePrograms } from '../data/programs';
-import { dayFocus } from '../data/materialize';
 import { Eyebrow } from '../ui/Eyebrow';
 
 export function ProgramLibraryScreen() {

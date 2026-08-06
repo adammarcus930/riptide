@@ -20,9 +20,10 @@ export function ProgramDetailScreen() {
   if (!program || !user || !id) return <main className="p-6 text-ink-dim">Program not found.</main>;
 
   const commitRename = () => {
+    if (!renaming) return;
     const trimmed = nameBuf.trim();
-    if (trimmed && trimmed !== program.name) renameProgram(user.uid, id, trimmed).catch((e) => console.error(e));
     setRenaming(false);
+    if (trimmed && trimmed !== program.name) renameProgram(user.uid, id, trimmed).catch((e) => console.error(e));
   };
 
   return (

@@ -13,6 +13,7 @@ export function DayDetailScreen() {
   const { program, loading } = useProgram(user?.uid, id);
   const [editing, setEditing] = useState(false);
   const [adding, setAdding] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   if (loading) return <main className="p-6 text-ink-faint">Loading…</main>;
   if (!program || !user || !id) return <main className="p-6 text-ink-dim">Not found.</main>;
@@ -25,9 +26,13 @@ export function DayDetailScreen() {
 
   // Persist a mutated lift list for this day: re-index order, splice into days, save.
   const saveLifts = (nextLifts: PlannedLiftDoc[]) => {
+    if (saving) return;
     const reindexed = nextLifts.map((l, i) => ({ ...l, order: i }));
     const nextDays: ProgramDayDoc[] = program.days.map((d) => (d.index === idx ? { ...d, lifts: reindexed } : d));
-    updateProgramDays(user.uid, id, nextDays).catch((e) => console.error('failed to save day', e));
+    setSaving(true);
+    updateProgramDays(user.uid, id, nextDays)
+      .catch((e) => console.error('failed to save day', e))
+      .finally(() => setSaving(false));
   };
 
   const move = (i: number, dir: -1 | 1) => {
@@ -74,22 +79,23 @@ export function DayDetailScreen() {
             </div>
             {editing && (
               <div className="flex items-center gap-1">
-                <button aria-label={`up-${i}`} disabled={i === 0} onClick={() => move(i, -1)} className="h-8 w-8 rounded-lg border border-stroke-strong text-ink disabled:opacity-30">↑</button>
-                <button aria-label={`down-${i}`} disabled={i === lifts.length - 1} onClick={() => move(i, 1)} className="h-8 w-8 rounded-lg border border-stroke-strong text-ink disabled:opacity-30">↓</button>
-                <button aria-label={`delete-${i}`} onClick={() => remove(i)} className="h-8 w-8 rounded-lg border border-stroke-strong text-ink-dim">✕</button>
+                <button aria-label={`up-${i}`} disabled={saving || i === 0} onClick={() => move(i, -1)} className="h-8 w-8 rounded-lg border border-stroke-strong text-ink disabled:opacity-30">↑</button>
+                <button aria-label={`down-${i}`} disabled={saving || i === lifts.length - 1} onClick={() => move(i, 1)} className="h-8 w-8 rounded-lg border border-stroke-strong text-ink disabled:opacity-30">↓</button>
+                <button aria-label={`delete-${i}`} disabled={saving} onClick={() => remove(i)} className="h-8 w-8 rounded-lg border border-stroke-strong text-ink-dim">✕</button>
               </div>
             )}
           </div>
           {editing && (
             <div className="mt-3 flex items-center gap-3">
               <div className="flex items-center gap-2">
-                <button aria-label={`sets-minus-${i}`} onClick={() => setSets(i, lift.targetSets - 1)} className="h-8 w-8 rounded-lg border border-stroke-strong text-ink">−</button>
+                <button aria-label={`sets-minus-${i}`} disabled={saving} onClick={() => setSets(i, lift.targetSets - 1)} className="h-8 w-8 rounded-lg border border-stroke-strong text-ink">−</button>
                 <span className="min-w-[52px] text-center text-[12px] font-extrabold text-ink">{lift.targetSets} sets</span>
-                <button aria-label={`sets-plus-${i}`} onClick={() => setSets(i, lift.targetSets + 1)} className="h-8 w-8 rounded-lg border border-stroke-strong text-ink">+</button>
+                <button aria-label={`sets-plus-${i}`} disabled={saving} onClick={() => setSets(i, lift.targetSets + 1)} className="h-8 w-8 rounded-lg border border-stroke-strong text-ink">+</button>
               </div>
               <select
                 aria-label={`swap-${i}`}
                 value={lift.exerciseId}
+                disabled={saving}
                 onChange={(e) => swap(i, e.target.value)}
                 className="rounded-lg border border-stroke-strong bg-input px-2 py-1 text-[12px] font-bold text-ink"
               >
@@ -111,7 +117,7 @@ export function DayDetailScreen() {
                 <div key={m}>
                   <p className="text-[11px] font-extrabold uppercase tracking-[1px] text-accent">{muscleLabel(m)}</p>
                   {ExerciseBank.exercisesFor(m).map((ex) => (
-                    <button key={ex.id} onClick={() => add(ex.id)} className="flex w-full items-center justify-between py-1.5 text-left">
+                    <button key={ex.id} disabled={saving} onClick={() => add(ex.id)} className="flex w-full items-center justify-between py-1.5 text-left">
                       <span className="text-[14px] text-ink">{ex.name}</span>
                       <span className="text-[13px] font-extrabold text-accent">+ Add</span>
                     </button>
@@ -122,7 +128,7 @@ export function DayDetailScreen() {
             <button onClick={() => setAdding(false)} className="mt-2 text-[13px] font-bold text-ink-dim">Close</button>
           </div>
         ) : (
-          <button onClick={() => setAdding(true)} className="rounded-btn border border-dashed border-stroke-strong py-3 text-[14px] font-bold text-ink">
+          <button disabled={saving} onClick={() => setAdding(true)} className="rounded-btn border border-dashed border-stroke-strong py-3 text-[14px] font-bold text-ink">
             + Add a lift
           </button>
         )

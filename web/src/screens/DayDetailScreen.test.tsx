@@ -60,3 +60,28 @@ test('deleting a lift removes it and re-indexes order', async () => {
   expect(days[0].lifts[0].exerciseName).toBe('Incline Dumbbell Press');
   expect(days[0].lifts[0].order).toBe(0);
 });
+
+test('moving a lift down swaps order and re-indexes', async () => {
+  renderAt();
+  await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+  await userEvent.click(screen.getByLabelText('down-0'));
+  expect(updateProgramDays).toHaveBeenCalledTimes(1);
+  const days = updateProgramDays.mock.calls[0][2];
+  expect(days[0].lifts).toHaveLength(2);
+  expect(days[0].lifts[0].exerciseName).toBe('Incline Dumbbell Press');
+  expect(days[0].lifts[0].order).toBe(0);
+  expect(days[0].lifts[1].exerciseName).toBe('Barbell Bench Press');
+  expect(days[0].lifts[1].order).toBe(1);
+});
+
+test('adding a lift appends it with the next order', async () => {
+  renderAt();
+  await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+  await userEvent.click(screen.getByRole('button', { name: '+ Add a lift' }));
+  await userEvent.click(screen.getByRole('button', { name: /Cable Fly/ }));
+  expect(updateProgramDays).toHaveBeenCalledTimes(1);
+  const days = updateProgramDays.mock.calls[0][2];
+  expect(days[0].lifts).toHaveLength(3);
+  expect(days[0].lifts[2].exerciseName).toBe('Cable Fly');
+  expect(days[0].lifts[2].order).toBe(2);
+});
