@@ -5,6 +5,12 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 export const pwaOptions = {
   registerType: 'autoUpdate' as const,
+  workbox: {
+    // Firebase Auth's redirect handler lives at /__/auth/handler on the hosting
+    // domain. Without this, the SPA navigation fallback serves index.html for it,
+    // so signInWithRedirect bounces back to the app and "nothing happens".
+    navigateFallbackDenylist: [/^\/__\//],
+  },
   manifest: {
     name: 'Riptide',
     short_name: 'Riptide',
