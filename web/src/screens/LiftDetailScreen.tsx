@@ -113,20 +113,18 @@ export function LiftDetailScreen() {
               {timer.display}
             </p>
           </div>
-          {(timer.running || timer.elapsed > 0) && (
-            <button
-              onClick={() => timer.reset()}
-              className="rounded-xl border border-stroke px-4 py-2 text-[13px] font-bold text-ink"
-            >
-              Reset
-            </button>
-          )}
+          <div className="flex items-center gap-3">
+            {timer.past && <span className="text-[13px] font-extrabold text-accent">Rest&apos;s up</span>}
+            {timer.running && (
+              <button
+                onClick={() => timer.reset()}
+                className="rounded-xl border border-stroke px-4 py-2 text-[13px] font-bold text-ink"
+              >
+                Reset
+              </button>
+            )}
+          </div>
         </div>
-        {timer.past ? (
-          <p className="mt-1 text-[12px] font-bold text-accent">Rest complete — go.</p>
-        ) : !timer.running ? (
-          <p className="mt-1 text-[12px] text-ink-faint">Starts when you complete a set.</p>
-        ) : null}
       </div>
     </main>
   );
