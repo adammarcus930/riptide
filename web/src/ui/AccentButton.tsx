@@ -13,7 +13,7 @@ export function AccentButton({
     <button
       type={type}
       onClick={onClick}
-      className="w-full rounded-btn bg-accent py-4 text-[15px] font-extrabold text-on-accent active:scale-[0.98]"
+      className="w-full rounded-btn bg-accent py-4 text-[15px] font-extrabold text-on-accent shadow-cta transition-transform active:scale-[0.98]"
     >
       {children}
     </button>

@@ -90,7 +90,7 @@ export function LiftDetailScreen() {
           const done = doneIndices.has(i);
           return (
             <div key={i} className="contents">
-              <span className="text-[15px] font-extrabold text-ink-dim">{i + 1}</span>
+              <span className="font-mono text-[15px] font-extrabold text-ink-dim">{i + 1}</span>
               {field(weights, setWeights, i, 'lb')}
               {field(reps, setReps, i, lift.repRange)}
               <button aria-label={`done-${i}`} onClick={() => toggle(i)} className="text-[26px]">

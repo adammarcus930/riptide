@@ -3,4 +3,33 @@
 @tailwind utilities;
 
 html, body, #root { height: 100%; }
-body { background: #0D1013; color: #EEF3F7; -webkit-font-smoothing: antialiased; }
+
+body {
+  background-color: #0D1013;
+  /* Page-top light: a breath of accent + a cool lift, fading into base.
+     (Port of the mockup's radial wash — kills the flat single-hex background.) */
+  background-image:
+    radial-gradient(120% 44rem at 50% -8rem, rgba(67, 201, 255, 0.06), transparent 60%),
+    radial-gradient(90% 30rem at 50% -4rem, #151b23, transparent 70%);
+  background-repeat: no-repeat;
+  color: #eef3f7;
+  -webkit-font-smoothing: antialiased;
+  font-variant-numeric: tabular-nums;
+}
+
+@layer base {
+  /* Display headlines get the mockup's tight athletic tracking. */
+  h1 {
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer components {
+  /* Light model: every card surface picks up a faint diagonal sheen and soft
+     depth (mockup: 45deg white 3% + large low shadows). Applies wherever
+     bg-card is used — no per-component wiring. */
+  .bg-card {
+    background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0) 55%);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+}

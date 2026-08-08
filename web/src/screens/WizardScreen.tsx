@@ -213,7 +213,7 @@ export function WizardScreen() {
         <button
           onClick={next}
           disabled={!canAdvance || busy}
-          className="w-full rounded-btn bg-accent py-4 text-[15px] font-extrabold text-on-accent disabled:opacity-40"
+          className="w-full rounded-btn bg-accent py-4 text-[15px] font-extrabold text-on-accent shadow-cta disabled:opacity-40"
         >
           {busy ? 'Building…' : nextLabel}
         </button>

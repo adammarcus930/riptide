@@ -25,7 +25,7 @@ export function ProgramLibraryScreen() {
           <p className="mt-1 text-[13px] text-ink-dim">Build one and it becomes your active plan.</p>
           <Link
             to="/wizard"
-            className="mt-4 inline-block rounded-btn bg-accent px-5 py-3 text-[15px] font-extrabold text-on-accent"
+            className="mt-4 inline-block rounded-btn bg-accent px-5 py-3 text-[15px] font-extrabold text-on-accent shadow-cta"
           >
             Build a program
           </Link>

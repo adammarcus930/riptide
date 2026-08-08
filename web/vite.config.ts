@@ -10,6 +10,8 @@ export const pwaOptions = {
     // domain. Without this, the SPA navigation fallback serves index.html for it,
     // so signInWithRedirect bounces back to the app and "nothing happens".
     navigateFallbackDenylist: [/^\/__\//],
+    // Include the self-hosted Archivo woff2 so typography survives offline.
+    globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
   },
   manifest: {
     name: 'Riptide',

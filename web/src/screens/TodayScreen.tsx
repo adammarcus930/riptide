@@ -22,7 +22,7 @@ export function TodayScreen() {
         <div className="rounded-card border border-stroke bg-card p-5">
           <p className="text-[15px] font-bold text-ink">Build a program around your life.</p>
           <p className="mt-1 text-[13px] text-ink-dim">Tell Riptide how hard to push, how many days, and what to train.</p>
-          <Link to="/wizard" className="mt-4 inline-block rounded-btn bg-accent px-5 py-3 text-[15px] font-extrabold text-on-accent">
+          <Link to="/wizard" className="mt-4 inline-block rounded-btn bg-accent px-5 py-3 text-[15px] font-extrabold text-on-accent shadow-cta">
             Build my program
           </Link>
         </div>
@@ -49,11 +49,11 @@ export function TodayScreen() {
       <h1 className="text-4xl font-extrabold text-ink">Train</h1>
 
       {/* Card for whichever day is selected (defaults to next up). */}
-      <div className="rounded-[22px] bg-accent p-5 text-on-accent">
+      <div className="rounded-[22px] bg-accent p-5 text-on-accent shadow-cta">
         <p className="text-[11px] font-extrabold tracking-[1.2px]">
           DAY {selDay.index + 1} OF {program.daysPerWeek} · {status(selDay)}
         </p>
-        <p className="mt-1 text-[26px] font-extrabold">{dayFocus(selDay.lifts) || 'Rest'}</p>
+        <p className="mt-1 text-[26px] font-extrabold tracking-[-0.02em]">{dayFocus(selDay.lifts) || 'Rest'}</p>
         <p className="mt-1 text-[13px] font-semibold opacity-70">
           {selDay.lifts.length} lifts · {setCount} sets
         </p>
@@ -90,7 +90,7 @@ export function TodayScreen() {
                   isSel ? 'border-2 border-accent bg-card' : d.completedInCycle ? 'border border-accent/40 bg-accent/10' : 'border border-stroke bg-card'
                 }`}
               >
-                <div className="text-[16px] font-extrabold text-ink">{d.index + 1}</div>
+                <div className="font-mono text-[16px] font-extrabold text-ink">{d.index + 1}</div>
                 <div className={`text-[9px] font-bold tracking-[1px] ${st === 'TO GO' ? 'text-ink-faint' : 'text-accent'}`}>
                   {st}
                 </div>
@@ -103,7 +103,7 @@ export function TodayScreen() {
       {allDone && (
         <button
           onClick={() => { if (!user) return; startNextCycle(user.uid, program.id).catch((e) => console.error(e)); }}
-          className="rounded-btn bg-accent py-4 text-[15px] font-extrabold text-on-accent"
+          className="rounded-btn bg-accent py-4 text-[15px] font-extrabold text-on-accent shadow-cta"
         >
           Start next cycle
         </button>

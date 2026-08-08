@@ -64,7 +64,7 @@ export function ProgramDetailScreen() {
           onClick={() => { setNameBuf(program.name); setRenaming(true); }}
           className="flex items-center gap-2 text-left"
         >
-          <span className="text-[30px] font-extrabold text-ink">{program.name}</span>
+          <span className="text-[30px] font-extrabold tracking-[-0.02em] text-ink">{program.name}</span>
           <span className="text-[15px] text-ink-faint">✎</span>
         </button>
       )}
@@ -83,7 +83,7 @@ export function ProgramDetailScreen() {
               to={`/program/${id}/day/${day.index}`}
               className="flex items-center gap-4 rounded-card border border-stroke bg-card p-4"
             >
-              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-input text-[17px] font-extrabold text-ink">
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-input font-mono text-[17px] font-extrabold text-ink">
                 {day.index + 1}
               </span>
               <div className="flex-1">

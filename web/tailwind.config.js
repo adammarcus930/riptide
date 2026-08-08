@@ -1,8 +1,16 @@
+import defaultTheme from 'tailwindcss/defaultTheme';
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Archivo Variable', ...defaultTheme.fontFamily.sans],
+      },
+      boxShadow: {
+        cta: '0 10px 30px rgba(0, 0, 0, 0.5)',
+      },
       colors: {
         base: '#0D1013',
         card: '#161B21',
