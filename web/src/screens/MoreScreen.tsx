@@ -3,6 +3,7 @@ import { useAuth } from '../auth/useAuth';
 import { useProfile, setRestAlertSec } from '../data/profile';
 import { Card } from '../ui/Card';
 import { Eyebrow } from '../ui/Eyebrow';
+import { IconChevronRight, IconMinus, IconPlus } from '../ui/icons';
 
 const DEFAULT_REST = 180;
 const MIN = 30;
@@ -25,8 +26,9 @@ export function MoreScreen() {
     <main className="flex flex-col gap-4 p-6">
       <Eyebrow>More</Eyebrow>
       <h1 className="text-3xl font-extrabold text-ink">Riptide</h1>
-      <Link to="/history" className="rounded-card border border-stroke bg-card p-4 text-[15px] font-bold text-ink">
-        History →
+      <Link to="/history" className="flex items-center justify-between rounded-card border border-stroke bg-card p-4 text-[15px] font-bold text-ink">
+        History
+        <IconChevronRight className="h-4 w-4 text-ink-faint" />
       </Link>
       <Card>
         <Eyebrow>Rest timer alert</Eyebrow>
@@ -36,16 +38,16 @@ export function MoreScreen() {
             <button
               aria-label="decrease"
               onClick={() => set(seconds - STEP)}
-              className="h-8 w-8 rounded-lg border border-stroke-strong text-ink"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-stroke-strong text-ink"
             >
-              −
+              <IconMinus className="h-4 w-4" />
             </button>
             <button
               aria-label="increase"
               onClick={() => set(seconds + STEP)}
-              className="h-8 w-8 rounded-lg border border-stroke-strong text-ink"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-stroke-strong text-ink"
             >
-              +
+              <IconPlus className="h-4 w-4" />
             </button>
           </div>
         </div>

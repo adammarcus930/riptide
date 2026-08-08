@@ -5,8 +5,9 @@ import { useProgram } from '../data/programs';
 import { useProfile } from '../data/profile';
 import { useOpenSession, useSessionSets, toggleSet, lastSets, mergedBySetIndex } from '../data/workouts';
 import { useRestTimer } from '../hooks/useRestTimer';
-import { muscleLabel } from '../core';
+import { ExerciseBank, muscleLabel } from '../core';
 import { Eyebrow } from '../ui/Eyebrow';
+import { IconChevronLeft, IconCheckCircle, IconCircle } from '../ui/icons';
 
 const DEFAULT_REST = 180;
 
@@ -75,12 +76,21 @@ export function LiftDetailScreen() {
       <Link
         to={`/program/${id}/day/${idx}`}
         aria-label="Back to workout"
-        className="inline-flex h-9 w-9 items-center justify-center self-start rounded-xl border border-stroke-strong text-[18px] text-ink"
+        className="inline-flex h-9 w-9 items-center justify-center self-start rounded-xl border border-stroke-strong text-ink"
       >
-        ‹
+        <IconChevronLeft className="h-5 w-5" />
       </Link>
-      <div>
-        <Eyebrow className="text-accent">{muscleLabel(lift.muscle)}</Eyebrow>
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2">
+          <span className="self-start rounded-full bg-accent/10 px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.8px] text-accent">
+            {muscleLabel(lift.muscle)}
+          </span>
+          {(ExerciseBank.find(lift.exerciseId)?.secondaries.length ?? 0) > 0 && (
+            <span className="text-[12px] text-ink-dim">
+              also hits {ExerciseBank.find(lift.exerciseId)!.secondaries.map(muscleLabel).join(', ')}
+            </span>
+          )}
+        </div>
         <h1 className="text-[28px] font-extrabold text-ink">{lift.exerciseName}</h1>
       </div>
 
@@ -93,8 +103,12 @@ export function LiftDetailScreen() {
               <span className="font-mono text-[15px] font-extrabold text-ink-dim">{i + 1}</span>
               {field(weights, setWeights, i, 'lb')}
               {field(reps, setReps, i, lift.repRange)}
-              <button aria-label={`done-${i}`} onClick={() => toggle(i)} className="text-[26px]">
-                <span className={done ? 'text-accent' : 'text-ink-faint'}>{done ? '☑' : '○'}</span>
+              <button aria-label={`done-${i}`} onClick={() => toggle(i)} className="flex items-center justify-center">
+                {done ? (
+                  <IconCheckCircle className="animate-pop h-7 w-7 text-accent" />
+                ) : (
+                  <IconCircle className="h-7 w-7 text-ink-faint" />
+                )}
               </button>
             </div>
           );
@@ -114,7 +128,7 @@ export function LiftDetailScreen() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            {timer.past && <span className="text-[13px] font-extrabold text-accent">Rest&apos;s up</span>}
+            {timer.past && <span className="animate-pop text-[13px] font-extrabold text-accent">Rest&apos;s up</span>}
             {timer.running && (
               <button
                 onClick={() => timer.reset()}

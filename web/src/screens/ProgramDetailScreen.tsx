@@ -5,6 +5,7 @@ import { useProgram, setActiveProgram, renameProgram, deleteProgram } from '../d
 import { dayFocus } from '../data/materialize';
 import { effortLabel } from '../core';
 import { Eyebrow } from '../ui/Eyebrow';
+import { IconChevronLeft, IconChevronRight, IconPencil } from '../ui/icons';
 
 export function ProgramDetailScreen() {
   const { id } = useParams<{ id: string }>();
@@ -31,9 +32,9 @@ export function ProgramDetailScreen() {
       <Link
         to="/program"
         aria-label="Back to programs"
-        className="inline-flex h-9 w-9 items-center justify-center self-start rounded-xl border border-stroke-strong text-[18px] text-ink"
+        className="inline-flex h-9 w-9 items-center justify-center self-start rounded-xl border border-stroke-strong text-ink"
       >
-        ‹
+        <IconChevronLeft className="h-5 w-5" />
       </Link>
       <div className="flex items-center justify-between">
         <Eyebrow className={program.isActive ? 'text-accent' : undefined}>
@@ -65,7 +66,7 @@ export function ProgramDetailScreen() {
           className="flex items-center gap-2 text-left"
         >
           <span className="text-[30px] font-extrabold tracking-[-0.02em] text-ink">{program.name}</span>
-          <span className="text-[15px] text-ink-faint">✎</span>
+          <IconPencil className="h-4 w-4 text-ink-faint" />
         </button>
       )}
 
@@ -90,6 +91,7 @@ export function ProgramDetailScreen() {
                 <p className="text-[15px] font-bold text-ink">{dayFocus(day.lifts) || 'Rest / empty'}</p>
                 <p className="text-[12px] text-ink-dim">{day.lifts.length} lifts · {sets} sets</p>
               </div>
+              <IconChevronRight className="h-4 w-4 text-ink-faint" />
             </Link>
           );
         })}

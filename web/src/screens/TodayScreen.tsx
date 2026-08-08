@@ -49,7 +49,7 @@ export function TodayScreen() {
       <h1 className="text-4xl font-extrabold text-ink">Train</h1>
 
       {/* Card for whichever day is selected (defaults to next up). */}
-      <div className="rounded-[22px] bg-accent p-5 text-on-accent shadow-cta">
+      <div className="rounded-[22px] bg-accent p-5 text-on-accent shadow-glow">
         <p className="text-[11px] font-extrabold tracking-[1.2px]">
           DAY {selDay.index + 1} OF {program.daysPerWeek} · {status(selDay)}
         </p>
@@ -88,7 +88,7 @@ export function TodayScreen() {
                 aria-label={`Day ${d.index + 1} ${st}`}
                 className={`flex-1 rounded-[14px] py-3 text-center ${
                   isSel ? 'border-2 border-accent bg-card' : d.completedInCycle ? 'border border-accent/40 bg-accent/10' : 'border border-stroke bg-card'
-                }`}
+                } ${st === 'NEXT' ? 'shadow-glow-sm' : ''}`}
               >
                 <div className="font-mono text-[16px] font-extrabold text-ink">{d.index + 1}</div>
                 <div className={`text-[9px] font-bold tracking-[1px] ${st === 'TO GO' ? 'text-ink-faint' : 'text-accent'}`}>

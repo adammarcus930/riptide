@@ -7,6 +7,7 @@ import {
   type Effort, type MuscleGroup, type ExerciseDefinition,
 } from '../core';
 import { Eyebrow } from '../ui/Eyebrow';
+import { IconChevronLeft, IconCheckSquare, IconSquare } from '../ui/icons';
 
 type Step = { kind: 'effort' | 'days' | 'muscles' | 'name' } | { kind: 'exercises'; i: number };
 
@@ -104,9 +105,9 @@ export function WizardScreen() {
           <button
             aria-label="back"
             onClick={back}
-            className="h-9 w-9 rounded-xl border border-stroke-strong text-ink"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-stroke-strong text-ink"
           >
-            ‹
+            <IconChevronLeft className="h-5 w-5" />
           </button>
           <Eyebrow>STEP {stepIndex + 1} OF {totalSteps}</Eyebrow>
         </div>
@@ -185,7 +186,11 @@ export function WizardScreen() {
               return (
                 <OptionCard key={ex.id} selected={on} onClick={() => togglePick(muscles[step.i], ex)}>
                   <div className="flex items-center gap-3">
-                    <span className={on ? 'text-accent' : 'text-ink-faint'}>{on ? '☑' : '☐'}</span>
+                    {on ? (
+                      <IconCheckSquare className="h-5 w-5 shrink-0 text-accent" />
+                    ) : (
+                      <IconSquare className="h-5 w-5 shrink-0 text-ink-faint" />
+                    )}
                     <div>
                       <p className="text-[15px] font-bold text-ink">{ex.name}</p>
                       <p className="text-[12px] text-ink-faint">{ex.repRange} reps</p>

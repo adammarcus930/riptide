@@ -105,7 +105,7 @@ test('live mode shows a checkmark for a logged lift and links to lift detail', (
   useSessionSets.mockReturnValue({ sets: [{ exerciseId: 'bench-press', setIndex: 0 }] });
   renderAt();
   expect(screen.getByRole('link', { name: /Barbell Bench Press/ })).toHaveAttribute('href', '/program/p1/day/0/lift/0');
-  expect(screen.getByText('☑')).toBeInTheDocument();
+  expect(screen.getByRole('img', { name: 'done' })).toBeInTheDocument();
 });
 
 test('survives the loading -> loaded transition (no hook-order crash)', () => {

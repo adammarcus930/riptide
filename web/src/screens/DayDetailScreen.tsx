@@ -7,6 +7,10 @@ import { dayFocus } from '../data/materialize';
 import { ExerciseBank, muscleLabel, type MuscleGroup } from '../core';
 import type { ProgramDayDoc, PlannedLiftDoc } from '../data/types';
 import { Eyebrow } from '../ui/Eyebrow';
+import {
+  IconChevronLeft, IconChevronRight, IconCheckCircle, IconCircle,
+  IconArrowUp, IconArrowDown, IconX, IconPlus, IconMinus,
+} from '../ui/icons';
 
 export function DayDetailScreen() {
   const { id, dayIndex } = useParams<{ id: string; dayIndex: string }>();
@@ -69,9 +73,9 @@ export function DayDetailScreen() {
       <Link
         to={`/program/${id}`}
         aria-label="Back to program"
-        className="inline-flex h-9 w-9 items-center justify-center self-start rounded-xl border border-stroke-strong text-[18px] text-ink"
+        className="inline-flex h-9 w-9 items-center justify-center self-start rounded-xl border border-stroke-strong text-ink"
       >
-        ‹
+        <IconChevronLeft className="h-5 w-5" />
       </Link>
       <div className="flex items-start justify-between">
         <div>
@@ -95,19 +99,25 @@ export function DayDetailScreen() {
             return (
               <Link key={lift.order} to={`/program/${id}/day/${idx}/lift/${lift.order}`}
                     className="flex items-center gap-3 rounded-card border border-stroke bg-card p-4">
-                <span className={done ? 'text-accent' : 'text-ink-faint'}>{done ? '☑' : '○'}</span>
+                {done ? (
+                  <span role="img" aria-label="done">
+                    <IconCheckCircle className="animate-pop h-6 w-6 text-accent" />
+                  </span>
+                ) : (
+                  <IconCircle className="h-6 w-6 text-ink-faint" />
+                )}
                 <div className="flex-1">
                   <p className="text-[15px] font-bold text-ink">{lift.exerciseName}</p>
                   <p className="text-[12px] text-ink-faint">{lift.targetSets} sets · {lift.repRange} reps</p>
                 </div>
-                <span className="text-ink-faint">›</span>
+                <IconChevronRight className="h-4 w-4 text-ink-faint" />
               </Link>
             );
           })}
           <button
             onClick={() => completeDay(user.uid, id, idx).catch((e) => console.error(e))}
             disabled={completed}
-            className="mt-2 w-full rounded-btn bg-accent py-4 text-[15px] font-extrabold text-on-accent disabled:opacity-50"
+            className="mt-2 w-full rounded-btn bg-accent py-4 text-[15px] font-extrabold text-on-accent shadow-cta disabled:opacity-50"
           >
             {completed ? 'Day logged' : 'Complete day'}
           </button>
@@ -125,18 +135,18 @@ export function DayDetailScreen() {
                 </div>
                 {editing && (
                   <div className="flex items-center gap-1">
-                    <button aria-label={`up-${i}`} disabled={saving || i === 0} onClick={() => move(i, -1)} className="h-8 w-8 rounded-lg border border-stroke-strong text-ink disabled:opacity-30">↑</button>
-                    <button aria-label={`down-${i}`} disabled={saving || i === lifts.length - 1} onClick={() => move(i, 1)} className="h-8 w-8 rounded-lg border border-stroke-strong text-ink disabled:opacity-30">↓</button>
-                    <button aria-label={`delete-${i}`} disabled={saving} onClick={() => remove(i)} className="h-8 w-8 rounded-lg border border-stroke-strong text-ink-dim">✕</button>
+                    <button aria-label={`up-${i}`} disabled={saving || i === 0} onClick={() => move(i, -1)} className="flex h-8 w-8 items-center justify-center rounded-lg border border-stroke-strong text-ink disabled:opacity-30"><IconArrowUp className="h-4 w-4" /></button>
+                    <button aria-label={`down-${i}`} disabled={saving || i === lifts.length - 1} onClick={() => move(i, 1)} className="flex h-8 w-8 items-center justify-center rounded-lg border border-stroke-strong text-ink disabled:opacity-30"><IconArrowDown className="h-4 w-4" /></button>
+                    <button aria-label={`delete-${i}`} disabled={saving} onClick={() => remove(i)} className="flex h-8 w-8 items-center justify-center rounded-lg border border-stroke-strong text-ink-dim"><IconX className="h-4 w-4" /></button>
                   </div>
                 )}
               </div>
               {editing && (
                 <div className="mt-3 flex items-center gap-3">
                   <div className="flex items-center gap-2">
-                    <button aria-label={`sets-minus-${i}`} disabled={saving} onClick={() => setSets(i, lift.targetSets - 1)} className="h-8 w-8 rounded-lg border border-stroke-strong text-ink">−</button>
+                    <button aria-label={`sets-minus-${i}`} disabled={saving} onClick={() => setSets(i, lift.targetSets - 1)} className="flex h-8 w-8 items-center justify-center rounded-lg border border-stroke-strong text-ink"><IconMinus className="h-4 w-4" /></button>
                     <span className="min-w-[52px] text-center text-[12px] font-extrabold text-ink">{lift.targetSets} sets</span>
-                    <button aria-label={`sets-plus-${i}`} disabled={saving} onClick={() => setSets(i, lift.targetSets + 1)} className="h-8 w-8 rounded-lg border border-stroke-strong text-ink">+</button>
+                    <button aria-label={`sets-plus-${i}`} disabled={saving} onClick={() => setSets(i, lift.targetSets + 1)} className="flex h-8 w-8 items-center justify-center rounded-lg border border-stroke-strong text-ink"><IconPlus className="h-4 w-4" /></button>
                   </div>
                   <select
                     aria-label={`swap-${i}`}

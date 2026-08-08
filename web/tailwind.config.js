@@ -10,6 +10,8 @@ export default {
       },
       boxShadow: {
         cta: '0 10px 30px rgba(0, 0, 0, 0.5)',
+        glow: '0 10px 30px rgba(0, 0, 0, 0.5), 0 0 44px rgba(67, 201, 255, 0.20)',
+        'glow-sm': '0 0 18px rgba(67, 201, 255, 0.25)',
       },
       colors: {
         base: '#0D1013',
