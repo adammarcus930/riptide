@@ -6,6 +6,8 @@ import { startNextCycle, useHistory } from '../data/workouts';
 import { dayFocus } from '../data/materialize';
 import { Eyebrow } from '../ui/Eyebrow';
 import { WaveMark } from '../ui/WaveMark';
+import { ScreenSkeleton } from '../ui/Skeleton';
+import { toast } from '../ui/toast';
 
 /** Monday 00:00 local time — "this week" for the stats strip. */
 function startOfWeekMs(): number {
@@ -22,7 +24,7 @@ export function TodayScreen() {
   // null = follow the next-up day automatically; a number = user picked a day.
   const [picked, setPicked] = useState<number | null>(null);
 
-  if (loading) return <main className="p-6 text-ink-faint">Loading…</main>;
+  if (loading) return <ScreenSkeleton />;
 
   if (!program) {
     return (
@@ -137,7 +139,13 @@ export function TodayScreen() {
 
       {allDone && (
         <button
-          onClick={() => { if (!user) return; startNextCycle(user.uid, program.id).catch((e) => console.error(e)); }}
+          onClick={() => {
+            if (!user) return;
+            startNextCycle(user.uid, program.id).catch((e) => {
+              console.error(e);
+              toast("Couldn't start the next cycle.");
+            });
+          }}
           className="rounded-btn bg-accent py-4 text-[15px] font-extrabold text-on-accent shadow-cta"
         >
           Start next cycle

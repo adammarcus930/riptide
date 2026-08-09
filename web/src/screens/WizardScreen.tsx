@@ -7,7 +7,9 @@ import {
   type Effort, type MuscleGroup, type ExerciseDefinition,
 } from '../core';
 import { Eyebrow } from '../ui/Eyebrow';
-import { IconChevronLeft, IconCheckSquare, IconSquare } from '../ui/icons';
+import { IconChevronLeft, IconCheckSquare, IconSquare, IconX } from '../ui/icons';
+import { useSmartBack } from '../hooks/useSmartBack';
+import { toast } from '../ui/toast';
 
 type Step = { kind: 'effort' | 'days' | 'muscles' | 'name' } | { kind: 'exercises'; i: number };
 
@@ -20,6 +22,7 @@ const effortBlurb: Record<Effort, string> = {
 export function WizardScreen() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const exitWizard = useSmartBack('/program');
 
   const [step, setStep] = useState<Step>({ kind: 'effort' });
   const [effort, setEffort] = useState<Effort>('optimal');
@@ -95,6 +98,7 @@ export function WizardScreen() {
       navigate(`/program/${id}`, { replace: true });
     } catch (err) {
       console.error('failed to build program', err);
+      toast("Couldn't build the program — try again.");
       setBusy(false);
     }
   };
@@ -110,7 +114,16 @@ export function WizardScreen() {
           >
             <IconChevronLeft className="h-5 w-5" />
           </button>
-          <Eyebrow>STEP {stepIndex + 1} OF {totalSteps}</Eyebrow>
+          <div className="flex items-center gap-3">
+            <Eyebrow>STEP {stepIndex + 1} OF {totalSteps}</Eyebrow>
+            <button
+              aria-label="close"
+              onClick={exitWizard}
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-stroke-strong text-ink"
+            >
+              <IconX className="h-4 w-4" />
+            </button>
+          </div>
         </div>
         <div className="h-1 rounded-full bg-stroke">
           <div className="h-1 rounded-full bg-accent transition-all" style={{ width: `${progress * 100}%` }} />

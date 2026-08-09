@@ -1,17 +1,32 @@
 import { useAuth } from '../auth/useAuth';
 import { useHistory } from '../data/workouts';
+import { useSmartBack } from '../hooks/useSmartBack';
 import { Eyebrow } from '../ui/Eyebrow';
+import { Skeleton } from '../ui/Skeleton';
+import { IconChevronLeft } from '../ui/icons';
 
 export function HistoryScreen() {
   const { user } = useAuth();
   const { sessions, loading } = useHistory(user?.uid);
+  const goBack = useSmartBack('/more');
 
   return (
     <main className="flex flex-col gap-3 p-6">
+      <button
+        onClick={goBack}
+        aria-label="Back"
+        className="inline-flex h-9 w-9 items-center justify-center self-start rounded-xl border border-stroke-strong text-ink"
+      >
+        <IconChevronLeft className="h-5 w-5" />
+      </button>
       <Eyebrow>History</Eyebrow>
       <h1 className="text-3xl font-extrabold text-ink">Sessions</h1>
       {loading ? (
-        <p className="text-ink-faint">Loading…</p>
+        <>
+          <Skeleton className="h-16" />
+          <Skeleton className="h-16" />
+          <Skeleton className="h-16" />
+        </>
       ) : sessions.length === 0 ? (
         <p className="text-[13px] text-ink-dim">Nothing logged yet — finish a workout and it lands here.</p>
       ) : (

@@ -11,6 +11,8 @@ import { useSmartBack } from '../hooks/useSmartBack';
 import { ExerciseBank, muscleLabel } from '../core';
 import { Eyebrow } from '../ui/Eyebrow';
 import { IconChevronLeft, IconCheckCircle, IconCircle } from '../ui/icons';
+import { ScreenSkeleton } from '../ui/Skeleton';
+import { toast } from '../ui/toast';
 
 const DEFAULT_REST = 180;
 
@@ -49,7 +51,7 @@ export function LiftDetailScreen() {
     })();
   }, [prefilled, user, lift, setsLoading, sessionLoading, liveSessionId]);
 
-  if (loading) return <main className="p-6 text-ink-faint">Loading…</main>;
+  if (loading) return <ScreenSkeleton />;
   if (!program || !user || !id || !lift) return <main className="p-6 text-ink-dim">Lift not found.</main>;
 
   const doneIndices = new Set(mySets.map((s) => s.setIndex));
@@ -60,7 +62,10 @@ export function LiftDetailScreen() {
       programId: id, programName: program.name, dayIndex: idx,
       exerciseId: lift.exerciseId, exerciseName: lift.exerciseName,
       setIndex: i, weight: Number(weights[i]) || 0, reps: Number(reps[i]) || 0,
-    }).catch((e) => console.error('toggle set failed', e));
+    }).catch((e) => {
+      console.error('toggle set failed', e);
+      toast("Couldn't log the set.");
+    });
     // Completing a set (re)starts the rest countdown. Un-checking is a
     // correction — it must not touch the timer (that caused the buggy state).
     if (!done) timer.start();

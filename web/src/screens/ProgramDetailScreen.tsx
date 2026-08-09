@@ -7,6 +7,8 @@ import { effortLabel } from '../core';
 import { useSmartBack } from '../hooks/useSmartBack';
 import { Eyebrow } from '../ui/Eyebrow';
 import { IconChevronLeft, IconChevronRight, IconPencil } from '../ui/icons';
+import { ScreenSkeleton } from '../ui/Skeleton';
+import { toast } from '../ui/toast';
 
 export function ProgramDetailScreen() {
   const { id } = useParams<{ id: string }>();
@@ -19,14 +21,18 @@ export function ProgramDetailScreen() {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const goBack = useSmartBack('/program');
 
-  if (loading) return <main className="p-6 text-ink-faint">Loading…</main>;
+  if (loading) return <ScreenSkeleton />;
   if (!program || !user || !id) return <main className="p-6 text-ink-dim">Program not found.</main>;
 
   const commitRename = () => {
     if (!renaming) return;
     const trimmed = nameBuf.trim();
     setRenaming(false);
-    if (trimmed && trimmed !== program.name) renameProgram(user.uid, id, trimmed).catch((e) => console.error(e));
+    if (trimmed && trimmed !== program.name)
+      renameProgram(user.uid, id, trimmed).catch((e) => {
+        console.error(e);
+        toast("Couldn't rename the program.");
+      });
   };
 
   return (
@@ -44,7 +50,12 @@ export function ProgramDetailScreen() {
         </Eyebrow>
         {!program.isActive && (
           <button
-            onClick={() => setActiveProgram(user.uid, id).catch((e) => console.error(e))}
+            onClick={() =>
+              setActiveProgram(user.uid, id).catch((e) => {
+                console.error(e);
+                toast("Couldn't make this program active.");
+              })
+            }
             className="rounded-full border border-accent/40 bg-accent/10 px-3 py-1.5 text-[12px] font-extrabold text-accent"
           >
             Make active
@@ -110,7 +121,14 @@ export function ProgramDetailScreen() {
           <p className="text-[13px] text-ink">Delete "{program.name}"? Logged workouts are kept.</p>
           <div className="mt-3 flex gap-2">
             <button
-              onClick={() => deleteProgram(user.uid, id).then(() => navigate('/program')).catch((e) => console.error(e))}
+              onClick={() =>
+                deleteProgram(user.uid, id)
+                  .then(() => navigate('/program'))
+                  .catch((e) => {
+                    console.error(e);
+                    toast("Couldn't delete the program.");
+                  })
+              }
               className="rounded-btn bg-red-500/90 px-4 py-2 text-[13px] font-bold text-white"
             >
               Delete

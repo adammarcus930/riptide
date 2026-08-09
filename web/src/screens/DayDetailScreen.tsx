@@ -8,6 +8,8 @@ import { ExerciseBank, muscleLabel, type MuscleGroup } from '../core';
 import type { ProgramDayDoc, PlannedLiftDoc } from '../data/types';
 import { useSmartBack } from '../hooks/useSmartBack';
 import { Eyebrow } from '../ui/Eyebrow';
+import { ScreenSkeleton } from '../ui/Skeleton';
+import { toast } from '../ui/toast';
 import {
   IconChevronLeft, IconChevronRight, IconCheckCircle, IconCircle,
   IconArrowUp, IconArrowDown, IconX, IconPlus, IconMinus,
@@ -29,7 +31,7 @@ export function DayDetailScreen() {
   const liveSessionId = session && session.dayIndex === idx ? session.id : undefined;
   const { sets: sessionSets } = useSessionSets(user?.uid, liveSessionId);
 
-  if (loading) return <main className="p-6 text-ink-faint">Loading…</main>;
+  if (loading) return <ScreenSkeleton />;
   if (!program || !user || !id) return <main className="p-6 text-ink-dim">Not found.</main>;
   const day = program.days.find((d) => d.index === idx);
   if (!day) return <main className="p-6 text-ink-dim">Day not found.</main>;
@@ -52,7 +54,10 @@ export function DayDetailScreen() {
     const nextDays: ProgramDayDoc[] = program.days.map((d) => (d.index === idx ? { ...d, lifts: reindexed } : d));
     setSaving(true);
     updateProgramDays(user.uid, id, nextDays)
-      .catch((e) => console.error('failed to save day', e))
+      .catch((e) => {
+        console.error('failed to save day', e);
+        toast("Couldn't save your changes.");
+      })
       .finally(() => setSaving(false));
   };
 
@@ -147,7 +152,10 @@ export function DayDetailScreen() {
                   sets: sessionSets.length,
                   left: program.days.filter((d) => !d.completedInCycle && d.index !== idx).length,
                 });
-                completeDay(user.uid, id, idx).catch((e) => console.error(e));
+                completeDay(user.uid, id, idx).catch((e) => {
+                  console.error(e);
+                  toast("Couldn't complete the day.");
+                });
               }}
               disabled={completed}
               className="mt-2 w-full rounded-btn bg-accent py-4 text-[15px] font-extrabold text-on-accent shadow-cta disabled:opacity-50"

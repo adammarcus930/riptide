@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/useAuth';
 import { usePrograms } from '../data/programs';
 import { Eyebrow } from '../ui/Eyebrow';
+import { Skeleton } from '../ui/Skeleton';
 
 export function ProgramLibraryScreen() {
   const { user } = useAuth();
@@ -18,7 +19,10 @@ export function ProgramLibraryScreen() {
       <h1 className="text-3xl font-extrabold text-ink">Your programs</h1>
 
       {loading ? (
-        <p className="text-ink-faint">Loading…</p>
+        <>
+          <Skeleton className="h-20" />
+          <Skeleton className="h-20" />
+        </>
       ) : programs.length === 0 ? (
         <div className="rounded-card border border-stroke bg-card p-5">
           <p className="text-[15px] font-bold text-ink">No programs yet.</p>

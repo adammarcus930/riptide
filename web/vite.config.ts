@@ -4,7 +4,9 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export const pwaOptions = {
-  registerType: 'autoUpdate' as const,
+  // 'prompt': a waiting SW surfaces the in-app "new version" toast instead of
+  // silently applying on some later launch.
+  registerType: 'prompt' as const,
   workbox: {
     // Firebase Auth's redirect handler lives at /__/auth/handler on the hosting
     // domain. Without this, the SPA navigation fallback serves index.html for it,
