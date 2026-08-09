@@ -19,6 +19,9 @@ export function DayDetailScreen() {
   const [editing, setEditing] = useState(false);
   const [adding, setAdding] = useState(false);
   const [saving, setSaving] = useState(false);
+  // Captured at the moment the day is completed, so the recap survives the
+  // session closing (which empties the live set list).
+  const [summary, setSummary] = useState<{ lifts: number; sets: number; left: number } | null>(null);
   const idx = Number(dayIndex);
   const { session } = useOpenSession(user?.uid);
   const liveSessionId = session && session.dayIndex === idx ? session.id : undefined;
@@ -114,13 +117,32 @@ export function DayDetailScreen() {
               </Link>
             );
           })}
-          <button
-            onClick={() => completeDay(user.uid, id, idx).catch((e) => console.error(e))}
-            disabled={completed}
-            className="mt-2 w-full rounded-btn bg-accent py-4 text-[15px] font-extrabold text-on-accent shadow-cta disabled:opacity-50"
-          >
-            {completed ? 'Day logged' : 'Complete day'}
-          </button>
+          {summary ? (
+            <div className="animate-pop mt-2 rounded-card border border-accent/40 bg-accent/10 p-4">
+              <p className="text-[16px] font-extrabold text-accent">Day {idx + 1} done.</p>
+              <p className="mt-1 text-[13px] text-ink-dim">
+                {summary.lifts} of {lifts.length} lifts · {summary.sets} sets logged.{' '}
+                {summary.left > 0
+                  ? `${summary.left} day${summary.left === 1 ? '' : 's'} left in this cycle.`
+                  : 'That was the last day of the cycle.'}
+              </p>
+            </div>
+          ) : (
+            <button
+              onClick={() => {
+                setSummary({
+                  lifts: doneCount,
+                  sets: sessionSets.length,
+                  left: program.days.filter((d) => !d.completedInCycle && d.index !== idx).length,
+                });
+                completeDay(user.uid, id, idx).catch((e) => console.error(e));
+              }}
+              disabled={completed}
+              className="mt-2 w-full rounded-btn bg-accent py-4 text-[15px] font-extrabold text-on-accent shadow-cta disabled:opacity-50"
+            >
+              {completed ? 'Day logged' : 'Complete day'}
+            </button>
+          )}
         </>
       )}
 

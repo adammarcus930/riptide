@@ -3,7 +3,9 @@ import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/useAuth';
 import { useProgram } from '../data/programs';
 import { useProfile } from '../data/profile';
-import { useOpenSession, useSessionSets, toggleSet, lastSets, mergedBySetIndex } from '../data/workouts';
+import {
+  useOpenSession, useSessionSets, toggleSet, lastSets, mergedBySetIndex, type LoggedSetWithId,
+} from '../data/workouts';
 import { useRestTimer } from '../hooks/useRestTimer';
 import { ExerciseBank, muscleLabel } from '../core';
 import { Eyebrow } from '../ui/Eyebrow';
@@ -30,13 +32,15 @@ export function LiftDetailScreen() {
 
   const [weights, setWeights] = useState<string[]>([]);
   const [reps, setReps] = useState<string[]>([]);
+  const [previous, setPrevious] = useState<LoggedSetWithId[]>([]);
   const [prefilled, setPrefilled] = useState(false);
 
   useEffect(() => {
     if (prefilled || !user || !lift || setsLoading || sessionLoading) return;
     (async () => {
-      const previous = await lastSets(user.uid, lift.exerciseId, liveSessionId);
-      const merged = mergedBySetIndex(mySets, previous);
+      const prev = await lastSets(user.uid, lift.exerciseId, liveSessionId);
+      setPrevious(prev);
+      const merged = mergedBySetIndex(mySets, prev);
       setWeights(Array.from({ length: lift.targetSets }, (_, i) => (merged.has(i) ? String(merged.get(i)!.weight) : '')));
       setReps(Array.from({ length: lift.targetSets }, (_, i) => (merged.has(i) ? String(merged.get(i)!.reps) : '')));
       setPrefilled(true);
@@ -92,6 +96,21 @@ export function LiftDetailScreen() {
           )}
         </div>
         <h1 className="text-[28px] font-extrabold text-ink">{lift.exerciseName}</h1>
+        {ExerciseBank.find(lift.exerciseId)?.blurb && (
+          <p className="text-[13px] leading-relaxed text-ink-dim">{ExerciseBank.find(lift.exerciseId)!.blurb}</p>
+        )}
+        {prefilled &&
+          (previous.length > 0 ? (
+            <p className="text-[12px] text-ink-dim">
+              <span className="mr-1 text-[10px] font-extrabold uppercase tracking-[0.8px] text-accent">Last time</span>
+              {previous.map((s) => `${s.weight}×${s.reps}`).join(' · ')}
+              {previous[0]?.loggedAt
+                ? ` — ${new Date(previous[0].loggedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`
+                : ''}
+            </p>
+          ) : (
+            <p className="text-[12px] text-ink-dim">First time on this one — set the baseline.</p>
+          ))}
       </div>
 
       <div className="grid grid-cols-[32px_1fr_1fr_44px] items-center gap-2">

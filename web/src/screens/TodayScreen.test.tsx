@@ -4,10 +4,14 @@ import { test, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 
 const useActiveProgram = vi.fn();
+const useHistory = vi.fn(() => ({ sessions: [], loading: false }));
 const startNextCycle = vi.fn().mockResolvedValue(undefined);
 vi.mock('../auth/useAuth', () => ({ useAuth: () => ({ user: { uid: 'u1' } }) }));
 vi.mock('../data/programs', () => ({ useActiveProgram: (uid: string) => useActiveProgram(uid) }));
-vi.mock('../data/workouts', () => ({ startNextCycle: (...a: unknown[]) => startNextCycle(...a) }));
+vi.mock('../data/workouts', () => ({
+  startNextCycle: (...a: unknown[]) => startNextCycle(...a),
+  useHistory: () => useHistory(),
+}));
 
 import { TodayScreen } from './TodayScreen';
 
@@ -41,6 +45,25 @@ test('tapping a cycle day switches the previewed day and its start link', async 
   expect(screen.getByRole('link', { name: 'Start day 1' })).toHaveAttribute('href', '/program/p1/day/0');
   await userEvent.click(screen.getByRole('button', { name: 'Day 2 TO GO' }));
   expect(screen.getByRole('link', { name: 'Start day 2' })).toHaveAttribute('href', '/program/p1/day/1');
+});
+
+test('stats strip shows this-week and all-time counts from history', () => {
+  useActiveProgram.mockReturnValue({
+    loading: false,
+    program: prog({ days: [{ index: 0, completedInCycle: false, lifts: [lift] }] }),
+  });
+  useHistory.mockReturnValueOnce({
+    loading: false,
+    sessions: [
+      { id: 'a', startedAt: Date.now(), setCount: 10, finishedAt: 1, programName: 'X', dayIndex: 0 },
+      { id: 'b', startedAt: Date.now(), setCount: 8, finishedAt: 1, programName: 'X', dayIndex: 1 },
+      { id: 'c', startedAt: Date.now() - 30 * 86400_000, setCount: 12, finishedAt: 1, programName: 'X', dayIndex: 0 },
+    ],
+  } as never);
+  render1();
+  expect(screen.getByText('Sets this week')).toBeInTheDocument();
+  expect(screen.getByText('18')).toBeInTheDocument(); // 10 + 8 this week
+  expect(screen.getByText('3')).toBeInTheDocument(); // all time
 });
 
 test('week complete shows Start next cycle', async () => {

@@ -2,13 +2,23 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/useAuth';
 import { useActiveProgram } from '../data/programs';
-import { startNextCycle } from '../data/workouts';
+import { startNextCycle, useHistory } from '../data/workouts';
 import { dayFocus } from '../data/materialize';
 import { Eyebrow } from '../ui/Eyebrow';
+import { WaveMark } from '../ui/WaveMark';
+
+/** Monday 00:00 local time — "this week" for the stats strip. */
+function startOfWeekMs(): number {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  return d.getTime();
+}
 
 export function TodayScreen() {
   const { user } = useAuth();
   const { program, loading } = useActiveProgram(user?.uid);
+  const { sessions } = useHistory(user?.uid);
   // null = follow the next-up day automatically; a number = user picked a day.
   const [picked, setPicked] = useState<number | null>(null);
 
@@ -20,6 +30,7 @@ export function TodayScreen() {
         <Eyebrow className="text-accent">Riptide</Eyebrow>
         <h1 className="text-4xl font-extrabold text-ink">Train.</h1>
         <div className="rounded-card border border-stroke bg-card p-5">
+          <WaveMark className="mb-3 h-8 w-12 text-accent" />
           <p className="text-[15px] font-bold text-ink">Build a program around your life.</p>
           <p className="mt-1 text-[13px] text-ink-dim">Tell Riptide how hard to push, how many days, and what to train.</p>
           <Link to="/wizard" className="mt-4 inline-block rounded-btn bg-accent px-5 py-3 text-[15px] font-extrabold text-on-accent shadow-cta">
@@ -34,6 +45,19 @@ export function TodayScreen() {
   const nextDay = days.find((d) => !d.completedInCycle) ?? null;
   const allDone = !nextDay;
 
+  // Evidence of work: totals from logged history (finished sessions).
+  const weekStart = startOfWeekMs();
+  const weekSessions = sessions.filter((s) => s.startedAt >= weekStart);
+  const weekSets = weekSessions.reduce((n, s) => n + (s.setCount ?? 0), 0);
+  const stats =
+    sessions.length > 0
+      ? [
+          { label: 'This week', value: weekSessions.length },
+          { label: 'Sets this week', value: weekSets },
+          { label: 'All time', value: sessions.length },
+        ]
+      : null;
+
   const selIndex = picked ?? nextDay?.index ?? days[0]?.index ?? 0;
   const selDay = days.find((d) => d.index === selIndex) ?? days[0];
   const status = (d: typeof selDay) =>
@@ -47,6 +71,17 @@ export function TodayScreen() {
         <Eyebrow className="text-accent">Riptide</Eyebrow>
       </div>
       <h1 className="text-4xl font-extrabold text-ink">Train</h1>
+
+      {stats && (
+        <div className="flex gap-2">
+          {stats.map((s) => (
+            <div key={s.label} className="flex-1 rounded-[14px] border border-stroke bg-card px-2 py-3 text-center">
+              <div className="font-mono text-[20px] font-extrabold text-ink">{s.value}</div>
+              <div className="text-[9px] font-bold uppercase tracking-[1px] text-ink-faint">{s.label}</div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Card for whichever day is selected (defaults to next up). */}
       <div className="rounded-[22px] bg-accent p-5 text-on-accent shadow-glow">
