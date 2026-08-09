@@ -4,6 +4,7 @@ import { useSmartBack } from '../hooks/useSmartBack';
 import { Eyebrow } from '../ui/Eyebrow';
 import { Skeleton } from '../ui/Skeleton';
 import { IconChevronLeft } from '../ui/icons';
+import { WaveMark } from '../ui/WaveMark';
 
 export function HistoryScreen() {
   const { user } = useAuth();
@@ -28,7 +29,10 @@ export function HistoryScreen() {
           <Skeleton className="h-16" />
         </>
       ) : sessions.length === 0 ? (
-        <p className="text-[13px] text-ink-dim">Nothing logged yet — finish a workout and it lands here.</p>
+        <div className="rounded-card border border-stroke bg-card p-5">
+          <WaveMark className="mb-3 h-6 w-10 text-ink-faint" />
+          <p className="text-[13px] text-ink-dim">Nothing logged yet — finish a workout and it lands here.</p>
+        </div>
       ) : (
         sessions.map((s) => (
           <div key={s.id} className="rounded-card border border-stroke bg-card p-4">

@@ -8,6 +8,7 @@ import { Eyebrow } from '../ui/Eyebrow';
 import { WaveMark } from '../ui/WaveMark';
 import { ScreenSkeleton } from '../ui/Skeleton';
 import { toast } from '../ui/toast';
+import { Brand } from '../ui/Brand';
 
 /** Monday 00:00 local time — "this week" for the stats strip. */
 function startOfWeekMs(): number {
@@ -68,9 +69,9 @@ export function TodayScreen() {
 
   return (
     <main className="flex flex-col gap-5 p-6">
-      <div className="flex items-baseline justify-between">
+      <div className="flex items-center justify-between">
         <Eyebrow>Today</Eyebrow>
-        <Eyebrow className="text-accent">Riptide</Eyebrow>
+        <Brand compact />
       </div>
       <h1 className="text-4xl font-extrabold text-ink">Train</h1>
 

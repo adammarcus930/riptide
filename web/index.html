@@ -4,12 +4,27 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#0D1013" />
+    <meta name="description" content="Riptide — build a lifting program around your life and log every set." />
+    <meta name="apple-mobile-web-app-title" content="Riptide" />
+    <meta property="og:title" content="Riptide" />
+    <meta property="og:description" content="Build a lifting program around your life. Log every set." />
+    <meta property="og:image" content="https://riptide-e23a4.web.app/icon-512.png" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/icon-180.png" />
     <title>Riptide</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Branded boot splash: shown for the instant before React mounts, then
+           replaced by the app. Inline-styled so it needs no bundle. -->
+      <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:#0d1013">
+        <svg width="76" viewBox="0 0 64 40" fill="none" aria-hidden="true">
+          <path d="M4 14c8-11 16-11 24 0s16 11 24 0" stroke="#43C9FF" stroke-width="7" fill="none" stroke-linecap="round" />
+          <path d="M4 29c8-8 16-8 24 0s16 8 24 0" stroke="#43C9FF" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.35" />
+        </svg>
+        <div style="font-family:-apple-system,system-ui,sans-serif;font-size:12px;font-weight:800;letter-spacing:0.35em;color:#eef3f7">RIPTIDE</div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -5,6 +5,7 @@ import { Card } from '../ui/Card';
 import { Eyebrow } from '../ui/Eyebrow';
 import { IconChevronRight, IconMinus, IconPlus } from '../ui/icons';
 import { toast } from '../ui/toast';
+import { WaveMark } from '../ui/WaveMark';
 
 const DEFAULT_REST = 180;
 const MIN = 30;
@@ -27,7 +28,10 @@ export function MoreScreen() {
   return (
     <main className="flex flex-col gap-4 p-6">
       <Eyebrow>More</Eyebrow>
-      <h1 className="text-3xl font-extrabold text-ink">Riptide</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-extrabold text-ink">Riptide</h1>
+        <WaveMark className="h-7 w-12 text-accent" />
+      </div>
       <Link to="/more/history" className="flex items-center justify-between rounded-card border border-stroke bg-card p-4 text-[15px] font-bold text-ink">
         History
         <IconChevronRight className="h-4 w-4 text-ink-faint" />
@@ -57,6 +61,7 @@ export function MoreScreen() {
       <button onClick={signOut} className="text-[13px] font-bold text-ink-dim">
         Sign out
       </button>
+      <WaveMark className="mx-auto mt-6 h-5 w-9 text-ink-faint" />
     </main>
   );
 }
