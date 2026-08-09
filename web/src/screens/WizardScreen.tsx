@@ -91,7 +91,8 @@ export function WizardScreen() {
       const selections = new Map<MuscleGroup, ExerciseDefinition[]>();
       for (const m of muscles) selections.set(m, pickedFor(m));
       const id = await createProgram(user.uid, { name: name.trim(), effort, days, selections });
-      navigate(`/program/${id}`);
+      // Replace so "back" from the new program never returns into the spent wizard.
+      navigate(`/program/${id}`, { replace: true });
     } catch (err) {
       console.error('failed to build program', err);
       setBusy(false);

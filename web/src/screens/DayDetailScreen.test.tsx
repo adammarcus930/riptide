@@ -100,6 +100,22 @@ test('adding a lift appends it with the next order', async () => {
   expect(days[0].lifts[2].order).toBe(2);
 });
 
+test('back returns to where you came from (Today), not the program', async () => {
+  useProgram.mockReturnValue({ program, loading: false });
+  useOpenSession.mockReturnValue({ session: null });
+  useSessionSets.mockReturnValue({ sets: [] });
+  render(
+    <MemoryRouter initialEntries={['/', '/program/p1/day/0']} initialIndex={1}>
+      <Routes>
+        <Route path="/" element={<div>TODAY HOME</div>} />
+        <Route path="/program/:id/day/:dayIndex" element={<DayDetailScreen />} />
+      </Routes>
+    </MemoryRouter>,
+  );
+  await userEvent.click(screen.getByRole('button', { name: 'Back' }));
+  expect(screen.getByText('TODAY HOME')).toBeInTheDocument();
+});
+
 test('live mode shows partial set progress (not a premature checkmark)', () => {
   useOpenSession.mockReturnValue({ session: { id: 's1', dayIndex: 0 } });
   useSessionSets.mockReturnValue({ sets: [{ exerciseId: 'bench-press', setIndex: 0 }] });

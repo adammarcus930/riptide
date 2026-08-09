@@ -6,6 +6,7 @@ import { useOpenSession, useSessionSets, completeDay } from '../data/workouts';
 import { dayFocus } from '../data/materialize';
 import { ExerciseBank, muscleLabel, type MuscleGroup } from '../core';
 import type { ProgramDayDoc, PlannedLiftDoc } from '../data/types';
+import { useSmartBack } from '../hooks/useSmartBack';
 import { Eyebrow } from '../ui/Eyebrow';
 import {
   IconChevronLeft, IconChevronRight, IconCheckCircle, IconCircle,
@@ -22,6 +23,7 @@ export function DayDetailScreen() {
   // Captured at the moment the day is completed, so the recap survives the
   // session closing (which empties the live set list).
   const [summary, setSummary] = useState<{ lifts: number; sets: number; left: number } | null>(null);
+  const goBack = useSmartBack(`/program/${id}`);
   const idx = Number(dayIndex);
   const { session } = useOpenSession(user?.uid);
   const liveSessionId = session && session.dayIndex === idx ? session.id : undefined;
@@ -78,13 +80,13 @@ export function DayDetailScreen() {
 
   return (
     <main className="flex flex-col gap-4 p-6">
-      <Link
-        to={`/program/${id}`}
-        aria-label="Back to program"
+      <button
+        onClick={goBack}
+        aria-label="Back"
         className="inline-flex h-9 w-9 items-center justify-center self-start rounded-xl border border-stroke-strong text-ink"
       >
         <IconChevronLeft className="h-5 w-5" />
-      </Link>
+      </button>
       <div className="flex items-start justify-between">
         <div>
           <Eyebrow className="text-accent">DAY {idx + 1}</Eyebrow>

@@ -7,6 +7,7 @@ import {
   useOpenSession, useSessionSets, toggleSet, lastSets, mergedBySetIndex, type LoggedSetWithId,
 } from '../data/workouts';
 import { useRestTimer } from '../hooks/useRestTimer';
+import { useSmartBack } from '../hooks/useSmartBack';
 import { ExerciseBank, muscleLabel } from '../core';
 import { Eyebrow } from '../ui/Eyebrow';
 import { IconChevronLeft, IconCheckCircle, IconCircle } from '../ui/icons';
@@ -23,6 +24,7 @@ export function LiftDetailScreen() {
 
   const idx = Number(dayIndex);
   const ord = Number(order);
+  const goBack = useSmartBack(`/program/${id}/day/${idx}`);
   const day = program?.days.find((d) => d.index === idx);
   const lift = day?.lifts.find((l) => l.order === ord);
 
@@ -77,13 +79,13 @@ export function LiftDetailScreen() {
 
   return (
     <main className="flex flex-col gap-4 p-6">
-      <Link
-        to={`/program/${id}/day/${idx}`}
-        aria-label="Back to workout"
+      <button
+        onClick={goBack}
+        aria-label="Back"
         className="inline-flex h-9 w-9 items-center justify-center self-start rounded-xl border border-stroke-strong text-ink"
       >
         <IconChevronLeft className="h-5 w-5" />
-      </Link>
+      </button>
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2">
           <span className="self-start rounded-full bg-accent/10 px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.8px] text-accent">

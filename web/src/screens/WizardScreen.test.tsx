@@ -43,5 +43,5 @@ test('walks the steps and builds a named, active program', async () => {
   expect(input.effort).toBe('optimal');
   expect(input.days).toBe(4);
   expect(input.selections.get('chest')).toHaveLength(1);
-  expect(navigate).toHaveBeenCalledWith('/program/new-id');
+  expect(navigate).toHaveBeenCalledWith('/program/new-id', { replace: true });
 });

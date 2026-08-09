@@ -4,6 +4,7 @@ import { useAuth } from '../auth/useAuth';
 import { useProgram, setActiveProgram, renameProgram, deleteProgram } from '../data/programs';
 import { dayFocus } from '../data/materialize';
 import { effortLabel } from '../core';
+import { useSmartBack } from '../hooks/useSmartBack';
 import { Eyebrow } from '../ui/Eyebrow';
 import { IconChevronLeft, IconChevronRight, IconPencil } from '../ui/icons';
 
@@ -16,6 +17,7 @@ export function ProgramDetailScreen() {
   const [renaming, setRenaming] = useState(false);
   const [nameBuf, setNameBuf] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const goBack = useSmartBack('/program');
 
   if (loading) return <main className="p-6 text-ink-faint">Loading…</main>;
   if (!program || !user || !id) return <main className="p-6 text-ink-dim">Program not found.</main>;
@@ -29,13 +31,13 @@ export function ProgramDetailScreen() {
 
   return (
     <main className="flex flex-col gap-4 p-6">
-      <Link
-        to="/program"
-        aria-label="Back to programs"
+      <button
+        onClick={goBack}
+        aria-label="Back"
         className="inline-flex h-9 w-9 items-center justify-center self-start rounded-xl border border-stroke-strong text-ink"
       >
         <IconChevronLeft className="h-5 w-5" />
-      </Link>
+      </button>
       <div className="flex items-center justify-between">
         <Eyebrow className={program.isActive ? 'text-accent' : undefined}>
           {program.isActive ? 'ACTIVE PROGRAM' : 'PROGRAM'}
