@@ -34,8 +34,13 @@ export function DayDetailScreen() {
 
   const lifts = [...day.lifts].sort((a, b) => a.order - b.order);
   const sets = lifts.reduce((s, l) => s + l.targetSets, 0);
-  const doneIds = new Set(sessionSets.map((s) => s.exerciseId));
-  const doneCount = lifts.filter((l) => doneIds.has(l.exerciseId)).length;
+  // Honest progress: count sets logged per exercise (capped at plan), not
+  // "touched this lift once". A lift is done when ALL its sets are in.
+  const setsByExercise = new Map<string, number>();
+  for (const s of sessionSets) setsByExercise.set(s.exerciseId, (setsByExercise.get(s.exerciseId) ?? 0) + 1);
+  const loggedFor = (l: PlannedLiftDoc) => Math.min(setsByExercise.get(l.exerciseId) ?? 0, l.targetSets);
+  const doneCount = lifts.filter((l) => loggedFor(l) >= l.targetSets).length;
+  const loggedSetCount = lifts.reduce((n, l) => n + loggedFor(l), 0);
   const completed = day.completedInCycle ?? false;
 
   // Persist a mutated lift list for this day: re-index order, splice into days, save.
@@ -95,16 +100,21 @@ export function DayDetailScreen() {
         <>
           <div className="h-1 rounded-full bg-stroke">
             <div className="h-1 rounded-full bg-accent transition-all"
-                 style={{ width: `${lifts.length ? (doneCount / lifts.length) * 100 : 0}%` }} />
+                 style={{ width: `${sets ? (loggedSetCount / sets) * 100 : 0}%` }} />
           </div>
           {lifts.map((lift) => {
-            const done = doneIds.has(lift.exerciseId);
+            const logged = loggedFor(lift);
+            const done = logged >= lift.targetSets;
             return (
               <Link key={lift.order} to={`/program/${id}/day/${idx}/lift/${lift.order}`}
                     className="flex items-center gap-3 rounded-card border border-stroke bg-card p-4">
                 {done ? (
                   <span role="img" aria-label="done">
                     <IconCheckCircle className="animate-pop h-6 w-6 text-accent" />
+                  </span>
+                ) : logged > 0 ? (
+                  <span className="flex h-6 min-w-[26px] items-center justify-center rounded-full border border-accent/50 px-1 font-mono text-[10px] font-extrabold text-accent">
+                    {logged}/{lift.targetSets}
                   </span>
                 ) : (
                   <IconCircle className="h-6 w-6 text-ink-faint" />

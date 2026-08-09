@@ -84,13 +84,20 @@ export function ProgramDetailScreen() {
               to={`/program/${id}/day/${day.index}`}
               className="flex items-center gap-4 rounded-card border border-stroke bg-card p-4"
             >
-              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-input font-mono text-[17px] font-extrabold text-ink">
+              <span
+                className={`flex h-11 w-11 items-center justify-center rounded-2xl font-mono text-[17px] font-extrabold ${
+                  day.completedInCycle ? 'bg-accent/15 text-accent' : 'bg-input text-ink'
+                }`}
+              >
                 {day.index + 1}
               </span>
               <div className="flex-1">
                 <p className="text-[15px] font-bold text-ink">{dayFocus(day.lifts) || 'Rest / empty'}</p>
                 <p className="text-[12px] text-ink-dim">{day.lifts.length} lifts · {sets} sets</p>
               </div>
+              {day.completedInCycle && (
+                <span className="text-[9px] font-extrabold tracking-[1px] text-accent">DONE</span>
+              )}
               <IconChevronRight className="h-4 w-4 text-ink-faint" />
             </Link>
           );

@@ -100,11 +100,21 @@ test('adding a lift appends it with the next order', async () => {
   expect(days[0].lifts[2].order).toBe(2);
 });
 
-test('live mode shows a checkmark for a logged lift and links to lift detail', () => {
+test('live mode shows partial set progress (not a premature checkmark)', () => {
   useOpenSession.mockReturnValue({ session: { id: 's1', dayIndex: 0 } });
   useSessionSets.mockReturnValue({ sets: [{ exerciseId: 'bench-press', setIndex: 0 }] });
   renderAt();
   expect(screen.getByRole('link', { name: /Barbell Bench Press/ })).toHaveAttribute('href', '/program/p1/day/0/lift/0');
+  expect(screen.getByText('1/3')).toBeInTheDocument();
+  expect(screen.queryByRole('img', { name: 'done' })).not.toBeInTheDocument();
+});
+
+test('a lift with all its sets logged shows the done checkmark', () => {
+  useOpenSession.mockReturnValue({ session: { id: 's1', dayIndex: 0 } });
+  useSessionSets.mockReturnValue({
+    sets: [0, 1, 2].map((i) => ({ exerciseId: 'bench-press', setIndex: i })),
+  });
+  renderAt();
   expect(screen.getByRole('img', { name: 'done' })).toBeInTheDocument();
 });
 

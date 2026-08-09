@@ -159,6 +159,13 @@ export function LiftDetailScreen() {
           </div>
         </div>
       </div>
+
+      <Link
+        to={`/program/${id}/day/${idx}`}
+        className="block rounded-btn bg-accent py-4 text-center text-[15px] font-extrabold text-on-accent shadow-cta transition-transform active:scale-[0.98]"
+      >
+        Done with this lift
+      </Link>
     </main>
   );
 }

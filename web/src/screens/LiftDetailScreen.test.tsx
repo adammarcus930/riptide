@@ -44,6 +44,7 @@ test('prefills weight/reps from last time and shows the last-time line', async (
   expect((screen.getByLabelText('5-8-0') as HTMLInputElement).value).toBe('5');
   expect(screen.getByText('Last time')).toBeInTheDocument();
   expect(screen.getByText(/100×5/)).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'Done with this lift' })).toHaveAttribute('href', '/program/p1/day/0');
 });
 
 test('toggling DONE logs the set with entered values', async () => {
