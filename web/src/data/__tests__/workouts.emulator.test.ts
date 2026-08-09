@@ -28,9 +28,37 @@ const params = (over: Partial<import('../workouts').ToggleSetParams> = {}) => ({
   exerciseId: 'bench-press', exerciseName: 'Bench', setIndex: 0, weight: 100, reps: 5, ...over,
 });
 
-test('toggleSet creates a session lazily and logs the set with setCount', async () => {
+// Mirrors what the UI's live hooks (useOpenSession / useSessionSets) hand to
+// toggleSet: the current open session and this set's already-logged docs.
+async function ctxFor(p: { dayIndex: number; exerciseId: string; setIndex: number }) {
+  const open = await getDocs(query(collection(db, 'users', uid, 'sessions'), where('finishedAt', '==', null)));
+  const d0 = open.docs[0];
+  const openSession = d0
+    ? ({ id: d0.id, ...d0.data() } as import('../workouts').SessionWithId)
+    : null;
+  let existing: import('../workouts').LoggedSetWithId[] = [];
+  if (openSession && openSession.dayIndex === p.dayIndex) {
+    const es = await getDocs(
+      query(
+        collection(db, 'users', uid, 'loggedSets'),
+        where('sessionId', '==', openSession.id),
+        where('exerciseId', '==', p.exerciseId),
+        where('setIndex', '==', p.setIndex),
+      ),
+    );
+    existing = es.docs.map((x) => ({ id: x.id, ...x.data() }) as import('../workouts').LoggedSetWithId);
+  }
+  return { openSession, existing };
+}
+
+async function toggle(over: Partial<import('../workouts').ToggleSetParams> = {}) {
   const { toggleSet } = await import('../workouts');
-  await toggleSet(uid, params());
+  const p = params(over);
+  await toggleSet(uid, p, await ctxFor(p));
+}
+
+test('toggleSet creates a session lazily and logs the set with setCount', async () => {
+  await toggle();
   const sessions = await getDocs(collection(db, 'users', uid, 'sessions'));
   const sets = await getDocs(collection(db, 'users', uid, 'loggedSets'));
   expect(sessions.docs).toHaveLength(1);
@@ -40,9 +68,8 @@ test('toggleSet creates a session lazily and logs the set with setCount', async 
 });
 
 test('toggling the same set twice removes it and decrements setCount', async () => {
-  const { toggleSet } = await import('../workouts');
-  await toggleSet(uid, params());
-  await toggleSet(uid, params());
+  await toggle();
+  await toggle();
   const sets = await getDocs(collection(db, 'users', uid, 'loggedSets'));
   const sessions = await getDocs(collection(db, 'users', uid, 'sessions'));
   expect(sets.docs).toHaveLength(0);
@@ -50,9 +77,8 @@ test('toggling the same set twice removes it and decrements setCount', async () 
 });
 
 test('logging for a new day closes the prior open session (at-most-one-open)', async () => {
-  const { toggleSet } = await import('../workouts');
-  await toggleSet(uid, params({ dayIndex: 0 }));
-  await toggleSet(uid, params({ dayIndex: 1 }));
+  await toggle({ dayIndex: 0 });
+  await toggle({ dayIndex: 1 });
   const sessions = await getDocs(collection(db, 'users', uid, 'sessions'));
   const open = sessions.docs.filter((d) => d.data().finishedAt === null);
   expect(sessions.docs).toHaveLength(2);
@@ -61,12 +87,12 @@ test('logging for a new day closes the prior open session (at-most-one-open)', a
 });
 
 test('lastSets returns the newest OTHER session for an exercise, sorted by setIndex', async () => {
-  const { toggleSet, lastSets } = await import('../workouts');
+  const { lastSets } = await import('../workouts');
   // session A (day 0): two bench sets
-  await toggleSet(uid, params({ setIndex: 0, weight: 100 }));
-  await toggleSet(uid, params({ setIndex: 1, weight: 105 }));
+  await toggle({ setIndex: 0, weight: 100 });
+  await toggle({ setIndex: 1, weight: 105 });
   // move to day 1 → closes A, opens B; log one bench set in B
-  await toggleSet(uid, params({ dayIndex: 1, setIndex: 0, weight: 110 }));
+  await toggle({ dayIndex: 1, setIndex: 0, weight: 110 });
   const openB = (await getDocs(query(collection(db, 'users', uid, 'sessions'), where('finishedAt', '==', null)))).docs[0].id;
   const prev = await lastSets(uid, 'bench-press', openB);
   expect(prev.map((s) => s.setIndex)).toEqual([0, 1]); // session A's sets
@@ -74,12 +100,12 @@ test('lastSets returns the newest OTHER session for an exercise, sorted by setIn
 });
 
 test('completeDay marks the day complete and finishes the open session', async () => {
-  const { toggleSet, completeDay } = await import('../workouts');
+  const { completeDay } = await import('../workouts');
   await setDoc(doc(db, 'users', uid, 'programs', 'p1'), {
     name: 'Prog', effort: 'optimal', muscles: ['chest'], isActive: true, daysPerWeek: 1, createdAt: Date.now(),
     days: [{ index: 0, completedInCycle: false, lifts: [] }],
   });
-  await toggleSet(uid, params());
+  await toggle();
   await completeDay(uid, 'p1', 0);
   const prog = (await getDocs(collection(db, 'users', uid, 'programs'))).docs[0].data();
   const session = (await getDocs(collection(db, 'users', uid, 'sessions'))).docs[0].data();
@@ -88,12 +114,12 @@ test('completeDay marks the day complete and finishes the open session', async (
 });
 
 test('startNextCycle resets completedInCycle; useHistory returns only finished sessions', async () => {
-  const { toggleSet, completeDay, startNextCycle } = await import('../workouts');
+  const { completeDay, startNextCycle } = await import('../workouts');
   await setDoc(doc(db, 'users', uid, 'programs', 'p1'), {
     name: 'Prog', effort: 'optimal', muscles: ['chest'], isActive: true, daysPerWeek: 1, createdAt: Date.now(),
     days: [{ index: 0, completedInCycle: false, lifts: [] }],
   });
-  await toggleSet(uid, params());
+  await toggle();
   await completeDay(uid, 'p1', 0);
   await startNextCycle(uid, 'p1');
   const prog = (await getDocs(collection(db, 'users', uid, 'programs'))).docs[0].data();

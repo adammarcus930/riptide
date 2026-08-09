@@ -62,6 +62,9 @@ export function LiftDetailScreen() {
       programId: id, programName: program.name, dayIndex: idx,
       exerciseId: lift.exerciseId, exerciseName: lift.exerciseName,
       setIndex: i, weight: Number(weights[i]) || 0, reps: Number(reps[i]) || 0,
+    }, {
+      openSession: session,
+      existing: mySets.filter((s) => s.setIndex === i),
     }).catch((e) => {
       console.error('toggle set failed', e);
       toast("Couldn't log the set.");
@@ -129,7 +132,7 @@ export function LiftDetailScreen() {
               <span className="font-mono text-[15px] font-extrabold text-ink-dim">{i + 1}</span>
               {field(weights, setWeights, i, 'lb')}
               {field(reps, setReps, i, lift.repRange)}
-              <button aria-label={`done-${i}`} onClick={() => toggle(i)} className="flex items-center justify-center">
+              <button aria-label={`done-${i}`} onClick={() => toggle(i)} className="flex h-11 w-11 items-center justify-center">
                 {done ? (
                   <IconCheckCircle className="animate-pop h-7 w-7 text-accent" />
                 ) : (

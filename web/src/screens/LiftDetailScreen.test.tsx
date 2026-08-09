@@ -51,7 +51,11 @@ test('toggling DONE logs the set with entered values', async () => {
   renderAt();
   await waitFor(() => expect((screen.getByLabelText('lb-0') as HTMLInputElement).value).toBe('100'));
   await userEvent.click(screen.getByLabelText('done-0'));
-  expect(toggleSet).toHaveBeenCalledWith('u1', expect.objectContaining({
-    programId: 'p1', dayIndex: 0, exerciseId: 'bench-press', setIndex: 0, weight: 100, reps: 5,
-  }));
+  expect(toggleSet).toHaveBeenCalledWith(
+    'u1',
+    expect.objectContaining({
+      programId: 'p1', dayIndex: 0, exerciseId: 'bench-press', setIndex: 0, weight: 100, reps: 5,
+    }),
+    expect.objectContaining({ openSession: expect.objectContaining({ id: 's1' }) }),
+  );
 });
