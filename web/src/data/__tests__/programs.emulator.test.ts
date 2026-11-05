@@ -65,3 +65,17 @@ test('renameProgram and deleteProgram work', async () => {
   snap = await getDocs(collection(db, 'users', uid, 'programs'));
   expect(snap.docs).toHaveLength(0);
 });
+
+test('mixed effort program round-trips through Firestore without a global effort', async () => {
+  const { createProgram } = await import('../programs');
+  const { db } = await import('../../firebase');
+  const { effort: _legacy, ...base } = input('Mixed', 2);
+  const levels = { chest: 'maximal' as const, quads: 'minimal' as const };
+  const id = await createProgram(uid, { ...base, muscleEfforts: levels });
+  const snap = await getDocs(collection(db, 'users', uid, 'programs'));
+  const saved = snap.docs.find(d => d.id === id)!.data();
+  expect(saved.muscleEfforts).toEqual(levels);
+  expect(saved).not.toHaveProperty('effort');
+  expect(saved.muscles).toEqual(['quads', 'chest']);
+  expect(saved.days).toHaveLength(2);
+});

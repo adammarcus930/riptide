@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/useAuth';
 import { useProgram, setActiveProgram, renameProgram, deleteProgram } from '../data/programs';
 import { dayFocus } from '../data/materialize';
-import { effortLabel } from '../core';
+import { effortLabel, muscleLabel } from '../core';
 import { useSmartBack } from '../hooks/useSmartBack';
 import { Eyebrow } from '../ui/Eyebrow';
 import { IconChevronLeft, IconChevronRight, IconPencil } from '../ui/icons';
@@ -84,8 +84,15 @@ export function ProgramDetailScreen() {
       )}
 
       <p className="text-[13px] text-ink-dim">
-        {effortLabel(program.effort)} effort · {program.daysPerWeek} days · {program.muscles.length} muscle groups
+        {program.daysPerWeek} days · {program.muscles.length} muscle groups
       </p>
+
+      <div className="flex flex-wrap gap-2" aria-label="Muscle effort levels">
+        {program.muscles.map(m => {
+          const level = program.muscleEfforts !== undefined ? program.muscleEfforts[m] : program.effort;
+          return level ? <span key={m} className="rounded-full border border-stroke bg-card px-3 py-1.5 text-[12px] text-ink-dim">{muscleLabel(m)} · <span className="text-accent">{effortLabel(level)}</span></span> : null;
+        })}
+      </div>
 
       {[...program.days]
         .sort((a, b) => a.index - b.index)

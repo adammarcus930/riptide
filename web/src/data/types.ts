@@ -18,7 +18,8 @@ export interface ProgramDayDoc {
 }
 export interface ProgramDoc {
   name: string;
-  effort: Effort;
+  effort?: Effort;
+  muscleEfforts?: Partial<Record<MuscleGroup, Effort>>;
   muscles: MuscleGroup[];
   isActive: boolean;
   daysPerWeek: number;

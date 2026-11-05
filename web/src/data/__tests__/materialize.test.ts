@@ -49,3 +49,13 @@ test('dayFocus lists each muscle once, in lift order, joined by " · "', () => {
   ).toBe('Chest · Triceps');
   expect(dayFocus([])).toBe('');
 });
+
+test('mixed levels persist without undefined fields or skipped muscles', () => {
+  const input: NewProgramInput = { ...fullInput(2, 1), muscleEfforts: { chest: 'maximal', quads: 'minimal' } };
+  const saved = materialize(generate(toGeneratorInput(input)), input);
+  expect(saved.muscleEfforts).toEqual({ chest: 'maximal', quads: 'minimal' });
+  expect(saved).not.toHaveProperty('effort');
+  expect(saved.muscles).toEqual(['quads', 'chest']);
+  expect(JSON.parse(JSON.stringify(saved))).toEqual(saved);
+  expect(saved.days.flatMap(d => d.lifts).every(l => ['quads', 'chest'].includes(l.muscle))).toBe(true);
+});

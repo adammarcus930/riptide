@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/useAuth';
 import { createProgram } from '../data/programs';
 import {
-  ALL_EFFORTS, allowedDays, effortLabel, DISPLAY_ORDER, muscleLabel, weeklyRange, ExerciseBank,
+  ALL_EFFORTS, generate, effortLabel, DISPLAY_ORDER, muscleLabel, weeklyRange, ExerciseBank,
   type Effort, type MuscleGroup, type ExerciseDefinition,
 } from '../core';
 import { Eyebrow } from '../ui/Eyebrow';
@@ -11,34 +11,28 @@ import { IconChevronLeft, IconCheckSquare, IconSquare, IconX } from '../ui/icons
 import { useSmartBack } from '../hooks/useSmartBack';
 import { toast } from '../ui/toast';
 
-type Step = { kind: 'effort' | 'days' | 'muscles' | 'name' } | { kind: 'exercises'; i: number };
-
-const effortBlurb: Record<Effort, string> = {
-  minimal: 'Maintain and stay consistent on a tight schedule.',
-  optimal: 'The best growth-per-hour tradeoff. Most people, most of the time.',
-  maximal: 'Everything you can productively recover from.',
-};
+type Step = { kind: 'days' | 'muscles' | 'name' } | { kind: 'exercises'; i: number };
 
 export function WizardScreen() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const exitWizard = useSmartBack('/program');
 
-  const [step, setStep] = useState<Step>({ kind: 'effort' });
-  const [effort, setEffort] = useState<Effort>('optimal');
+  const [step, setStep] = useState<Step>({ kind: 'days' });
+  const [muscleEfforts, setMuscleEfforts] = useState<Partial<Record<MuscleGroup, Effort>>>({});
   const [days, setDays] = useState(0);
-  const [muscles, setMuscles] = useState<MuscleGroup[]>([]);
+  const muscles = DISPLAY_ORDER.filter(m => muscleEfforts[m] !== undefined);
   const [picked, setPicked] = useState<Map<MuscleGroup, ExerciseDefinition[]>>(new Map());
   const [name, setName] = useState('');
+  const [nameEdited, setNameEdited] = useState(false);
   const [busy, setBusy] = useState(false);
 
-  const totalSteps = 4 + muscles.length;
+  const totalSteps = 3 + muscles.length;
   const stepIndex =
-    step.kind === 'effort' ? 0
-    : step.kind === 'days' ? 1
-    : step.kind === 'muscles' ? 2
-    : step.kind === 'exercises' ? 3 + step.i
-    : 3 + muscles.length; // name
+    step.kind === 'days' ? 0
+    : step.kind === 'muscles' ? 1
+    : step.kind === 'exercises' ? 2 + step.i
+    : 2 + muscles.length; // name
 
   const progress = (stepIndex + 1) / totalSteps;
 
@@ -54,7 +48,6 @@ export function WizardScreen() {
 
   const canAdvance = useMemo(() => {
     switch (step.kind) {
-      case 'effort': return true;
       case 'days': return days !== 0;
       case 'muscles': return muscles.length > 0;
       case 'exercises': return pickedFor(muscles[step.i]).length > 0;
@@ -62,12 +55,13 @@ export function WizardScreen() {
     }
   }, [step, days, muscles, picked, name]);
 
+  const preview = step.kind === 'name' ? generate({ days, muscleEfforts, selections: picked }) : null;
+
   const nextLabel = step.kind === 'name' ? 'Build my program' : 'Continue';
 
   const back = () => {
     switch (step.kind) {
-      case 'effort': navigate(-1); break;
-      case 'days': setStep({ kind: 'effort' }); break;
+      case 'days': exitWizard(); break;
       case 'muscles': setStep({ kind: 'days' }); break;
       case 'exercises': setStep(step.i === 0 ? { kind: 'muscles' } : { kind: 'exercises', i: step.i - 1 }); break;
       case 'name': setStep({ kind: 'exercises', i: muscles.length - 1 }); break;
@@ -76,12 +70,14 @@ export function WizardScreen() {
 
   const next = async () => {
     switch (step.kind) {
-      case 'effort': setStep({ kind: 'days' }); break;
       case 'days': setStep({ kind: 'muscles' }); break;
       case 'muscles': setStep({ kind: 'exercises', i: 0 }); break;
       case 'exercises':
         if (step.i < muscles.length - 1) setStep({ kind: 'exercises', i: step.i + 1 });
-        else { setName(`${days}-Day ${effortLabel(effort)}`); setStep({ kind: 'name' }); }
+        else {
+          if (!nameEdited) setName(`${days}-Day ${new Set(Object.values(muscleEfforts)).size === 1 ? effortLabel(muscleEfforts[muscles[0]]!) : 'Custom'}`);
+          setStep({ kind: 'name' });
+        }
         break;
       case 'name': await build(); break;
     }
@@ -93,7 +89,7 @@ export function WizardScreen() {
     try {
       const selections = new Map<MuscleGroup, ExerciseDefinition[]>();
       for (const m of muscles) selections.set(m, pickedFor(m));
-      const id = await createProgram(user.uid, { name: name.trim(), effort, days, selections });
+      const id = await createProgram(user.uid, { name: name.trim(), muscleEfforts, days, selections });
       // Replace so "back" from the new program never returns into the spent wizard.
       navigate(`/program/${id}`, { replace: true });
     } catch (err) {
@@ -131,27 +127,10 @@ export function WizardScreen() {
       </div>
 
       <div className="flex-1 overflow-y-auto p-5">
-        {step.kind === 'effort' && (
-          <Section title="How hard do you want to push?" sub="This sets your weekly training volume per muscle.">
-            {ALL_EFFORTS.map((e) => {
-              const r = weeklyRange('chest', e);
-              return (
-                <OptionCard key={e} selected={effort === e} onClick={() => { setEffort(e); if (!allowedDays(e).includes(days)) setDays(0); }}>
-                  <div className="flex items-baseline justify-between">
-                    <span className="text-[18px] font-extrabold text-ink">{effortLabel(e)}</span>
-                    <span className="text-[12px] font-extrabold text-accent">~{r.low}–{r.high} sets / muscle / week</span>
-                  </div>
-                  <p className="mt-1 text-[13px] text-ink-dim">{effortBlurb[e]}</p>
-                </OptionCard>
-              );
-            })}
-          </Section>
-        )}
-
         {step.kind === 'days' && (
           <Section title="How many days can you train?" sub="Days, not weekdays — miss one and the plan just waits.">
             <div className="flex flex-wrap gap-2">
-              {allowedDays(effort).map((d) => (
+              {[2, 3, 4, 5, 6, 7].map((d) => (
                 <button
                   key={d}
                   onClick={() => setDays(d)}
@@ -167,25 +146,36 @@ export function WizardScreen() {
         )}
 
         {step.kind === 'muscles' && (
-          <Section title="What do you want to train?" sub="Pick every muscle group this program should cover.">
-            <div className="flex flex-wrap gap-2">
-              {DISPLAY_ORDER.map((m) => {
-                const on = muscles.includes(m);
-                return (
-                  <button
-                    key={m}
-                    onClick={() =>
-                      setMuscles(on ? muscles.filter((x) => x !== m) : DISPLAY_ORDER.filter((x) => muscles.includes(x) || x === m))
-                    }
-                    className={`rounded-full border px-4 py-3 text-[14px] font-bold ${
-                      on ? 'border-accent bg-accent/10 text-accent' : 'border-stroke bg-card text-ink'
-                    }`}
-                  >
-                    {muscleLabel(m)}
-                  </button>
-                );
-              })}
-            </div>
+          <Section title="Set your priorities" sub="Choose a training level for each muscle. Skip leaves out direct work; other lifts may still train it.">
+            {DISPLAY_ORDER.map(m => {
+              const level = muscleEfforts[m];
+              const range = level ? weeklyRange(m, level) : null;
+              return (
+                <fieldset key={m} className={`rounded-card border p-3 ${level ? 'border-accent/30 bg-accent/5' : 'border-stroke bg-card'}`}>
+                  <legend className="sr-only">{muscleLabel(m)}</legend>
+                  <div className="mb-3 flex items-baseline justify-between gap-2">
+                    <span className="text-[15px] font-bold text-ink">{muscleLabel(m)}</span>
+                    {range && <span className="text-[11px] text-ink-dim">{range.low}–{range.high} sets / week</span>}
+                  </div>
+                  <div className="grid grid-cols-4 gap-1 rounded-xl bg-input p-1">
+                    {(['skip', ...ALL_EFFORTS] as const).map(option => (
+                      <label key={option} className={`relative flex min-h-11 cursor-pointer items-center justify-center rounded-lg text-[12px] font-bold ${
+                        (level ?? 'skip') === option ? option === 'skip' ? 'bg-card text-ink' : 'bg-accent text-on-accent shadow-sm' : 'text-ink-dim'
+                      }`}>
+                        <input type="radio" name={`effort-${m}`} value={option} checked={(level ?? 'skip') === option}
+                          onChange={() => setMuscleEfforts(previous => {
+                            const updated = { ...previous };
+                            if (option === 'skip') delete updated[m]; else updated[m] = option;
+                            return updated;
+                          })}
+                          className="absolute inset-0 h-full w-full cursor-pointer opacity-0 peer" />
+                        <span className="pointer-events-none peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-4">{option === 'skip' ? 'Skip' : effortLabel(option)}</span>
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+              );
+            })}
           </Section>
         )}
 
@@ -218,10 +208,19 @@ export function WizardScreen() {
 
         {step.kind === 'name' && (
           <Section title="Name your program" sub="You can rename it anytime.">
+            <div className="rounded-card border border-stroke bg-card p-4">
+              <p className="mb-3 text-sm font-bold text-ink">{days} days · {muscles.length} muscle groups</p>
+              {muscles.map(m => <div key={m} className="flex justify-between py-1 text-sm"><span className="text-ink-dim">{muscleLabel(m)}</span><span className="text-accent">{effortLabel(muscleEfforts[m]!)}</span></div>)}
+            </div>
+            {!!preview?.shortfalls?.length && <div role="status" className="rounded-card border border-amber-400/40 bg-amber-400/10 p-4 text-sm text-ink">
+              <p className="font-bold">Some volume won’t fit</p>
+              {preview.shortfalls.map(s => <p key={s.muscle} className="mt-2">{muscleLabel(s.muscle)}: {s.achieved} of {s.target} target direct sets / week.</p>)}
+              <p className="mt-2 text-ink-dim">Go back to add training days or more exercises for these muscles, or build with the lower volume shown.</p>
+            </div>}
             <input
               aria-label="program name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => { setName(e.target.value); setNameEdited(true); }}
               className="w-full rounded-card border border-stroke bg-input p-4 text-[20px] font-extrabold text-ink"
             />
           </Section>

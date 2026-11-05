@@ -55,3 +55,16 @@ test('delete asks for confirmation then deletes', async () => {
   await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
   expect(deleteProgram).toHaveBeenCalledWith('u1', 'p1');
 });
+
+test('legacy program shows original effort for each selected muscle', () => {
+  useProgram.mockReturnValue({ program, loading: false });
+  renderAt();
+  expect(screen.getByLabelText('Muscle effort levels')).toHaveTextContent('Chest · Optimal');
+});
+
+test('mixed program displays each muscle level without a global effort', () => {
+  useProgram.mockReturnValue({ program: { ...program, effort: undefined, muscles: ['chest', 'quads'], muscleEfforts: { chest: 'maximal', quads: 'minimal' } }, loading: false });
+  renderAt();
+  expect(screen.getByLabelText('Muscle effort levels')).toHaveTextContent('Chest · Maximal');
+  expect(screen.getByLabelText('Muscle effort levels')).toHaveTextContent('Quads · Minimal');
+});

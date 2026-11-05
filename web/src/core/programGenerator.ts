@@ -1,5 +1,5 @@
 import type { Effort } from './effort';
-import { allowedDays } from './effort';
+
 import type { MuscleGroup } from './muscleGroup';
 import { PROCESSING_ORDER, RECEIVERS, DISPLAY_ORDER } from './muscleGroup';
 import type { ExerciseDefinition } from './exercise';
@@ -8,7 +8,9 @@ import { weeklyTarget, dayLoads, spreadDays, entrySizes } from './allocation';
 import { idiv, assert } from './util';
 
 export interface GeneratorInput {
-  effort: Effort;
+  /** Legacy uniform effort; ignored when muscleEfforts is present. */
+  effort?: Effort;
+  muscleEfforts?: Partial<Record<MuscleGroup, Effort>>;
   days: number;
   // Ordered as the user picked them; every present muscle has >= 1 exercise.
   selections: Map<MuscleGroup, ExerciseDefinition[]>;
@@ -22,20 +24,23 @@ export interface GeneratedDay {
 }
 export interface GeneratedProgram {
   days: GeneratedDay[];
+  shortfalls?: { muscle: MuscleGroup; target: number; achieved: number }[];
 }
 
 // Deterministic, total over wizard-valid input (spec §5). Never throws for valid input.
 export function generate(input: GeneratorInput): GeneratedProgram {
-  assert(allowedDays(input.effort).includes(input.days), 'wizard gates day counts');
+  assert(Number.isInteger(input.days) && input.days >= 2 && input.days <= 7, 'days must be 2–7');
 
-  const selected = PROCESSING_ORDER.filter((m) => (input.selections.get(m) ?? []).length > 0);
+  const effortFor = (m: MuscleGroup) => input.muscleEfforts !== undefined ? input.muscleEfforts[m] : input.effort;
+  const selected = PROCESSING_ORDER.filter((m) => effortFor(m) && (input.selections.get(m) ?? []).length > 0);
+  const shortfalls: NonNullable<GeneratedProgram['shortfalls']> = [];
   const dayLifts: GeneratedLift[][] = Array.from({ length: input.days }, () => []);
   const dayTotals: number[] = new Array(input.days).fill(0);
   const secondarySets = new Map<MuscleGroup, number>();
 
   for (const muscle of selected) {
     const exercises = input.selections.get(muscle)!;
-    const range = weeklyRange(muscle, input.effort);
+    const range = weeklyRange(muscle, effortFor(muscle)!);
     let target = weeklyTarget(range);
 
     // Spec §5.2: receivers get 0.5 credit per secondary set. Aim at midpoint - credit,
@@ -51,6 +56,7 @@ export function generate(input: GeneratorInput): GeneratedProgram {
     // Spec §5.6 ladder step 4: clamp to capacity.
     const capacity = input.days * exercises.length * 4;
     const achieved = Math.min(target, capacity);
+    if (achieved < target) shortfalls.push({ muscle, target, achieved });
     if (achieved < 2) continue;
 
     const loads = dayLoads(achieved, input.days, exercises.length);
@@ -100,5 +106,5 @@ export function generate(input: GeneratorInput): GeneratedProgram {
       return 0;
     }),
   }));
-  return { days };
+  return shortfalls.length ? { days, shortfalls } : { days };
 }

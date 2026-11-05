@@ -1,5 +1,4 @@
 import {
-  generate,
   DISPLAY_ORDER,
   muscleLabel,
   type Effort,
@@ -12,20 +11,21 @@ import type { ProgramDoc, PlannedLiftDoc } from './types';
 
 export interface NewProgramInput {
   name: string;
-  effort: Effort;
+  effort?: Effort;
+  muscleEfforts?: Partial<Record<MuscleGroup, Effort>>;
   days: number;
   selections: Map<MuscleGroup, ExerciseDefinition[]>;
 }
 
 export function toGeneratorInput(input: NewProgramInput): GeneratorInput {
-  return { effort: input.effort, days: input.days, selections: input.selections };
+  return { muscleEfforts: input.muscleEfforts, effort: input.effort, days: input.days, selections: input.selections };
 }
 
 // Mirrors the Swift ProgramMaterializer: generator output copied once into an
 // editable ProgramDoc. Pure — no Firestore. `isActive: true`; the caller's batch
 // write enforces the single-active invariant.
 export function materialize(generated: GeneratedProgram, input: NewProgramInput): ProgramDoc {
-  const muscles = DISPLAY_ORDER.filter((m) => (input.selections.get(m) ?? []).length > 0);
+  const muscles = DISPLAY_ORDER.filter((m) => (input.selections.get(m) ?? []).length > 0 && (input.muscleEfforts === undefined || input.muscleEfforts[m] !== undefined));
   const days = generated.days.map((day, i) => ({
     index: i,
     completedInCycle: false,
@@ -40,7 +40,9 @@ export function materialize(generated: GeneratedProgram, input: NewProgramInput)
   }));
   return {
     name: input.name,
-    effort: input.effort,
+    ...(input.muscleEfforts !== undefined
+      ? { muscleEfforts: Object.fromEntries(muscles.map(m => [m, input.muscleEfforts![m]!])) }
+      : input.effort ? { effort: input.effort } : {}),
     muscles,
     isActive: true,
     daysPerWeek: input.days,
